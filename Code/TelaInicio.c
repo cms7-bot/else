@@ -3,6 +3,7 @@
 int telaInicio(Texture2D botaoJogar)
 {
 
+
     static Texture2D fundoInicio = {0};
 
 
@@ -75,22 +76,21 @@ int telaAviso(){
     int alturaResolucao = 720;
     
     if (TelaAviso.id == 0)
-{
-    TelaAviso = LoadTexture("cenario/Aviso.png");
-}
+    {
+        TelaAviso = LoadTexture("cenario/Aviso.png");
+    }
     if (IsKeyDown(KEY_SPACE)){
         return 2;
     }
 
-BeginDrawing();
+    BeginDrawing();
 
     ClearBackground(RAYWHITE);
     DrawTexture(TelaAviso, 0, 0, WHITE);
 
-EndDrawing();
-return 0;
+    EndDrawing();
+    return 0;
 
 
 
 }
-

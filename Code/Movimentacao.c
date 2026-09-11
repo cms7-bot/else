@@ -6,6 +6,7 @@ int telaAviso();
 
 int main()
 {   
+
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
 
@@ -42,7 +43,7 @@ int main()
     Texture2D esquerda2 = LoadTexture("assets/LadoEsquerdo/BonecoAndandoLadoEsquerdo1.png");
     Texture2D esquerda3 = LoadTexture("assets/LadoEsquerdo/BonecoAndandoLadoEsquerdo2.png");
 
-    Texture2D botaoJogar = LoadTexture("Botoes/BotaoPlay.png");
+    Texture2D botaoJogar = LoadTexture("Botoes/BotaoJogar.png");
 
     int tela = 0;
 
