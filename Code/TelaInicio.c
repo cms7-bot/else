@@ -9,7 +9,7 @@ int telaInicio(Texture2D botaoJogar)
 
     if (fundoInicio.id == 0)
     {
-        fundoInicio = LoadTexture("Cenarios/FundoInicio.png");
+        fundoInicio = LoadTexture("cenario/FundoInicio.png");
     }
 
     int larguraResolucao = 1280;
@@ -66,3 +66,31 @@ int telaInicio(Texture2D botaoJogar)
 
     return 0;
 }
+
+
+int telaAviso(){
+    static Texture2D TelaAviso = {0};
+
+    int larguraResolucao = 1280;
+    int alturaResolucao = 720;
+    
+    if (TelaAviso.id == 0)
+{
+    TelaAviso = LoadTexture("cenario/Aviso.png");
+}
+    if (IsKeyDown(KEY_SPACE)){
+        return 2;
+    }
+
+BeginDrawing();
+
+    ClearBackground(RAYWHITE);
+    DrawTexture(TelaAviso, 0, 0, WHITE);
+
+EndDrawing();
+return 0;
+
+
+
+}
+

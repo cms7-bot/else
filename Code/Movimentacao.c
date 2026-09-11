@@ -2,10 +2,10 @@
 
 
 int telaInicio(Texture2D botaoJogar);
+int telaAviso();
 
 int main()
 {   
-
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
 
@@ -14,34 +14,40 @@ int main()
     InitAudioDevice();
 
     Music trilhaSonora1 = LoadMusicStream("musicas/trilhaTemporaria.mp3");
-    Music trilhaSonora2 = LoadMusicStream("musicas/trilhaTemporaria2.mp3");
-
+    Music trilhaSonora2 = LoadMusicStream("musicas/JazzTrilha2.mp3");
+    Music EscritorioTrilhaSonora = LoadMusicStream("musicas/Escritorio2.mp3");
+    Sound somDePassos = LoadSound("EfeitosSonoros/Passos2.mp3");
+    SetMusicVolume(trilhaSonora2, 0.05f);
+    SetMusicVolume(trilhaSonora1, 0.10f);
+    SetMusicVolume(EscritorioTrilhaSonora, 0.2f);
     PlayMusicStream(trilhaSonora1);
+    PlayMusicStream(EscritorioTrilhaSonora);
 
-    Texture2D fundoCeramica = LoadTexture("Cenarios/Ceramica.png");
 
-    Texture2D costas1 = LoadTexture("Assets/Costas1.png");
-    Texture2D costas2 = LoadTexture("Assets/Costas2.png");
-    Texture2D costas3 = LoadTexture("Assets/Costas3.png");
+    Texture2D fundoCeramica = LoadTexture("cenario/ceramica.png");
 
-    Texture2D frente1 = LoadTexture("Assets/frenteParado1.png");
-    Texture2D frente2 = LoadTexture("Assets/frenteParado2.png");
-    Texture2D frente3 = LoadTexture("Assets/frenteParado3.png");
+    Texture2D costas1 = LoadTexture("assets/Costas/BonecoParadoCostas.png");
+    Texture2D costas2 = LoadTexture("assets/Costas/BonecoAndandoCostas1.png");
+    Texture2D costas3 = LoadTexture("assets/Costas/BonecoAndandoCostas2.png");
 
-    Texture2D direita1 = LoadTexture("Assets/LadoDireito3.png");
-    Texture2D direita2 = LoadTexture("Assets/LadoDireito2.png");
-    Texture2D direita3 = LoadTexture("Assets/LadoDireito1.png");
+    Texture2D frente1 = LoadTexture("assets/Frente/BonecoParadoFrente.png");
+    Texture2D frente2 = LoadTexture("assets/Frente/BonecoAndandoFrente1.png");
+    Texture2D frente3 = LoadTexture("assets/Frente/BonecoAndandoFrente2.png");
 
-    Texture2D esquerda1 = LoadTexture("Assets/LadoEsquerdo3.png");
-    Texture2D esquerda2 = LoadTexture("Assets/LadoEsquerdo2.png");
-    Texture2D esquerda3 = LoadTexture("Assets/LadoEsquerdo1.png");
+    Texture2D direita1 = LoadTexture("assets/LadoDireito/BonecoParadoLadoDireito.png");
+    Texture2D direita2 = LoadTexture("assets/LadoDireito/BonecoAndandoLadoDireito1.png");
+    Texture2D direita3 = LoadTexture("assets/LadoDireito/BonecoAndandoLadoDireito2.png");
+
+    Texture2D esquerda1 = LoadTexture("assets/LadoEsquerdo/BonecoParadoLadoEsquerdo.png");
+    Texture2D esquerda2 = LoadTexture("assets/LadoEsquerdo/BonecoAndandoLadoEsquerdo1.png");
+    Texture2D esquerda3 = LoadTexture("assets/LadoEsquerdo/BonecoAndandoLadoEsquerdo2.png");
 
     Texture2D botaoJogar = LoadTexture("Botoes/BotaoPlay.png");
 
     int tela = 0;
 
-    float x = 220;
-    float y = 45;
+    float x = (larguraResolucao - frente1.width)/2;
+    float y = (alturaResolucao - frente1.height)/2;
 
     int velocidade = 5;
     int direcao = 0;
@@ -53,23 +59,41 @@ int main()
     {
         
         if (tela == 0)
-        {
+        {   
+            UpdateMusicStream(trilhaSonora1);
             if (telaInicio(botaoJogar) == 1)
             {
                 tela = 1;
-                PlayMusicStream(trilhaSonora2);
+                PlayMusicStream(EscritorioTrilhaSonora);
+                StopMusicStream(trilhaSonora1);
             }
-
-            UpdateMusicStream(trilhaSonora1);
+            
             continue;
         }
-        
+
+        if (tela==1){
+        UpdateMusicStream(EscritorioTrilhaSonora);
+
+        if (telaAviso()==2)
+        {    
+        tela = 2;
+        StopMusicStream(EscritorioTrilhaSonora);
+        PlayMusicStream(trilhaSonora2);}
+        continue;
+        }
+
+        if (tela == 2) {
         UpdateMusicStream(trilhaSonora2);
+        }
+
 
         andando = 0;
 
         if (IsKeyDown(KEY_W))
         {
+        if (!IsSoundPlaying(somDePassos)){
+        PlaySound(somDePassos);
+        }
             y -= velocidade;
             direcao = 1;
             andando = 1;
@@ -77,6 +101,9 @@ int main()
 
         if (IsKeyDown(KEY_S))
         {
+        if (!IsSoundPlaying(somDePassos)){
+        PlaySound(somDePassos);
+        }
             y += velocidade;
             direcao = 0;
             andando = 1;
@@ -84,6 +111,9 @@ int main()
 
         if (IsKeyDown(KEY_A))
         {
+        if (!IsSoundPlaying(somDePassos)){
+        PlaySound(somDePassos);
+        }
             x -= velocidade;
             direcao = 2;
             andando = 1;
@@ -91,6 +121,9 @@ int main()
 
         if (IsKeyDown(KEY_D))
         {
+        if (!IsSoundPlaying(somDePassos)){
+        PlaySound(somDePassos);
+        }
             x += velocidade;
             direcao = 3;
             andando = 1;
