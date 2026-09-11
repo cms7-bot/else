@@ -177,6 +177,41 @@ int main()
             tempo = 0;
         }
 
+        // ---- Seleciona a textura atual com base na direção e no frame ----
+        Texture2D texturaAtual;
+
+        if (direcao == 0)
+        {
+            if (frame == 0) texturaAtual = frente1;
+            else if (frame == 1) texturaAtual = frente2;
+            else texturaAtual = frente3;
+        }
+        else if (direcao == 1)
+        {
+            if (frame == 0) texturaAtual = costas1;
+            else if (frame == 1) texturaAtual = costas2;
+            else texturaAtual = costas3;
+        }
+        else if (direcao == 2)
+        {
+            if (frame == 0) texturaAtual = esquerda1;
+            else if (frame == 1) texturaAtual = esquerda2;
+            else texturaAtual = esquerda3;
+        }
+        else
+        {
+            if (frame == 0) texturaAtual = direita1;
+            else if (frame == 1) texturaAtual = direita2;
+            else texturaAtual = direita3;
+        }
+
+        // ---- LIMITES DE TELA (usando o tamanho da textura atual) ----
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x > larguraResolucao - texturaAtual.width) x = larguraResolucao - texturaAtual.width;
+        if (y > alturaResolucao - texturaAtual.height) y = alturaResolucao - texturaAtual.height;
+        // --------------------------------------------------------------
+
 
         BeginTextureMode(telaVirtual);
 
@@ -184,33 +219,7 @@ int main()
 
         DrawTexture(fundoCeramica, 0, 0, WHITE);
 
-        if (direcao == 0)
-        {
-            if (frame == 0) DrawTexture(frente1, x, y, WHITE);
-            if (frame == 1) DrawTexture(frente2, x, y, WHITE);
-            if (frame == 2) DrawTexture(frente3, x, y, WHITE);
-        }
-
-        if (direcao == 1)
-        {
-            if (frame == 0) DrawTexture(costas1, x, y, WHITE);
-            if (frame == 1) DrawTexture(costas2, x, y, WHITE);
-            if (frame == 2) DrawTexture(costas3, x, y, WHITE);
-        }
-
-        if (direcao == 2)
-        {
-            if (frame == 0) DrawTexture(esquerda1, x, y, WHITE);
-            if (frame == 1) DrawTexture(esquerda2, x, y, WHITE);
-            if (frame == 2) DrawTexture(esquerda3, x, y, WHITE);
-        }
-
-        if (direcao == 3)
-        {
-            if (frame == 0) DrawTexture(direita1, x, y, WHITE);
-            if (frame == 1) DrawTexture(direita2, x, y, WHITE);
-            if (frame == 2) DrawTexture(direita3, x, y, WHITE);
-        }
+        DrawTexture(texturaAtual, x, y, WHITE);
 
         EndTextureMode();
 
@@ -266,6 +275,6 @@ int main()
     UnloadRenderTexture(telaVirtual);
 
     CloseWindow();
-
+    
     return 0;
 }
