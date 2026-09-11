@@ -5,10 +5,7 @@ int telaInicio(Texture2D botaoJogar)
 
     static Texture2D fundoInicio = {0};
 
-    Music trilhaSonora1 = LoadMusicStream("musicas/trilhaTemporaria.mp3");
 
-    UpdateMusicStream(trilhaSonora1);
-    PlayMusicStream(trilhaSonora1);
 
     if (fundoInicio.id == 0)
     {
