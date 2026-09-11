@@ -1,8 +1,8 @@
 #include "raylib.h"
 
 
-int telaInicio(Texture2D botaoJogar);
-int telaAviso();
+int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
+int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
 
 int main()
 {   
@@ -10,9 +10,13 @@ int main()
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
 
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+
     InitWindow(larguraResolucao, alturaResolucao, "else");
     SetTargetFPS(60);
     InitAudioDevice();
+
+    RenderTexture2D telaVirtual = LoadRenderTexture(larguraResolucao, alturaResolucao);
 
     Music trilhaSonora1 = LoadMusicStream("musicas/trilhaTemporaria.mp3");
     Music trilhaSonora2 = LoadMusicStream("musicas/JazzTrilha2.mp3");
@@ -58,11 +62,32 @@ int main()
 
     while (!WindowShouldClose())
     {
+
+        float escalaX = (float)GetScreenWidth() / larguraResolucao;
+        float escalaY = (float)GetScreenHeight() / alturaResolucao;
+
+        float escala;
+
+        if (escalaX < escalaY)
+        {
+            escala = escalaX;
+        }
+        else
+        {
+            escala = escalaY;
+        }
+
+        float larguraFinal = larguraResolucao * escala;
+        float alturaFinal = alturaResolucao * escala;
+
+        float offsetX = (GetScreenWidth() - larguraFinal) / 2;
+        float offsetY = (GetScreenHeight() - alturaFinal) / 2;
         
         if (tela == 0)
         {   
             UpdateMusicStream(trilhaSonora1);
-            if (telaInicio(botaoJogar) == 1)
+
+            if (telaInicio(botaoJogar, telaVirtual, escala, offsetX, offsetY) == 1)
             {
                 tela = 1;
                 PlayMusicStream(EscritorioTrilhaSonora);
@@ -73,9 +98,10 @@ int main()
         }
 
         if (tela==1){
+
         UpdateMusicStream(EscritorioTrilhaSonora);
 
-        if (telaAviso()==2)
+        if (telaAviso(telaVirtual, escala, offsetX, offsetY)==2)
         {    
         tela = 2;
         StopMusicStream(EscritorioTrilhaSonora);
@@ -151,7 +177,8 @@ int main()
             tempo = 0;
         }
 
-        BeginDrawing();
+
+        BeginTextureMode(telaVirtual);
 
         ClearBackground(RAYWHITE);
 
@@ -185,6 +212,36 @@ int main()
             if (frame == 2) DrawTexture(direita3, x, y, WHITE);
         }
 
+        EndTextureMode();
+
+
+        BeginDrawing();
+
+        ClearBackground(BLACK);
+
+        Rectangle origem = {
+            0,
+            0,
+            (float)telaVirtual.texture.width,
+            -(float)telaVirtual.texture.height
+        };
+
+        Rectangle destino = {
+            offsetX,
+            offsetY,
+            larguraFinal,
+            alturaFinal
+        };
+
+        DrawTexturePro(
+            telaVirtual.texture,
+            origem,
+            destino,
+            (Vector2){0, 0},
+            0,
+            WHITE
+        );
+
         EndDrawing();
     }
 
@@ -205,6 +262,8 @@ int main()
     UnloadTexture(esquerda3);
 
     UnloadTexture(botaoJogar);
+
+    UnloadRenderTexture(telaVirtual);
 
     CloseWindow();
 

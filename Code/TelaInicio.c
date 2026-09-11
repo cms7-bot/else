@@ -1,6 +1,6 @@
 #include "raylib.h"
 
-int telaInicio(Texture2D botaoJogar)
+int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY)
 {
 
 
@@ -17,6 +17,9 @@ int telaInicio(Texture2D botaoJogar)
     int alturaResolucao = 720;
 
     Vector2 mouse = GetMousePosition();
+
+    mouse.x = (mouse.x - offsetX) / escalaTela;
+    mouse.y = (mouse.y - offsetY) / escalaTela;
 
 
     float escala = 1.0f;
@@ -38,7 +41,8 @@ int telaInicio(Texture2D botaoJogar)
         }
     }
 
-    BeginDrawing();
+
+    BeginTextureMode(telaVirtual);
 
     ClearBackground(RAYWHITE);
 
@@ -63,13 +67,44 @@ int telaInicio(Texture2D botaoJogar)
         WHITE
     );
   
+    EndTextureMode();
+
+
+    BeginDrawing();
+
+    ClearBackground(BLACK);
+
+    Rectangle origem = {
+        0,
+        0,
+        (float)telaVirtual.texture.width,
+        -(float)telaVirtual.texture.height
+    };
+
+    Rectangle destino = {
+        offsetX,
+        offsetY,
+        larguraResolucao * escalaTela,
+        alturaResolucao * escalaTela
+    };
+
+    DrawTexturePro(
+        telaVirtual.texture,
+        origem,
+        destino,
+        (Vector2){0, 0},
+        0,
+        WHITE
+    );
+
     EndDrawing();
 
     return 0;
 }
 
 
-int telaAviso(){
+int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY){
+
     static Texture2D TelaAviso = {0};
 
     int larguraResolucao = 1280;
@@ -79,18 +114,49 @@ int telaAviso(){
     {
         TelaAviso = LoadTexture("cenario/Aviso.png");
     }
+
     if (IsKeyDown(KEY_SPACE)){
         return 2;
     }
 
-    BeginDrawing();
+
+    BeginTextureMode(telaVirtual);
 
     ClearBackground(RAYWHITE);
+
     DrawTexture(TelaAviso, 0, 0, WHITE);
 
+    EndTextureMode();
+
+
+    BeginDrawing();
+
+    ClearBackground(BLACK);
+
+    Rectangle origem = {
+        0,
+        0,
+        (float)telaVirtual.texture.width,
+        -(float)telaVirtual.texture.height
+    };
+
+    Rectangle destino = {
+        offsetX,
+        offsetY,
+        larguraResolucao * escalaTela,
+        alturaResolucao * escalaTela
+    };
+
+    DrawTexturePro(
+        telaVirtual.texture,
+        origem,
+        destino,
+        (Vector2){0, 0},
+        0,
+        WHITE
+    );
+
     EndDrawing();
+
     return 0;
-
-
-
 }
