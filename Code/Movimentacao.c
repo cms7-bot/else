@@ -142,7 +142,7 @@ int main()
                 offsetY,
                 larguraFinal,
                 alturaFinal,
-                Fade(BLACK, 0.90f)
+                Fade(BLACK, 0.40f)
             );
 
             const char *textoPause = "Jogo pausado";
