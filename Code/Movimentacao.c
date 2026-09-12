@@ -8,8 +8,17 @@ int main()
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
 
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_UNDECORATED);
     InitWindow(larguraResolucao, alturaResolucao, "else");
+
+    int monitor = GetCurrentMonitor();
+    int larguraMonitor = GetMonitorWidth(monitor);
+    int alturaMonitor = GetMonitorHeight(monitor);
+    Vector2 posicaoMonitor = GetMonitorPosition(monitor);
+
+    SetWindowPosition(posicaoMonitor.x, posicaoMonitor.y);
+    SetWindowSize(larguraMonitor, alturaMonitor);
+
     SetTargetFPS(60);
     InitAudioDevice();
 
@@ -52,7 +61,7 @@ int main()
 
     float tempoIntro = 0.0f;
     float tempoLogo = 2.0f;
-    float tempoFade = 2.5f;
+    float tempoFade = 2.0f;
 
     float x = (larguraResolucao - frente1.width) / 2;
     float y = (alturaResolucao - frente1.height) / 2;
@@ -79,7 +88,7 @@ int main()
 
         float offsetX = (GetScreenWidth() - larguraFinal) / 2;
         float offsetY = (GetScreenHeight() - alturaFinal) / 2;
-//tempo tela
+
         if (tela == -1)
         {
             tempoIntro += GetFrameTime();
