@@ -11,6 +11,7 @@ int main()
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_UNDECORATED);
     InitWindow(larguraResolucao, alturaResolucao, "else");
+    SetExitKey(KEY_NULL);
 
     int monitor = GetCurrentMonitor();
     int larguraMonitor = GetMonitorWidth(monitor);
@@ -72,6 +73,7 @@ int main()
     int frame = 0;
     float tempo = 0;
     int andando = 0;
+    bool pausado = false;
     Texture2D texturaAtualGuardada = frente1;
 
     while (!WindowShouldClose())
@@ -90,6 +92,75 @@ int main()
 
         float offsetX = (GetScreenWidth() - larguraFinal) / 2;
         float offsetY = (GetScreenHeight() - alturaFinal) / 2;
+
+        if (tela == 2 && IsKeyPressed(KEY_ESCAPE))
+        {
+            pausado = !pausado;
+
+            if (pausado)
+            {
+                PauseMusicStream(trilhaSonora2);
+                StopSound(somDePassos);
+            }
+            else
+            {
+                ResumeMusicStream(trilhaSonora2);
+            }
+        }
+
+        if (tela == 2 && pausado)
+        {
+            BeginDrawing();
+
+            ClearBackground(BLACK);
+
+            Rectangle origemPause = {
+                0,
+                0,
+                (float)telaVirtual.texture.width,
+                -(float)telaVirtual.texture.height
+            };
+
+            Rectangle destinoPause = {
+                offsetX,
+                offsetY,
+                larguraFinal,
+                alturaFinal
+            };
+
+            DrawTexturePro(
+                telaVirtual.texture,
+                origemPause,
+                destinoPause,
+                (Vector2){0, 0},
+                0,
+                WHITE
+            );
+
+            DrawRectangle(
+                offsetX,
+                offsetY,
+                larguraFinal,
+                alturaFinal,
+                Fade(BLACK, 0.90f)
+            );
+
+            const char *textoPause = "Jogo pausado";
+            int tamanhoTexto = (int)(50 * escala);
+            int larguraTexto = MeasureText(textoPause, tamanhoTexto);
+
+            DrawText(
+                textoPause,
+                offsetX + larguraFinal / 2 - larguraTexto / 2,
+                offsetY + alturaFinal / 2 - tamanhoTexto / 2,
+                tamanhoTexto,
+                WHITE
+            );
+
+            EndDrawing();
+
+            continue;
+        }
 
         if (tela == -1)
         {
@@ -408,6 +479,7 @@ int main()
 
     UnloadRenderTexture(telaVirtual);
 
+    CloseAudioDevice();
     CloseWindow();
 
     return 0;
