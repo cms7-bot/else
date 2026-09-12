@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <stdbool.h>
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
 int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
@@ -71,9 +72,11 @@ int main()
     int frame = 0;
     float tempo = 0;
     int andando = 0;
+    Texture2D texturaAtualGuardada = frente1;
 
     while (!WindowShouldClose())
-    {
+    {   
+
         float escalaX = (float)GetScreenWidth() / larguraResolucao;
         float escalaY = (float)GetScreenHeight() / alturaResolucao;
         float escala;
@@ -88,6 +91,10 @@ int main()
 
         float offsetX = (GetScreenWidth() - larguraFinal) / 2;
         float offsetY = (GetScreenHeight() - alturaFinal) / 2;
+
+        
+
+        
 
         if (tela == -1)
         {
@@ -205,7 +212,11 @@ int main()
             UpdateMusicStream(trilhaSonora2);
 
         andando = 0;
-
+        Texture2D texturaAtual;
+        bool botaoAeDapertados = IsKeyDown(KEY_D) && IsKeyDown(KEY_A);
+        bool botaoWeSapertados = IsKeyDown(KEY_W) && IsKeyDown(KEY_S);
+        
+        if (!botaoAeDapertados && !botaoWeSapertados){
         if (IsKeyDown(KEY_W))
         {
             if (!IsSoundPlaying(somDePassos))
@@ -214,6 +225,9 @@ int main()
             y -= velocidade;
             direcao = 1;
             andando = 1;
+        if (IsKeyPressed(KEY_W)){
+            frame = 1;
+            }
         }
 
         if (IsKeyDown(KEY_S))
@@ -224,6 +238,9 @@ int main()
             y += velocidade;
             direcao = 0;
             andando = 1;
+            if (IsKeyPressed(KEY_S)){
+            frame = 1;
+            }
         }
 
         if (IsKeyDown(KEY_A))
@@ -234,22 +251,53 @@ int main()
             x -= velocidade;
             direcao = 2;
             andando = 1;
+            if (IsKeyPressed(KEY_A)){
+                frame = 1;
+            }
+            
         }
 
         if (IsKeyDown(KEY_D))
-        {
+        {   
+
+            texturaAtual = direita2;
             if (!IsSoundPlaying(somDePassos))
                 PlaySound(somDePassos);
 
             x += velocidade;
             direcao = 3;
             andando = 1;
-        }
 
+
+            if (IsKeyPressed(KEY_D)){
+                frame = 1;
+            }
+            
+        }
+    }
+
+        else
+        {
+            andando = 0;
+            if ((texturaAtualGuardada.id == frente2.id) || (texturaAtualGuardada.id ==frente3.id))
+            texturaAtual = frente1;
+
+            if ((texturaAtualGuardada.id == costas2.id) || (texturaAtualGuardada.id ==costas3.id))
+            texturaAtual = costas1;
+
+            if ((texturaAtualGuardada.id == direita2.id) || (texturaAtualGuardada.id ==direita3.id))
+            texturaAtual = direita1;
+
+            if ((texturaAtualGuardada.id == esquerda2.id) || (texturaAtualGuardada.id ==esquerda3.id))
+            texturaAtual = esquerda1;
+
+        }
+        
+        
         if (andando == 1)
         {
             tempo += GetFrameTime();
-
+            
             if (tempo >= 0.12)
             {
                 frame++;
@@ -257,16 +305,19 @@ int main()
 
                 if (frame >= 3)
                     frame = 0;
+                
             }
+            
+
         }
         else
-        {
+        {   
             frame = 0;
             tempo = 0;
         }
 
-        Texture2D texturaAtual;
-
+        
+        if (!botaoAeDapertados && !botaoWeSapertados ){
         if (direcao == 0)
         {
             if (frame == 0) texturaAtual = frente1;
@@ -290,10 +341,12 @@ int main()
             if (frame == 0) texturaAtual = direita1;
             else if (frame == 1) texturaAtual = direita2;
             else texturaAtual = direita3;
-        }
+        }}
 
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
+        if (x < 15) x = 15;
+        if (x > larguraResolucao - texturaAtual.width-15) x =larguraResolucao - texturaAtual.width-15;
+        if (y < 80) y = 80;
+        if (y> alturaResolucao-texturaAtual.height- 33) y = alturaResolucao-texturaAtual.height- 33;
 
         if (x > larguraResolucao - texturaAtual.width)
             x = larguraResolucao - texturaAtual.width;
@@ -306,6 +359,9 @@ int main()
         ClearBackground(RAYWHITE);
         DrawTexture(fundoCeramica, 0, 0, WHITE);
         DrawTexture(texturaAtual, x, y, WHITE);
+        texturaAtualGuardada = texturaAtual;
+
+        
 
         EndTextureMode();
 
