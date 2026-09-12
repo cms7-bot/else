@@ -4,6 +4,12 @@
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
 int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
 
+void iniciarCartas(void);
+void atualizarCartas(void);
+void desenharCartas(int larguraResolucao, int alturaResolucao);
+bool cartasEstaoAbertas(void);
+void descarregarCartas(void);
+
 int main()
 {
     int larguraResolucao = 1280;
@@ -58,6 +64,8 @@ int main()
 
     Texture2D botaoJogar = LoadTexture("Botoes/BotaoJogar.png");
     Texture2D logoInicio = LoadTexture("cenario/logoInicio.png");
+
+    iniciarCartas();
 
     int tela = -1;
 
@@ -277,82 +285,107 @@ int main()
         if (tela == 2)
             UpdateMusicStream(trilhaSonora2);
 
+        bool cartaEstavaAberta = cartasEstaoAbertas();
+
+        atualizarCartas();
+
+        bool cartaAgoraAberta = cartasEstaoAbertas();
+        bool bloquearMovimentoCarta = cartaEstavaAberta || cartaAgoraAberta;
+
         andando = 0;
-        Texture2D texturaAtual;
+        Texture2D texturaAtual = texturaAtualGuardada;
+
         bool botaoAeDapertados = IsKeyDown(KEY_D) && IsKeyDown(KEY_A);
         bool botaoWeSapertados = IsKeyDown(KEY_W) && IsKeyDown(KEY_S);
 
-        if (!botaoAeDapertados && !botaoWeSapertados)
+        if (!bloquearMovimentoCarta)
         {
-            if (IsKeyDown(KEY_W))
+            if (!botaoAeDapertados && !botaoWeSapertados)
             {
-                if (!IsSoundPlaying(somDePassos))
-                    PlaySound(somDePassos);
+                if (IsKeyDown(KEY_W))
+                {
+                    if (!IsSoundPlaying(somDePassos))
+                        PlaySound(somDePassos);
 
-                y -= velocidade;
-                direcao = 1;
-                andando = 1;
+                    y -= velocidade;
+                    direcao = 1;
+                    andando = 1;
 
-                if (IsKeyPressed(KEY_W))
-                    frame = 1;
+                    if (IsKeyPressed(KEY_W))
+                        frame = 1;
+                }
+
+                if (IsKeyDown(KEY_S))
+                {
+                    if (!IsSoundPlaying(somDePassos))
+                        PlaySound(somDePassos);
+
+                    y += velocidade;
+                    direcao = 0;
+                    andando = 1;
+
+                    if (IsKeyPressed(KEY_S))
+                        frame = 1;
+                }
+
+                if (IsKeyDown(KEY_A))
+                {
+                    if (!IsSoundPlaying(somDePassos))
+                        PlaySound(somDePassos);
+
+                    x -= velocidade;
+                    direcao = 2;
+                    andando = 1;
+
+                    if (IsKeyPressed(KEY_A))
+                        frame = 1;
+                }
+
+                if (IsKeyDown(KEY_D))
+                {
+                    texturaAtual = direita2;
+
+                    if (!IsSoundPlaying(somDePassos))
+                        PlaySound(somDePassos);
+
+                    x += velocidade;
+                    direcao = 3;
+                    andando = 1;
+
+                    if (IsKeyPressed(KEY_D))
+                        frame = 1;
+                }
             }
-
-            if (IsKeyDown(KEY_S))
+            else
             {
-                if (!IsSoundPlaying(somDePassos))
-                    PlaySound(somDePassos);
+                andando = 0;
 
-                y += velocidade;
-                direcao = 0;
-                andando = 1;
+                if ((texturaAtualGuardada.id == frente2.id) || (texturaAtualGuardada.id == frente3.id))
+                    texturaAtual = frente1;
 
-                if (IsKeyPressed(KEY_S))
-                    frame = 1;
-            }
+                if ((texturaAtualGuardada.id == costas2.id) || (texturaAtualGuardada.id == costas3.id))
+                    texturaAtual = costas1;
 
-            if (IsKeyDown(KEY_A))
-            {
-                if (!IsSoundPlaying(somDePassos))
-                    PlaySound(somDePassos);
+                if ((texturaAtualGuardada.id == direita2.id) || (texturaAtualGuardada.id == direita3.id))
+                    texturaAtual = direita1;
 
-                x -= velocidade;
-                direcao = 2;
-                andando = 1;
-
-                if (IsKeyPressed(KEY_A))
-                    frame = 1;
-            }
-
-            if (IsKeyDown(KEY_D))
-            {
-                texturaAtual = direita2;
-
-                if (!IsSoundPlaying(somDePassos))
-                    PlaySound(somDePassos);
-
-                x += velocidade;
-                direcao = 3;
-                andando = 1;
-
-                if (IsKeyPressed(KEY_D))
-                    frame = 1;
+                if ((texturaAtualGuardada.id == esquerda2.id) || (texturaAtualGuardada.id == esquerda3.id))
+                    texturaAtual = esquerda1;
             }
         }
         else
         {
             andando = 0;
+            StopSound(somDePassos);
 
-            if ((texturaAtualGuardada.id == frente2.id) || (texturaAtualGuardada.id == frente3.id))
+            if (direcao == 0)
                 texturaAtual = frente1;
-
-            if ((texturaAtualGuardada.id == costas2.id) || (texturaAtualGuardada.id == costas3.id))
+            else if (direcao == 1)
                 texturaAtual = costas1;
-
-            if ((texturaAtualGuardada.id == direita2.id) || (texturaAtualGuardada.id == direita3.id))
-                texturaAtual = direita1;
-
-            if ((texturaAtualGuardada.id == esquerda2.id) || (texturaAtualGuardada.id == esquerda3.id))
+            else if (direcao == 2)
                 texturaAtual = esquerda1;
+            else
+                texturaAtual = direita1;
         }
 
         if (andando == 1)
@@ -374,7 +407,7 @@ int main()
             tempo = 0;
         }
 
-        if (!botaoAeDapertados && !botaoWeSapertados)
+        if (!bloquearMovimentoCarta && !botaoAeDapertados && !botaoWeSapertados)
         {
             if (direcao == 0)
             {
@@ -426,6 +459,11 @@ int main()
 
         texturaAtualGuardada = texturaAtual;
 
+        desenharCartas(
+            larguraResolucao,
+            alturaResolucao
+        );
+
         EndTextureMode();
 
         BeginDrawing();
@@ -457,6 +495,8 @@ int main()
 
         EndDrawing();
     }
+
+    descarregarCartas();
 
     UnloadTexture(costas1);
     UnloadTexture(costas2);
