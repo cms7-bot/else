@@ -52,7 +52,7 @@ int main()
 
     float tempoIntro = 0.0f;
     float tempoLogo = 2.0f;
-    float tempoFade = 1.0f;
+    float tempoFade = 2.5f;
 
     float x = (larguraResolucao - frente1.width) / 2;
     float y = (alturaResolucao - frente1.height) / 2;
@@ -79,7 +79,7 @@ int main()
 
         float offsetX = (GetScreenWidth() - larguraFinal) / 2;
         float offsetY = (GetScreenHeight() - alturaFinal) / 2;
-
+//tempo tela
         if (tela == -1)
         {
             tempoIntro += GetFrameTime();
