@@ -8,7 +8,7 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     static int mutado = 0;
 
     if (fundoInicio.id == 0)
-        fundoInicio = LoadTexture("cenario/FundoInicio.png");
+        fundoInicio = LoadTexture("cenario/TelaInicialFundo4.png");
 
     if (botaoSom.id == 0)
         botaoSom = LoadTexture("Botoes/Som.png");
