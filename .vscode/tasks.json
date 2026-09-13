@@ -8,6 +8,8 @@
             "args": [
                 "Code/TelaInicio.c",
                 "Code/Movimentacao.c",
+                "Code/BancoPerguntas.c",
+                "Code/Cartas.c",
                 "-o",
                 "jogo.exe",
                 "-IC:\\msys64\\ucrt64\\include",

@@ -44,7 +44,7 @@ int main()
     PlayMusicStream(trilhaSonora1);
     PlayMusicStream(EscritorioTrilhaSonora);
 
-    Texture2D fundoCeramica = LoadTexture("cenario/ceramica.png");
+    Texture2D fundoCeramica = LoadTexture("cenario/Cenario.png");
 
     Texture2D costas1 = LoadTexture("assets/Costas/BonecoParadoCostas.png");
     Texture2D costas2 = LoadTexture("assets/Costas/BonecoAndandoCostas1.png");
@@ -64,6 +64,8 @@ int main()
 
     Texture2D botaoJogar = LoadTexture("Botoes/BotaoJogar.png");
     Texture2D logoInicio = LoadTexture("cenario/logoInicio.png");
+
+   
 
     iniciarCartas();
 
@@ -304,6 +306,7 @@ int main()
             {
                 if (IsKeyDown(KEY_W))
                 {
+                   
                     if (!IsSoundPlaying(somDePassos))
                         PlaySound(somDePassos);
 
@@ -434,7 +437,6 @@ int main()
                 else texturaAtual = direita3;
             }
         }
-
         if (x < 15) x = 15;
 
         if (x > larguraResolucao - texturaAtual.width - 15)
@@ -442,8 +444,8 @@ int main()
 
         if (y < 80) y = 80;
 
-        if (y > alturaResolucao - texturaAtual.height - 33)
-            y = alturaResolucao - texturaAtual.height - 33;
+        if (y > alturaResolucao - texturaAtual.height - 20)
+            y = alturaResolucao - texturaAtual.height - 20;
 
         if (x > larguraResolucao - texturaAtual.width)
             x = larguraResolucao - texturaAtual.width;
@@ -451,8 +453,8 @@ int main()
         if (y > alturaResolucao - texturaAtual.height)
             y = alturaResolucao - texturaAtual.height;
 
+        
         BeginTextureMode(telaVirtual);
-
         ClearBackground(RAYWHITE);
         DrawTexture(fundoCeramica, 0, 0, WHITE);
         DrawTexture(texturaAtual, x, y, WHITE);
