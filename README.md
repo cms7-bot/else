@@ -1,5 +1,3 @@
-# 🎮 else
-
 ![image alt](https://github.com/cms7-bot/else/blob/f5a7c9954424bcde152639e27b5ae30efe460dda/else%20banner.jpeg)
 
 > Um jogo de exploração e decisões inspirado em *Reigns*, onde você explora ambientes, interage com NPCs e sistemas, e governa os rumos de uma empresa de Inteligência Artificial enquanto aprende conceitos reais de letramento em IA na prática.
