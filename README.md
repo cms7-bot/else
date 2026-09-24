@@ -149,30 +149,34 @@ Sprints, backlog e tarefas é feito no board do Jira:
 
 ---
 
-## 🗺️ Roadmap
+## Entrega 02: Modelagem e Prototipação
 
-- [x] Protótipo jogável com mecânica principal (swipe + medidores)
-- [x] Núcleo visual reativo
-- [x] Toasts educativos
-- [ ] Tela de auditoria funcional
-- [ ] Mini-interações (slider de parâmetro, quiz de viés)
-- [ ] Persistência de progresso (recorde de dias sobrevividos)
-- [ ] Expansão do baralho de dilemas
-- [ ] Versão com backend para ranking entre jogadores
+**Solução de prototipação escolhida:** Storyboard
+
+### Demonstração
+
+> 🎬 Screencast com áudio e legendas: *em breve*
+
+### Modelagem e Prototipação
+
+| Artefato | Onde encontrar |
+|---|---|
+| Diagramas de atividade | [FigJam](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0) |
+| Protótipos de baixa fidelidade | [FigJam](https://www.figma.com/board/KysbFg6xFmuL41d14R8jWr) |
+| Storyboards | [FIGMA](https://miro.com/app/board/uXjVHkFbKcQ=/) |
+
+<details>
+<summary><b>Rastreabilidade por história de usuário</b></summary>
+
+<br>
+
+| História | Diagrama de atividade | Protótipo |
+|---|---|---|
+| US01: Menu principal | [ver](LINK) | [ver](https://www.figma.com/board/KysbFg6xFmuL41d14R8jWr?node-id=1-2) |
+| US02: ... | [veR](LINK) | [ver](LINK) |
+
+</details>
 
 ---
-
-## 👥 Equipe
-
-
-| Nome            | Responsabilidade |
-|-----------------|------------------|
-| Caio Moraes     | caio.moraes1102@gmail.com |
-| Pierre Davi     |  pierremelo03@gmail.com |
-| Arthur Henrique |  |
-| Igor Almeida    |  |
-| Daniela Menezes | dani.a.menezes@outlook.com |
-| Athos Vieira    | avas@cesar.school |
-| José André      | andrefmelo2008@gmail.com |
 
 
