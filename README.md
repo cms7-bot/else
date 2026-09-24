@@ -1,88 +1,131 @@
 ![image alt](https://github.com/cms7-bot/else/blob/f5a7c9954424bcde152639e27b5ae30efe460dda/else%20banner.jpeg)
 
-> Um jogo de exploração e decisões inspirado em *Reigns*, onde você explora ambientes, interage com NPCs e sistemas, e governa os rumos de uma empresa de Inteligência Artificial enquanto aprende conceitos reais de letramento em IA na prática.
+<h3 align="center">
+    Você começa como estagiário numa empresa de tecnologia.
+  A IA está em todo lugar. O que você faz com ela é escolha sua.
+</h3>
 
-![status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
-
----
-
-## 📖 Sobre o projeto
-
-**else** é um jogo em que o jogador assume o papel de responsável por uma empresa de Inteligência Artificial. O jogador explora ambientes em perspectiva top-down (movimentação via **WASD**) e interage com NPCs e computadores para acionar cenários de decisão. Cada cenário apresenta um dilema real do campo de IA, resolvido por meio de uma carta que pode ser arrastada (*swipe*) para a esquerda ou direita. A cada dilema apresentado, é preciso equilibrar quatro medidores — **Confiança**, **Privacidade**, **Lucro** e **Viés** — enquanto aprende, na prática, sobre temas reais como viés algorítmico, alucinação de modelos, deepfakes e privacidade de dados. Conforme progride, o jogador avança por diferentes fases de carreira, de **Estagiário** a **Tech Lead**.
-
-
-### 🎯 Objetivo do jogo
-
-Sobreviver o maior número de dias possível, mantendo os quatro medidores equilibrados. O jogo termina quando qualquer medidor atinge o valor mínimo (0) ou máximo (100), revelando um final com uma lição educativa sobre o conceito de IA relacionado à causa da "queda".
+<p align="center">
+  <img src="https://img.shields.io/badge/status-em%20desenvolvimento-0098DB">
+  <img src="https://img.shields.io/badge/C-motor-203562?logo=c&logoColor=white">
+  <img src="https://img.shields.io/badge/raylib-visual-1E579C">
+  <img src="https://img.shields.io/badge/Haskell-regras-252446?logo=haskell&logoColor=white">
+</p>
 
 ---
 
-## ✨ Funcionalidades
+## Sobre 
 
-- 🧭 Exploração de ambientes top-down, com movimentação do personagem via WASD
-- 🖥️ Interação com NPCs e computadores para acionar cenários de decisão
-- 🃏 Sistema de decisões por arraste (esquerda/direita), com suporte a mouse e toque
-- 📊 Quatro medidores dinâmicos (Confiança, Privacidade, Lucro, Viés) que reagem a cada escolha
-- 🪜 Progressão de carreira em fases (Estagiário → Programador Júnior → Pleno → Sênior → Tech Lead)
-- 🔮 Núcleo visual da IA que muda de aparência conforme o estado geral do sistema
-- 🔍 Opção de "investigar" um dilema antes de decidir
-- 🗣️ Conselheiros que oferecem dicas rápidas sobre o dilema atual
-- 🔔 Notificações inesperadas simulando eventos do mundo real
-- 💡 Toasts educativos explicando conceitos reais de IA após cada decisão
-- 🎚️ Mini-interações (sliders e quizzes) para reforçar o aprendizado
-- 🧾 Tela de auditoria periódica revisando decisões anteriores
-- 🏁 Múltiplos finais, cada um com uma lição diferente sobre riscos de IA
-- 📱 Interface responsiva (desktop e mobile)
+O **else** é um jogo educativo sobre letramento em Inteligência Artificial. Você entra numa empresa de tecnologia como estagiário e, a cada fase, sobe um degrau na carreira até chegar a Tech Líder. Pelo caminho, a IA aparece em cada canto do escritório: na triagem de currículos, no relatório que ninguém revisou, no chatbot que atende os clientes. E é você quem decide quando usar, quando questionar e quando dizer não.
 
----
+## Os quatro pilares 
+Cada decisão mexe com quatro coisas ao mesmo tempo, e elas aparecem como medidores na tela durante todo o jogo.
 
-## 🛠️ Tecnologias utilizadas
-
-| Camada | Tecnologia |
+| Pilar | A pergunta por trás |
 |---|---|
-| Interface |  |
-| Tipografia | |
-| Dados do jogo | |
-| Versionamento | Git + GitHub |
-| Gestão do projeto | GitHub Projects / Jira |
+| **Confiança** | Depois dessa decisão, as pessoas ainda acreditam em você e na empresa? |
+| **Lucro** | Quanto vale ganhar mais se o custo cai em cima de alguém? |
+| **Privacidade** | Que dados das pessoas você está entregando pra uma IA sem perceber? |
+| **Viés** | A IA está tratando todo mundo do mesmo jeito? |
+
+## Como o jogo funciona
+Você explora o escritório em visão de cima, no estilo dos RPGs clássicos de 16 bits. Quando conversa com um colega ou usa um computador, surge uma carta com um dilema. Arraste pra esquerda ou pra direita pra decidir, e veja os medidores reagirem na hora.
+
+```mermaid
+flowchart LR
+    A[Explorar o escritório] --> B[Interagir com colega ou computador]
+    B --> C[Carta com um dilema]
+    C --> D{Esquerda ou direita?}
+    D --> E[Medidores mudam]
+    E --> F{Algum medidor<br>zerou ou estourou?}
+    F -- Não --> A
+    F -- Sim --> G[Fim de jogo<br>com uma lição sobre IA]
+```
+Se qualquer medidor chegar a 0 ou a 100, o jogo acaba. E cada final explica o que deu errado e o que isso ensina sobre IA no mundo real. Equilíbrio é tudo: lucro demais custa confiança, privacidade demais trava a empresa.
+
+## Arquitetura
+
+O jogo é dividido em duas camadas, cada uma com uma responsabilidade clara.
+
+```mermaid
+flowchart LR
+    J([Jogador]) -- teclado e mouse --> M
+
+    subgraph M[Motor em C + raylib]
+        L[Game loop] --> R[Desenho da tela<br>em pixel art]
+        L --> E[Estado do jogo<br>cargo, medidores, cartas]
+    end
+
+    M -. decisão tomada .-> H[Regras em Haskell<br>pontuação e validação]
+    H -. novos valores .-> M
+
+    classDef camada fill:#203562,stroke:#0098DB,stroke-width:2px,color:#ffffff
+    classDef futuro fill:#413A42,stroke:#96A2B3,stroke-width:2px,stroke-dasharray:5 5,color:#ffffff
+    classDef jogador fill:#0098DB,stroke:#0098DB,color:#ffffff
+
+    class L,R,E camada
+    class H futuro
+    class J jogador
+```
+
+| Camada | Tecnologia | O que faz |
+|---|---|---|
+| Motor e visual | C + [raylib](https://www.raylib.com/) | Game loop, leitura de teclado e mouse, desenho das telas e controle do estado do jogo |
+| Regras | Haskell | Cálculo de pontuação e validação das regras, com funções puras (Unidade 2) |
+
+### Por que essas escolhas
+
+- **C** é requisito do projeto, e engines comerciais (como Unity ou Godot) não são permitidas. O desafio era ter um jogo visual sem sair do C.
+- **raylib** resolve isso: é uma biblioteca gráfica leve, feita pra C, que permite desenhar sprites, tocar sons e ler o teclado sem esconder a lógica do jogo atrás de uma engine.
+- **Haskell** cuida das regras porque funções puras sempre dão o mesmo resultado pra mesma entrada. Isso torna a pontuação previsível e fácil de testar.
 
 ---
+## Como rodar
 
+Baixe ou clone o repositório e abra o `jogo.exe` a partir da pasta do projeto (Windows).
 
-## 🕹️ Como jogar
+<details>
+<summary><b>Quero mexer no código</b></summary>
 
-1. Explore o ambiente da fase atual usando **WASD**
-2. Interaja com NPCs ou computadores para acionar um cenário de decisão
-3. Leia o dilema apresentado no cartão central
-4. Arraste o cartão para a **esquerda** ou **direita** para escolher uma das duas opções
-5. Acompanhe os quatro medidores (Confiança, Privacidade, Lucro, Viés) no topo da tela
-6. Use os gestos extras quando disponíveis:
-   - Segurar o cartão → ver prévia do impacto
-   - Arrastar para cima → investigar o dilema
-   - Duplo toque → consultar um conselheiro
-7. Avance de fase conforme progride na carreira, sobrevivendo o maior número de dias possível sem deixar nenhum medidor zerar ou estourar
+<br>
 
----
+1. Instale o [MSYS2](https://www.msys2.org/) em `C:\msys64` e, no terminal **MSYS2 UCRT64**, rode:
+```
+   pacman -Syu
+   pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-raylib
+```
+2. Abra a pasta do projeto no VS Code e confira o compilador com `gcc --version`
+3. Compile e rode com `.\jogar.bat`
 
-## 📁 Estrutura do repositório
+Deu problema? O [Guia Rápido](./Guia_Rapido_ExecutarJogo.md) resolve os erros mais comuns.
+
+</details>
+
+<details>
+<summary><b>Estrutura do projeto</b></summary>
+
+<br>
 
 ```
-reigns-ia/
-├── index.html              # Protótipo jogável (estrutura, estilo e lógica)
-├── assets/                 # Imagens, ícones e screenshots
-├── docs/                   # Documentação do projeto (entrega acadêmica)
-│   ├── visao.md             # Documento de Visão
-│   ├── requisitos.md        # Requisitos funcionais e não-funcionais
-│   ├── historias-usuario.md # Histórias de usuário (padrão 3Cs)
-│   ├── modelagem.md          # Casos de uso e diagramas
-│   ├── arquitetura.md        # Arquitetura em alto nível
-│   ├── processo.md           # Definição de processo de desenvolvimento
-│   └── testes.md             # Estratégias e casos de teste
-└── README.md
+else/
+├── Code/              # código-fonte em C
+├── cenario/           # imagens dos escritórios
+├── Botoes/            # sprites dos botões
+├── assets/            # demais imagens do jogo
+├── musicas/           # trilhas sonoras
+├── EfeitosSonoros/    # sons de interface
+├── Documentação/      # documentos de engenharia de software
+├── jogar.bat          # compila e abre o jogo
+└── jogo.exe           # última versão compilada
+```
+
+</details>
 
 ---
 
-## 📚 Documentação do projeto
+
+
+
 
 Toda a documentação de engenharia de software está disponível na pasta [`/docs`](./docs):
 
@@ -106,30 +149,34 @@ Sprints, backlog e tarefas é feito no board do Jira:
 
 ---
 
-## 🗺️ Roadmap
+## Entrega 02: Modelagem e Prototipação
 
-- [x] Protótipo jogável com mecânica principal (swipe + medidores)
-- [x] Núcleo visual reativo
-- [x] Toasts educativos
-- [ ] Tela de auditoria funcional
-- [ ] Mini-interações (slider de parâmetro, quiz de viés)
-- [ ] Persistência de progresso (recorde de dias sobrevividos)
-- [ ] Expansão do baralho de dilemas
-- [ ] Versão com backend para ranking entre jogadores
+**Solução de prototipação escolhida:** Storyboard
+
+### Demonstração
+
+> 🎬 Screencast com áudio e legendas: *em breve*
+
+### Modelagem e Prototipação
+
+| Artefato | Onde encontrar |
+|---|---|
+| Diagramas de atividade | [FigJam](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0) |
+| Protótipos de baixa fidelidade | [FigJam](https://www.figma.com/board/KysbFg6xFmuL41d14R8jWr) |
+| Storyboards | [FIGMA](https://miro.com/app/board/uXjVHkFbKcQ=/) |
+
+<details>
+<summary><b>Rastreabilidade por história de usuário</b></summary>
+
+<br>
+
+| História | Diagrama de atividade | Protótipo |
+|---|---|---|
+| US01: Menu principal | [ver](LINK) | [ver](https://www.figma.com/board/KysbFg6xFmuL41d14R8jWr?node-id=1-2) |
+| US02: ... | [veR](LINK) | [ver](LINK) |
+
+</details>
 
 ---
-
-## 👥 Equipe
-
-
-| Nome            | Responsabilidade |
-|-----------------|------------------|
-| Caio Moraes     | caio.moraes1102@gmail.com |
-| Pierre Davi     |  pierremelo03@gmail.com |
-| Arthur Henrique |  |
-| Igor Almeida    |  |
-| Daniela Menezes | dani.a.menezes@outlook.com |
-| Athos Vieira    | avas@cesar.school |
-| José André      | andrefmelo2008@gmail.com |
 
 
