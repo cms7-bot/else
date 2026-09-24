@@ -1,8 +1,16 @@
 ![image alt](https://github.com/cms7-bot/else/blob/f5a7c9954424bcde152639e27b5ae30efe460dda/else%20banner.jpeg)
 
-> Um jogo de exploração e decisões inspirado em *Reigns*, onde você explora ambientes, interage com NPCs e sistemas, e governa os rumos de uma empresa de Inteligência Artificial enquanto aprende conceitos reais de letramento em IA na prática.
+<h3 align="center">
+    Você começa como estagiário numa empresa de tecnologia.
+  A IA está em todo lugar. O que você faz com ela é escolha sua.
+</h3>
 
-![status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+<p align="center">
+  <img src="https://img.shields.io/badge/status-em%20desenvolvimento-0098DB">
+  <img src="https://img.shields.io/badge/C-motor-203562?logo=c&logoColor=white">
+  <img src="https://img.shields.io/badge/raylib-visual-1E579C">
+  <img src="https://img.shields.io/badge/Haskell-regras-252446?logo=haskell&logoColor=white">
+</p>
 
 ---
 
