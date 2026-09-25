@@ -155,7 +155,7 @@ Sprints, backlog e tarefas é feito no board do Jira:
 
 ### Demonstração
 
-> 🎬 Screencast com áudio e legendas: *em breve*
+> [🎬 Screencast com áudio e legendas](youtube.com/watch?feature=shared&v=sPg2rsm8cXE)
 
 ### Modelagem e Prototipação
 
@@ -163,7 +163,7 @@ Sprints, backlog e tarefas é feito no board do Jira:
 |---|---|
 | Diagramas de atividade | [FigJam](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0) |
 | Storyboards | [Figma](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else) |
-| Wireframes das telas | [FigJam](https://www.figma.com/board/KysbFg6xFmuL41d14R8jWr) |
+| Wireframes das telas | [FigJam](https://www.figma.com/board/KysbFg6xFmuL41d14R8jWr) |  
 
 <details>
 <summary><b>Rastreabilidade por história de usuário</b></summary>

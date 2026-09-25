@@ -57,8 +57,8 @@ int main()
     lucro.height*=0.8;
 
     Texture2D privacidade = LoadTexture("HUD/hud_privanca_vazia.png");
-    privacidade.width*=0.8;
-    privacidade.height*=0.8;
+    privacidade.width*=0.7;
+    privacidade.height*=0.7;
 
     Texture2D vies = LoadTexture("HUD/hud_vieis_vazio.png");
     vies.width*=0.8;
@@ -73,12 +73,16 @@ int main()
     lucroCheio.height*=0.8;
 
     Texture2D privacidadeCheia = LoadTexture("HUD/hud_privanca_cheia.png");
-    privacidadeCheia.width*=0.8;
-    privacidadeCheia.height*=0.8;
+    privacidadeCheia.width*=0.7;
+    privacidadeCheia.height*=0.7;
 
     Texture2D viesCheio = LoadTexture("HUD/hud_vieis_cheio.png");
     viesCheio.width*=0.8;
     viesCheio.height*=0.8;
+
+    Texture2D fundoHUD = LoadTexture("HUD/FUNDO.png");
+    fundoHUD.width*=0.85;
+    fundoHUD.height*=0.8;
 
 
     Texture2D costas1 = LoadTexture("assets/Costas/BonecoParadoCostas.png");
@@ -105,7 +109,7 @@ int main()
     // 73% é o mínimo
     float porcentagemCadeadoApagado = 0.3f;
     float porcentagemViesApagado = 0.32f;
-    float porcentagemPrivacidadeApagado = 0.5f;
+    float porcentagemPrivacidadeApagado = 0.0f;
     float porcentagemLucroApagado = 0.40f;
    
 
@@ -536,8 +540,10 @@ int main()
         alturaResolucao
     );
     
-    DrawRectangle((larguraResolucao-confianca.width-vies.width-privacidade.width-lucro.width-90)/2,3,confianca.width+vies.width+privacidade.width+lucro.width+90,privacidade.height+5,ColorAlpha(BLACK,0.70));
+    // DrawRectangle((larguraResolucao-confianca.width-vies.width-privacidade.width-lucro.width-90)/2,3,confianca.width+vies.width+privacidade.width+lucro.width+90,privacidade.height+5,ColorAlpha(BLACK,0.70));
 
+
+DrawTexture(fundoHUD,((larguraResolucao-confianca.width)/2)-confianca.width-145,privacidade.height*0.05,WHITE);
 
 DrawTexture(confianca,((larguraResolucao-confianca.width)/2)-confianca.width-135,privacidade.height*0.05,WHITE);   
 BeginScissorMode(
@@ -556,7 +562,7 @@ WHITE
 
 
 
-
+DrawTexture(fundoHUD,((larguraResolucao-vies.width)/2)-125,privacidade.height*0.05,WHITE);
 DrawTexture(vies,((larguraResolucao-vies.width)/2)-120,privacidade.height*0.05,WHITE);
 BeginScissorMode(
     ((larguraResolucao-vies.width)/2)-120 ,
@@ -571,7 +577,7 @@ DrawTexture(viesCheio,((larguraResolucao-vies.width)/2)-120,privacidade.height*0
  EndScissorMode();
 
 
-
+DrawTexture(fundoHUD,((larguraResolucao-privacidade.width)/2)+lucro.width-115,privacidade.height*0.05,WHITE);
 DrawTexture(privacidade,((larguraResolucao-privacidade.width)/2)+lucro.width-105,privacidade.height*0.05,WHITE);
 
 BeginScissorMode(
@@ -586,7 +592,7 @@ DrawTexture(privacidadeCheia,((larguraResolucao-privacidade.width)/2)+lucro.widt
 
  EndScissorMode();
 
-
+DrawTexture(fundoHUD,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-80,privacidade.height*0.05,WHITE);
 DrawTexture(lucro,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75,privacidade.height*0.05,WHITE);
 BeginScissorMode(
     ((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75 ,
