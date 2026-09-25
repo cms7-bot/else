@@ -155,7 +155,7 @@ Sprints, backlog e tarefas é feito no board do Jira:
 
 ### Demonstração
 
-> [🎬 Screencast com áudio e legendas](youtube.com/watch?feature=shared&v=sPg2rsm8cXE)
+> [🎬 Screencast com áudio e legendas](https://www.youtube.com/watch?v=sPg2rsm8cXE)
 
 ### Modelagem e Prototipação
 
