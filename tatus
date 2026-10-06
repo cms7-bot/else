@@ -216,4 +216,789 @@
 [32m+[m[32m| Arte, assets e UI visual | França | Dani | Arthur, Almeida |[m
 [32m+[m[32m| Lógica Matemática (LMC) | Pierre, Caio | Pierre | Athos |[m
 [32m+[m[32m| Motor em C + raylib (PIF) | Almeida, Pierre | Almeida | França, Arthur, Dani |[m
-[32m
+[32m[1mdiff --git a/Code/Cartas.c b/Code/Cartas.c[m
+[1mindex 35e517e..fe5f401 100644[m
+[1m--- a/Code/Cartas.c[m
+[1m+++ b/Code/Cartas.c[m
+[36m@@ -358,13 +358,13 @@[m [mvoid desenharCartas(int larguraResolucao, int alturaResolucao)[m
+         LIGHTGRAY[m
+     );[m
+ [m
+[31m-    // DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);[m
+[31m-    // DrawText(TextFormat("EXP: %d",experiencia),25,50,20,WHITE);[m
+[31m-    // DrawText(TextFormat("Reputacao: %d",reputacao),25,75,20,WHITE);[m
+[31m-    // DrawText(TextFormat("Competencia: %d",competencia),25,100,20,WHITE);[m
+[31m-    // DrawText(TextFormat("Energia: %d",energia),25,125,20,WHITE);[m
+[31m-    // DrawText(TextFormat("Etica: %d",etica),25,150,20,WHITE);[m
+[31m-    // DrawText(TextFormat("Dinheiro: R$ %d",dinheiro),25,175,20,WHITE);[m
+[32m+[m[32m    DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);[m
+[32m+[m[32m    DrawText(TextFormat("EXP: %d",experiencia),25,50,20,WHITE);[m
+[32m+[m[32m    DrawText(TextFormat("Reputacao: %d",reputacao),25,75,20,WHITE);[m
+[32m+[m[32m    DrawText(TextFormat("Competencia: %d",competencia),25,100,20,WHITE);[m
+[32m+[m[32m    DrawText(TextFormat("Energia: %d",energia),25,125,20,WHITE);[m
+[32m+[m[32m    DrawText(TextFormat("Etica: %d",etica),25,150,20,WHITE);[m
+[32m+[m[32m    DrawText(TextFormat("Dinheiro: R$ %d",dinheiro),25,175,20,WHITE);[m
+ }[m
+ [m
+ void descarregarCartas()[m
+[1mdiff --git a/Code/Movimentacao.c b/Code/Movimentacao.c[m
+[1mindex 1202edf..f4589e2 100644[m
+[1m--- a/Code/Movimentacao.c[m
+[1m+++ b/Code/Movimentacao.c[m
+[36m@@ -103,9 +103,6 @@[m [mint main()[m
+ [m
+     Texture2D botaoJogar = LoadTexture("Botoes/BotaoJogar.png");[m
+     Texture2D logoInicio = LoadTexture("cenario/logoInicio.png");[m
+[31m-    Texture2D fundoCarta = LoadTexture("cenario/Frame3.png");[m
+[31m-    fundoCarta.height*=0.95;[m
+[31m-    fundoCarta.width*=0.95;[m
+     bool mensagem = false;[m
+     bool cartaAbertaPararDeAndar = false;[m
+ [m
+[36m@@ -135,8 +132,6 @@[m [mint main()[m
+     bool pausado = false;[m
+     Texture2D texturaAtualGuardada = frente1;[m
+ [m
+[31m-    bool abrirCarta = false;[m
+[31m-[m
+     while (!WindowShouldClose())[m
+     {[m
+         float escalaX = (float)GetScreenWidth() / larguraResolucao;[m
+[36m@@ -357,7 +352,7 @@[m [mint main()[m
+ [m
+         if (!cartaAbertaPararDeAndar)[m
+         {   [m
+[31m-[m
+[32m+[m[41m            [m
+             if (!botaoAeDapertados && !botaoWeSapertados)[m
+             {[m
+                 if (IsKeyDown(KEY_W))[m
+[36m@@ -513,9 +508,6 @@[m [mint main()[m
+         ClearBackground(RAYWHITE); [m
+         [m
+         DrawTexture(fundoCeramica, 0, 0, WHITE);[m
+[31m-        // DrawTexture(fundoCarta, (larguraResolucao-fundoCarta.width)/2, (alturaResolucao-fundoCarta.height)/2, WHITE);[m
+[31m-        [m
+[31m-        [m
+         Rectangle colisaoMesaBoneco_Boneco ={x,y,frente1.width,frente1.height};[m
+         Rectangle colisaoMesaBoneco_Mesa ={(larguraResolucao-mesa.width)-20+mesa.width*0.1,mesa.height-40,mesa.width*0.8,mesa.height*0.3};[m
+         if (CheckCollisionRecs(colisaoMesaBoneco_Boneco,colisaoMesaBoneco_Mesa)){[m
+[36m@@ -548,13 +540,8 @@[m [mint main()[m
+         alturaResolucao[m
+     );[m
+     [m
+[32m+[m[32m    // DrawRectangle((larguraResolucao-confianca.width-vies.width-privacidade.width-lucro.width-90)/2,3,confianca.width+vies.width+privacidade.width+lucro.width+90,privacidade.height+5,ColorAlpha(BLACK,0.70));[m
+ [m
+[31m-        if (IsKeyPressed(KEY_P)){[m
+[31m-            abrirCarta = !abrirCarta;[m
+[31m-                }[m
+[31m-        if (abrirCarta){[m
+[31m-            DrawTexture(fundoCarta,0,0, WHITE);[m
+[31m-        }[m
+ [m
+ DrawTexture(fundoHUD,((larguraResolucao-confianca.width)/2)-confianca.width-145,privacidade.height*0.05,WHITE);[m
+ [m
+[36m@@ -655,8 +642,6 @@[m [mBeginScissorMode([m
+ [m
+         texturaAtualGuardada = texturaAtual;[m
+ [m
+[31m-[m
+[31m-[m
+         [m
+ [m
+         EndTextureMode();[m
+[36m@@ -687,7 +672,7 @@[m [mBeginScissorMode([m
+             0,[m
+             WHITE[m
+         );[m
+[31m-    [m
+[32m+[m[41m        [m
+ [m
+         EndDrawing();[m
+     }[m
+[1mdiff --git "a/Documenta\303\247\303\243o/Processo.md" "b/Documenta\303\247\303\243o/Processo.md"[m
+[1mdeleted file mode 100644[m
+[1mindex 6ae1243..0000000[m
+[1m--- "a/Documenta\303\247\303\243o/Processo.md"[m
+[1m+++ /dev/null[m
+[36m@@ -1,75 +0,0 @@[m
+[31m-# Definição de Processo — [Nome a definir][m
+[31m----[m
+[31m-[m
+[31m-## 1. Metodologia adotada[m
+[31m-[m
+[31m-Com uma equipe de 7 pessoas, o projeto passa a comportar uma estrutura mais próxima do **Scrum tradicional**, onde papéis formais não se justificam. Optou-se por um **Scrum simplificado com sprints curtos** (1 semana cada), combinado com um **quadro Kanban** para visualização do fluxo dentro de cada sprint.[m
+[31m-[m
+[31m-Justificativa:[m
+[31m-- Uma equipe de 7 pessoas precisa de papéis claros para evitar sobreposição de trabalho e gargalos de decisão[m
+[31m-- Sprints curtos (1 semana) se encaixam melhor no calendário da disciplina do que sprints de 2-4 semanas, permitindo entregas parciais frequentes[m
+[31m-- O quadro Kanban dentro de cada sprint mantém a simplicidade visual do fluxo de trabalho, sem burocratizar demais o processo[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 2. Papéis da equipe[m
+[31m-[m
+[31m-| Papel | Responsável | Função |[m
+[31m-|---|---|---|[m
+[31m-| **Facilitador da sprint** | Conduz a Planning e a Retrospectiva, mantém o quadro Kanban atualizado, comunica bloqueios ao restante da equipe |[m
+[31m-| **Guardião da Visão** | Confere se as entregas da semana continuam coerentes com o Documento de Visão antes da Review |[m
+[31m-| **Revisor de tarefa** | Aprova ou pede ajustes antes de mover o card para "Concluído" |[m
+[31m-| **Responsável pela entrega documental** | Principal responsável da entrega da tarefa em específico ||[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 3. Cerimônias Scrum[m
+[31m-[m
+[31m-| Cerimônia | Frequência | Objetivo |[m
+[31m-|---|---|---|[m
+[31m-| **Planning** | Início de cada sprint (semanal) | Definir o que será feito na semana, distribuir os cards do backlog entre os membros |[m
+[31m-| **Daily assíncrona** | 3x por semana (não precisa ser diária, dado o contexto acadêmico) | Cada integrante compartilha em texto (grupo/canal) o que fez, o que vai fazer e se há impedimentos |[m
+[31m-| **Review** | Fim de cada sprint | Demonstração do que foi produzido (documento ou funcionalidade do protótipo) para o restante da equipe |[m
+[31m-| **Retrospectiva** | Fim de cada sprint | O que funcionou bem, o que travou, o que ajustar no próximo sprint |[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 4. Fluxo de trabalho (quadro Kanban dentro do sprint)[m
+[31m-[m
+[31m-```[m
+[31m-BACKLOG  →  EM ANDAMENTO  →  EM REVISÃO  →  CONCLUÍDO[m
+[31m-```[m
+[31m-[m
+[31m-- **Backlog:** histórias de usuário e tarefas de documentação, priorizadas pelo PO[m
+[31m-- **Em andamento:** limite de 1-2 cards por pessoa simultaneamente (WIP limit), para evitar dispersão em uma equipe grande[m
+[31m-- **Em revisão:** toda tarefa concluída passa por revisão de **pelo menos 1 outro integrante** antes de ser considerada pronta — em equipe de 7, a revisão cruzada é dividida em pares fixos por sprint (definidos na Planning), não aleatória[m
+[31m-- **Concluído:** aprovado pelo revisor e, no caso de documentos estruturais (Visão, Requisitos), também validado pelo PO[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 5. Ferramentas utilizadas[m
+[31m-[m
+[31m-| Categoria | Ferramenta | Uso |[m
+[31m-|---|---|---|[m
+[31m-| Gestão do quadro | GitHub Projects (ou Trello) | Quadro Kanban com as 4 colunas, cards vinculados às issues do repositório |[m
+[31m-| Versionamento de código | Git + GitHub | Controle de versão do protótipo e da documentação, com Pull Requests obrigatórios |[m
+[31m-| Comunicação da equipe | Discord ou WhatsApp (canal único) | Alinhamentos rápidos, dailies assíncronas, avisos de bloqueios |[m
+[31m-| Reuniões síncronas | Google Meet ou presencial | Planning, Review e Retrospectiva semanais |[m
+[31m-| Documentação | Markdown (`.md`) no repositório, organizados em `/docs` | Visão, Requisitos, Histórias de Usuário, Modelagem, Arquitetura, Processo e Testes |[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 6. Fluxo de trabalho no Git[m
+[31m-[m
+[31m-.......[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 7. Critérios de "pronto" [m
+[31m-[m
+[31m-Uma tarefa só é movida para **Concluído** quando:[m
+[31m-- Foi revisada por pelo menos 1 outro integrante da equipe (par definido na Planning)[m
+[31m-- É coerente com o Documento de Visão, sem contradizer decisões de escopo já tomadas[m
+[31m-- No caso de funcionalidades do protótipo: foi testada manualmente em desktop e mobile, e validada pela pessoa responsável por Testes[m
+[31m-- No caso de documentos estruturais (Visão, Requisitos, Arquitetura): validada também pelo Product Owner [m
+[31m-- Não possui pendências como "[Nome integrante]" ou seções incompletas[m
+[1mdiff --git "a/Documenta\303\247\303\243o/Vis\303\243o.md" "b/Documenta\303\247\303\243o/Vis\303\243o.md"[m
+[1mdeleted file mode 100644[m
+[1mindex 1f2d0a0..0000000[m
+[1m--- "a/Documenta\303\247\303\243o/Vis\303\243o.md"[m
+[1m+++ /dev/null[m
+[36m@@ -1,96 +0,0 @@[m
+[31m-# Documento de Visão — else[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 1. Descrição geral do produto[m
+[31m-[m
+[31m-**else** é um jogo de exploração e decisões, inspirado no jogo *Reigns*, no qual o jogador assume o papel de responsável por uma empresa/laboratório de Inteligência Artificial. O jogador explora os ambientes de cada fase em perspectiva top-down, movimentando o personagem com **WASD** e interagindo com NPCs e computadores para acionar cenários de decisão. A cada cenário, o jogador recebe um dilema real enfrentado por empresas de tecnologia — como vieses algorítmicos, vazamento de dados, deepfakes e pressão de investidores — e precisa decidir arrastando um cartão para a esquerda ou para a direita.[m
+[31m-[m
+[31m-Cada decisão impacta quatro medidores que representam os pilares de equilíbrio da empresa: **Confiança**, **Privacidade**, **Lucro** e **Viés**. Conforme avança, o jogador progride por diferentes fases de carreira — de **Estagiário** a **Tech Lead** — cada uma com seu próprio ambiente e conjunto de dilemas. O objetivo é sobreviver o maior número de dias possível sem deixar nenhum medidor zerar ou estourar, enquanto aprende, na prática, conceitos reais de letramento em Inteligência Artificial.[m
+[31m-[m
+[31m-O produto combina uma mecânica de exploração simples com o núcleo de decisão por *card-swipe*, já validado pelo gênero, e uma camada educativa: toasts explicativos, mini-quizzes, telas de auditoria e finais de jogo narrativos, todos baseados em situações reais do campo de IA.[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 2. Problema / Oportunidade[m
+[31m-[m
+[31m-Discussões sobre Inteligência Artificial se tornaram parte do cotidiano em notícias, redes sociais e no ambiente de trabalho, mas grande parte da população não tem contato prático com os dilemas éticos e técnicos que envolvem o desenvolvimento e uso de sistemas de IA. Conceitos como viés algorítmico, alucinação de modelos, deepfakes e privacidade de dados costumam ser tratados de forma técnica ou abstrata, distante da experiência de quem não trabalha diretamente na área.[m
+[31m-[m
+[31m-Ao mesmo tempo, jogos de decisão no estilo *Reigns* têm um histórico comprovado de engajamento por serem simples, rápidos e viciantes, sem exigir tutoriais extensos. **A oportunidade identificada é usar essa mecânica já validada como veículo para letramento em IA**, tornando o aprendizado sobre riscos, limitações e responsabilidades da tecnologia algo acessível, interativo e memorável — em vez de puramente teórico.[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 3. Objetivo do produto[m
+[31m-[m
+[31m-### 3.1 Objetivo principal[m
+[31m-Proporcionar uma experiência de jogo envolvente que, através de decisões simuladas de gestão de uma empresa de IA, promova o letramento prático do jogador sobre conceitos fundamentais de Inteligência Artificial e seus riscos éticos, sociais e técnicos.[m
+[31m-[m
+[31m-### 3.2 Objetivos específicos[m
+[31m-- Traduzir conceitos técnicos de IA (viés, alucinação, privacidade, deepfake, segurança de dados) em dilemas de fácil compreensão[m
+[31m-- Demonstrar, na prática, que decisões sobre IA envolvem trade-offs — raramente existe uma opção sem consequência[m
+[31m-- Gerar engajamento e replay por meio de uma mecânica simples, rápida e visualmente reativa[m
+[31m-- Servir como material de apoio educativo, utilizável em contextos de ensino introdutório sobre IA[m
+[31m-[m
+[31m-### 3.3 Público-alvo[m
+[31m-- Estudantes e curiosos sobre tecnologia e Inteligência Artificial, sem necessidade de conhecimento técnico prévio[m
+[31m-- Professores e educadores que busquem uma ferramenta lúdica de apoio para introduzir temas de ética e letramento em IA[m
+[31m-- Jogadores casuais interessados em jogos de decisão rápida (fãs do gênero *Reigns*-like)[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 4. Escopo do produto[m
+[31m-[m
+[31m-### 4.1 Escopo incluso na versão atual (MVP)[m
+[31m-- Exploração de ambientes em perspectiva top-down, com movimentação do personagem via WASD[m
+[31m-- Interação com NPCs e computadores para acionar cenários de decisão[m
+[31m-- Mecânica principal de decisão por arraste (swipe esquerda/direita), com suporte a mouse e toque[m
+[31m-- Sistema de 4 medidores (Confiança, Privacidade, Lucro, Viés) que reagem a cada decisão[m
+[31m-- Baralho de cartas/dilemas baseados em situações reais do campo de IA[m
+[31m-- Progressão de carreira em fases (Estagiário → Programador Júnior → Pleno → Sênior → Tech Lead), cada uma com seu ambiente[m
+[31m-- Núcleo visual da IA que reage ao estado geral do sistema (estável, em alerta, crítico)[m
+[31m-- Interações complementares: prévia de impacto ao segurar o cartão, investigação de dilema (arrastar para cima), consulta a conselheiros (duplo toque)[m
+[31m-- Eventos dinâmicos: notificações inesperadas simulando notícias/eventos externos[m
+[31m-- Camada educativa: toasts explicativos pós-decisão, mini-quiz de viés, tela de auditoria periódica[m
+[31m-- Múltiplos finais de jogo, cada um associado a uma lição educativa distinta[m
+[31m-- Opção de reiniciar a partida[m
+[31m-- Interface responsiva (funcional em desktop e mobile)[m
+[31m-[m
+[31m-### 4.2 Fora do escopo desta versão[m
+[31m-- Modo multiplayer ou disputa entre jogadores[m
+[31m-- Aplicativo mobile nativo (a versão atual roda via navegador/web)[m
+[31m-- Sistema de contas de usuário, login ou persistência de progresso entre dispositivos[m
+[31m-- Backend próprio ou ranking global entre jogadores[m
+[31m-- Expansões pagas ou monetização[m
+[31m-- Tradução para outros idiomas além do português[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 5. Stakeholders[m
+[31m-[m
+[31m-| Stakeholder | Interesse no projeto |[m
+[31m-|---|---|[m
+[31m-| **Jogadores/Usuários finais** | Experiência de jogo envolvente e aprendizado prático sobre IA |[m
+[31m-| **Professor(a) da disciplina** | Avaliação da aplicação correta de conceitos de Fundamentos de Desenvolvimento de Software (visão, requisitos, modelagem, arquitetura, processo e testes) |[m
+[31m-| **Dupla desenvolvedora** | Entrega do projeto dentro do prazo, com qualidade técnica e de documentação |[m
+[31m-| **Instituições educacionais (potenciais)** | Uso do jogo como material de apoio para ensino introdutório de IA e ética tecnológica |[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 6. Contexto e justificativa[m
+[31m-[m
+[31m-O tema Inteligência Artificial está no centro do debate público e tecnológico atual, mas o letramento sobre o assunto ainda é desigual: enquanto profissionais da área discutem riscos e limitações com profundidade, grande parte da sociedade tem contato apenas superficial — muitas vezes limitado ao uso de chatbots ou geradores de imagem, sem entender os riscos por trás dessas ferramentas (viés, desinformação, privacidade, entre outros).[m
+[31m-[m
+[31m-Jogos de decisão rápida, como o já consagrado *Reigns*, demonstraram que é possível ensinar sistemas complexos (na obra original, política e governança medieval) por meio de escolhas simples e consequências visíveis, sem depender de textos longos ou aulas formais. **REIGNS: IA** aplica esse mesmo princípio ao campo da Inteligência Artificial, aproveitando um formato já validado de engajamento para abordar um tema de relevância crescente e urgente.[m
+[31m-[m
+[31m-Além do valor educacional, o projeto também serve como estudo de caso completo de desenvolvimento de software dentro da disciplina, cobrindo desde a concepção do produto até sua arquitetura técnica, processo de trabalho em equipe e estratégias de teste — permitindo à dupla aplicar, na prática, os fundamentos estudados ao longo do semestre.[m
+[31m-[m
+[31m----[m
+[31m-[m
+[31m-## 7. Visão de sucesso[m
+[31m-[m
+[31m-O projeto será considerado bem-sucedido se, ao final do desenvolvimento:[m
+[31m-- O jogador conseguir completar uma partida do início ao fim sem instruções externas, apenas pela interface[m
+[31m-- Cada decisão tomada resultar em uma consequência clara e compreensível nos medidores[m
+[31m-- O jogador conseguir associar, mesmo que informalmente, pelo menos um conceito de IA (viés, alucinação, deepfake, privacidade, etc.) a uma situação vivida durante o jogo[m
+[31m-- O protótipo funcionar corretamente em desktop e mobile, sem necessidade de instalação[m
+[31m-- A documentação de engenharia de software (visão, requisitos, modelagem, arquitetura, processo, testes) refletir fielmente o produto implementado[m
+[1mdiff --git "a/Documenta\303\247\303\243o/processo.md" "b/Documenta\303\247\303\243o/processo.md"[m
+[1mnew file mode 100644[m
+[1mindex 0000000..0800978[m
+[1m--- /dev/null[m
+[1m+++ "b/Documenta\303\247\303\243o/processo.md"[m
+[36m@@ -0,0 +1,97 @@[m
+[32m+[m[32m# ELSE · Processo de Trabalho[m
+[32m+[m
+[32m+[m[32m## 1. Metodologia[m
+[32m+[m
+[32m+[m[32mA Squad 8 usa um **Scrum simplificado**, adaptado ao calendário acadêmico:[m
+[32m+[m
+[32m+[m[32m- **Sprints de duas semanas**, seguindo o cronograma oficial do Projeto Integrador (W01 a W17-18).[m
+[32m+[m[32m- **Organização semanal dentro da sprint:** o trabalho é planejado e acompanhado semana a semana, de domingo a sábado.[m
+[32m+[m[32m- **Priorização com MoSCoW:** Must Have (obrigatório), Should Have (importante), Could Have (se der tempo) e Won't Have (não nesta fase).[m
+[32m+[m
+[32m+[m[32m## 2. Papéis[m
+[32m+[m
+[32m+[m[32m| Papel | Quem | O que faz |[m
+[32m+[m[32m|---|---|---|[m
+[32m+[m[32m| Product Owner (PO) | Daniela dos Anjos | Mantém e prioriza o backlog, escreve as histórias de usuário, define o que entra em cada entrega e aprova o que é entregue do ponto de vista do produto |[m
+[32m+[m[32m| Scrum Master (SM) | Igor Almeida | Cuida do processo e do quadro, acompanha prazos e dependências e ajuda a remover bloqueios |[m
+[32m+[m
+[32m+[m[32mCada frente de trabalho segue a **matriz RACI** abaixo:[m
+[32m+[m[32m**R** faz · **A** aprova (só uma pessoa) · **C** é consultado · **I** é informado.[m
+[32m+[m
+[32m+[m[32m| Frente | R | A | C |[m
+[32m+[m[32m|---|---|---|---|[m
+[32m+[m[32m| Gestão ágil: backlog e histórias (FP2) | Dani | Dani | Almeida, Arthur |[m
+[32m+[m[32m| Processo, quadro e cerimônias | Almeida | Dani | Todos |[m
+[32m+[m[32m| Engenharia de Software (FDS) | Caio, Athos | Almeida | Pierre, França |[m
+[32m+[m[32m| Design de Interação (IHC) | Dani, Arthur, França | Arthur | Almeida |[m
+[32m+[m[32m| Arte, assets e UI visual | França | Dani | Arthur, Almeida |[m
+[32m+[m[32m| Lógica Matemática (LMC) | Pierre, Caio | Pierre | Athos |[m
+[32m+[m[32m| Motor em C + raylib (PIF) | Almeida, Pierre | Almeida | França, Arthur, Dani |[m
+[32m+[m[32m| Regras em Haskell (PIF) | Athos, Caio, Arthur | Athos | Pierre |[m
+[32m+[m
+[32m+[m[32mQuem não aparece numa linha é **informado** sobre aquela frente.[m
+[32m+[m
+[32m+[m[32m## 3. Rotina semanal[m
+[32m+[m
+[32m+[m[32m| Dia | O que acontece |[m
+[32m+[m[32m|---|---|[m
+[32m+[m[32m| Domingo | A PO publica no grupo o comunicado da semana, com prazos, responsáveis e dependências |[m
+[32m+[m[32m| Até terça | Ajustes no backlog da semana |[m
+[32m+[m[32m| Terça | Reunião curta depois da aula (20 minutos) |[m
+[32m+[m[32m| Véspera de entrega | Congelamento: depois disso, só correções |[m
+[32m+[m[32m| Sábado | Cada integrante atualiza seus cartões no Trello |[m
+[32m+[m
+[32m+[m[32m## 4. Quadro no Trello[m
+[32m+[m
+[32m+[m[32mO quadro é organizado **por sprint**: cada coluna é uma sprint do cronograma, e a sprint atual tem o marcador **⬅ ATUAL**. Cada tarefa fica na coluna da semana em que precisa ser entregue.[m
+[32m+[m
+[32m+[m[32mCada cartão traz:[m
+[32m+[m[32m- **No título:** a frente (como [PIF] ou [FDS]) e o nome do responsável.[m
+[32m+[m[32m- **Na descrição:** prioridade, RACI, o que fazer, o critério de pronto, a quem consultar em caso de dúvida e quem aprova no final.[m
+[32m+[m[32m- **Na data:** o prazo limite da tarefa. Entregar antes é sempre bem-vindo.[m
+[32m+[m
+[32m+[m[32m**Limite de trabalho em andamento:** no máximo 2 cartões por pessoa ao mesmo tempo.[m
+[32m+[m
+[32m+[m[32m## 5. Comunicação[m
+[32m+[m
+[32m+[m[32m| Canal | Uso |[m
+[32m+[m[32m|---|---|[m
+[32m+[m[32m| Grupo da equipe | Comunicado semanal fixado e avisos importantes. Evitar mensagens soltas |[m
+[32m+[m[32m| Comentários no cartão do Trello | Dúvidas e discussões sobre uma tarefa específica |[m
+[32m+[m[32m| Slack da turma | Dúvidas com os professores |[m
+[32m+[m[32m| Reunião de terça | Alinhamento rápido da semana |[m
+[32m+[m
+[32m+[m[32m**Regra de bloqueio:** se travou, avisa no mesmo dia, principalmente quando outra pessoa depende da sua tarefa.[m
+[32m+[m
+[32m+[m[32m## 6. Versionamento[m
+[32m+[m
+[32m+[m[32m- Código e documentação ficam no GitHub: [cms7-bot/else](https://github.com/cms7-bot/else).[m
+[32m+[m[32m- As mensagens de commit seguem o padrão **Conventional Commits**:[m
+[32m+[m
+[32m+[m[32m| Tipo | Quando usar | Exemplo |[m
+[32m+[m[32m|---|---|---|[m
+[32m+[m[32m| `feat` | Nova funcionalidade | `feat(cartas): adiciona cartas do Estagiário` |[m
+[32m+[m[32m| `fix` | Correção de erro | `fix(build): unifica scripts de compilação` |[m
+[32m+[m[32m| `docs` | Documentação | `docs: adiciona requisitos do MVP da U1` |[m
+[32m+[m[32m| `refactor` | Melhoria de código sem mudar o comportamento | `refactor(hud): remove repetição no carregamento de texturas` |[m
+[32m+[m
+[32m+[m[32m- Todos os integrantes devem ter commits próprios, já que a distribuição de commits é avaliada.[m
+[32m+[m
+[32m+[m[32m## 7. Ferramentas[m
+[32m+[m
+[32m+[m[32m| Ferramenta | Uso |[m
+[32m+[m[32m|---|---|[m
+[32m+[m[32m| Trello | Gestão das sprints e das tarefas |[m
+[32m+[m[32m| GitHub | Versionamento do código e da documentação |[m
+[32m+[m[32m| Figma e FigJam | Wireframes, storyboards e diagramas |[m
+[32m+[m[32m| Miro | Rascunhos e sketches |[m
+[32m+[m[32m| Google Drive | Documentos de trabalho, como o conteúdo das cartas |[m
+[32m+[m[32m| PlantUML | Diagramas de atividades |[m
+[32m+[m
+[32m+[m[32m## 8. Definition of Done[m
+[32m+[m
+[32m+[m[32mUma tarefa só está pronta quando:[m
+[32m+[m[32m- Cumpre o critério de pronto descrito no cartão.[m
+[32m+[m[32m- Foi revisada e aprovada pelo aprovador (A da RACI).[m
+[32m+[m[32m- Se for código: compila sem erros e tem commit no padrão Conventional Commits.[m
+[32m+[m[32m- O link da entrega (commit, Figma, vídeo ou documento) está colado no cartão.[m
+[1mdiff --git "a/Documenta\303\247\303\243o/requisitos.md" "b/Documenta\303\247\303\243o/requisitos.md"[m
+[1mnew file mode 100644[m
+[1mindex 0000000..ee77d71[m
+[1m--- /dev/null[m
+[1m+++ "b/Documenta\303\247\303\243o/requisitos.md"[m
+[36m@@ -0,0 +1,80 @@[m
+[32m+[m[32m# ELSE · Requisitos do MVP (Unidade 1)[m
+[32m+[m
+[32m+[m[32mEste documento lista os requisitos do MVP da Unidade 1 do ELSE. Ele segue as definições do Capítulo 3 do livro *Engenharia de Software Moderna* (Marco Tulio Valente):[m
+[32m+[m
+[32m+[m[32m- **Requisitos funcionais (RF)** definem **o que** o sistema deve fazer. São escritos em linguagem natural.[m
+[32m+[m[32m- **Requisitos não funcionais (RNF)** definem **sob quais restrições** o sistema deve funcionar. Sempre que possível, são escritos com uma **métrica**, para evitar frases genéricas como "o jogo deve ser rápido".[m
+[32m+[m
+[32m+[m[32mCada RF aponta para a história de usuário (US) de onde ele vem, para manter a rastreabilidade.[m
+[32m+[m
+[32m+[m[32m---[m
+[32m+[m
+[32m+[m[32m## 1. Escopo do MVP da U1[m
+[32m+[m
+[32m+[m[32mO MVP da U1 é a **fase do Estagiário jogável do início ao fim**, em C com raylib.[m
+[32m+[m
+[32m+[m[32m| Entra na U1 | Fica para a U2 |[m
+[32m+[m[32m|---|---|[m
+[32m+[m[32m| Menu, sala do Estagiário, movimento e interação (US01) | Consequências de decisões passadas (US04) |[m
+[32m+[m[32m| Cartas de dilema e efeito nos medidores (US02) | Notificações inesperadas (US05) |[m
+[32m+[m[32m| HUD com os 4 medidores e o dia (US03, sem o painel de regras) | Promoção e troca de sala (US07) |[m
+[32m+[m[32m| Fim de jogo e jogar novamente (US08 e US09, versão simples) | Compartilhar resultado (US10) |[m
+[32m+[m[32m| Explicação do conceito de IA no verso da carta (US06), se der tempo | Auditoria (US11), conversa com colegas (US12), máquina de café (US13), galeria de finais (US14), salvar progresso (US15) |[m
+[32m+[m[32m| | Regras em Haskell e painel "Regras da empresa" |[m
+[32m+[m
+[32m+[m[32m---[m
+[32m+[m
+[32m+[m[32m## 2. Requisitos funcionais[m
+[32m+[m
+[32m+[m[32m| ID | Requisito | História | Prioridade |[m
+[32m+[m[32m|:--:|---|:--:|:--:|[m
+[32m+[m[32m| RF01 | O jogo deve exibir um menu principal com as opções Jogar, Instruções e Sair. | US01 | Must |[m
+[32m+[m[32m| RF02 | Ao escolher Jogar, o jogo deve iniciar uma partida na sala do Estagiário, com os 4 medidores em 50 e o contador no Dia 1. | US01 | Must |[m
+[32m+[m[32m| RF03 | O jogador deve mover o personagem com as teclas W, A, S e D dentro da sala, que tem enquadramento fixo (sem rolagem de câmera). | US01 | Must |[m
+[32m+[m[32m| RF04 | O jogador deve abrir um dilema ao interagir com um colega ou computador pela tecla E. Nenhum dilema aparece sozinho. | US01 | Must |[m
+[32m+[m[32m| RF05 | O jogo deve exibir cada dilema dentro de uma carta, com quem está falando, o texto do dilema e duas posturas possíveis. | US02 | Must |[m
+[32m+[m[32m| RF06 | O jogador deve escolher uma postura com a tecla A (esquerda) ou D (direita). | US02 | Must |[m
+[32m+[m[32m| RF07 | Após a escolha, o jogo deve alterar apenas os medidores previstos para aquele lado da carta. Os demais não mudam. | US02 | Must |[m
+[32m+[m[32m| RF08 | Um dilema já resolvido não deve aparecer de novo na mesma partida. | US02 | Must |[m
+[32m+[m[32m| RF09 | O HUD deve mostrar sempre os 4 medidores (Confiança, Viés, Privacidade e Lucro), com o valor real de cada um, e o dia atual. | US03 | Must |[m
+[32m+[m[32m| RF10 | Com uma carta aberta, o HUD não deve indicar qual lado melhora ou piora cada medidor. | US03 | Must |[m
+[32m+[m[32m| RF11 | Quando qualquer medidor chegar a 0 ou a 100, o jogo deve encerrar a partida e mostrar qual medidor causou o fim. | US08 | Must |[m
+[32m+[m[32m| RF12 | Na tela de fim de jogo, o jogador deve escolher entre Jogar novamente ou Sair. O jogo nunca deve fechar sem essa escolha. | US08, US09 | Must |[m
+[32m+[m[32m| RF13 | Ao escolher Jogar novamente, os medidores devem voltar a 50, o dia ao Dia 1 e as cartas devem ser embaralhadas de novo. | US09 | Must |[m
+[32m+[m[32m| RF14 | O jogo deve ignorar teclas que não são opção válida no menu, nas cartas e no fim de jogo, sem travar nem fechar. | Rubrica PIF | Must |[m
+[32m+[m[32m| RF15 | O personagem deve andar também na diagonal, com a mesma velocidade das outras direções. | US01 | Should |[m
+[32m+[m[32m| RF16 | Após a escolha, a carta deve virar e mostrar a consequência e o conceito de IA envolvido. Ao fechar a carta, nada fica na tela. | US06 | Should |[m
+[32m+[m[32m| RF17 | O jogador deve abrir um menu de pausa pela tecla Esc ou pelo botão no canto da tela. | US07 | Could |[m
+[32m+[m
+[32m+[m[32m---[m
+[32m+[m
+[32m+[m[32m## 3. Requisitos não funcionais[m
+[32m+[m
+[32m+[m[32mAs métricas abaixo são **metas propostas pela equipe** e devem ser validadas nos testes.[m
+[32m+[m
+[32m+[m[32m| ID | Categoria | Requisito | Como medir |[m
+[32m+[m[32m|:--:|---|---|---|[m
+[32m+[m[32m| RNF01 | Plataforma | O jogo deve rodar como aplicativo de computador no Windows 10 e 11, sem precisar de internet ou servidor. | Abrir e jogar uma partida com a internet desligada |[m
+[32m+[m[32m| RNF02 | Tecnologia | O jogo deve ser feito em C com a biblioteca raylib, sem engine de jogos. Haskell entra só na U2. | Revisão do código |[m
+[32m+[m[32m| RNF03 | Compilação | O jogo deve compilar por um único script, sem erros e sem avisos. | 0 erros e 0 avisos com `gcc -Wall`, a partir de um clone novo do repositório |[m
+[32m+[m[32m| RNF04 | Desempenho | O jogo deve rodar a 60 quadros por segundo e abrir a tela inicial em até 5 segundos. | Medir num notebook usado em aula |[m
+[32m+[m[32m| RNF05 | Interface | A janela do jogo deve ter resolução de 1280 × 720. | Conferir ao abrir o jogo |[m
+[32m+[m[32m| RNF06 | Robustez | Teclas erradas não devem travar nem fechar o jogo. | 0 travamentos em 1 minuto apertando teclas aleatórias no menu, nas cartas e no fim de jogo |[m
+[32m+[m[32m| RNF07 | Usabilidade | O jogo deve ter pouco texto: o texto de cada carta deve ser curto, e custos e ganhos devem aparecer pelos medidores, não por frases. | Texto de cada carta com até 200 caracteres |[m
+[32m+[m[32m| RNF08 | Usabilidade | Um jogador que nunca viu o jogo deve conseguir resolver a primeira carta sem ajuda. | 3 pessoas de fora da equipe, cada uma em até 1 minuto |[m
+[32m+[m[32m| RNF09 | Acessibilidade | Os 4 medidores devem ser diferenciados por ícone e por cor, nunca só pela cor. | Revisão visual do HUD |[m
+[32m+[m[32m| RNF10 | Consistência | A mesma escolha, no mesmo estado da partida, deve sempre produzir o mesmo efeito nos medidores. | Repetir a mesma carta e escolha em duas partidas e comparar os valores |[m
+[32m+[m[32m| RNF11 | Manutenibilidade | Todas as cartas devem ficar num único arquivo de dados, de forma que adicionar uma carta não exija mudar a lógica do jogo. | Adicionar uma carta de teste alterando só o arquivo das cartas |[m
+[32m+[m[32m| RNF12 | Manutenibilidade | O código deve ter nomes claros, comentários em cada bloco principal e nenhuma lógica repetida sem necessidade. | Revisão pela rubrica da PIF |[m
+[32m+[m[32m| RNF13 | Versionamento | O código deve ficar no GitHub, com commits no padrão Conventional Commits e de todos os integrantes. | Histórico de commits |[m
+[32m+[m
+[32m+[m[32m---[m
+[32m+[m
+[32m+[m[32m## 4. Restrições da disciplina (PIF · Unidade 1)[m
+[32m+[m
+[32m+[m[32mAlém dos requisitos acima, a entrega da U1 precisa respeitar a rubrica de Programação Imperativa e Funcional:[m
+[32m+[m
+[32m+[m[32m- Usar pelo menos **7 operadores distintos** da linguagem C.[m
+[32m+[m[32m- Validar entradas do jogador com laço **`while`**.[m
+[32m+[m[32m- Controlar o menu e o game loop com **`while`** ou **`do-while`**.[m
+[32m+[m[32m- Ter no README as instruções para compilar e executar pelo terminal, e os links para os artefatos das outras disciplinas.[m
+[1mdiff --git "a/Documenta\303\247\303\243o/visao.md" "b/Documenta\303\247\303\243o/visao.md"[m
+[1mnew file mode 100644[m
+[1mindex 0000000..bae3606[m
+[1m--- /dev/null[m
+[1m+++ "b/Documenta\303\247\303\243o/visao.md"[m
+[36m@@ -0,0 +1,61 @@[m
+[32m+[m[32m# ELSE · Documento de Visão[m
+[32m+[m
+[32m+[m[32m## 1. O que é o ELSE[m
+[32m+[m
+[32m+[m[32mO **ELSE** é um jogo educativo em pixel art sobre ética e uso responsável de Inteligência Artificial, inspirado no jogo *Reigns*. O jogador assume o papel de responsável pela IA de uma empresa e começa a carreira como **Estagiário**.[m
+[32m+[m
+[32m+[m[32mEle anda por uma sala de escritório vista de cima, com enquadramento fixo, e interage com colegas e computadores. Cada interação abre um **dilema real do mundo da IA** (viés, alucinação, privacidade, dependência) apresentado numa carta. O jogador inclina a carta para a esquerda ou para a direita para escolher uma postura.[m
+[32m+[m
+[32m+[m[32mCada escolha mexe em quatro medidores: **Confiança, Viés, Privacidade e Lucro**. Todos começam em 50 e devem ficar na faixa segura, entre 30 e 70. Se qualquer um chegar a 0 ou a 100, a empresa cai e a partida termina. O objetivo é equilibrar a empresa e crescer na carreira sem derrubá-la.[m
+[32m+[m
+[32m+[m[32m## 2. Problema e oportunidade[m
+[32m+[m
+[32m+[m[32mA Inteligência Artificial faz parte do dia a dia, mas a maioria das pessoas só tem contato com ela como usuária, sem entender os riscos por trás: discriminação por algoritmos, respostas inventadas, uso indevido de dados e dependência cega de sistemas automáticos. Esses temas costumam ser explicados de forma técnica ou abstrata.[m
+[32m+[m
+[32m+[m[32mJogos de decisão rápida, como *Reigns*, mostram que é possível ensinar sistemas complexos com escolhas simples e consequências visíveis, sem textos longos. **A oportunidade do ELSE é usar essa mecânica, já conhecida e engajante, para levar letramento em IA a quem não é da área.**[m
+[32m+[m
+[32m+[m[32m## 3. Objetivos[m
+[32m+[m
+[32m+[m[32m**Objetivo principal:** fazer o jogador viver, na prática, os dilemas éticos de quem trabalha com IA e perceber que quase toda decisão tem um custo.[m
+[32m+[m
+[32m+[m[32m**Objetivos específicos:**[m
+[32m+[m[32m- Transformar conceitos de IA em dilemas de trabalho fáceis de entender.[m
+[32m+[m[32m- Mostrar que não existe escolha sem consequência: o que melhora um medidor costuma piorar outro.[m
+[32m+[m[32m- Ensinar com pouco texto, deixando os efeitos aparecerem pelos medidores.[m
+[32m+[m[32m- Gerar vontade de jogar de novo, com finais diferentes para cada forma de perder.[m
+[32m+[m
+[32m+[m[32m## 4. Público-alvo[m
+[32m+[m
+[32m+[m[32m- Estudantes e curiosos sobre tecnologia, sem conhecimento técnico de IA.[m
+[32m+[m[32m- Professores que buscam uma ferramenta lúdica para introduzir ética e IA.[m
+[32m+[m[32m- Jogadores casuais que gostam de jogos de decisão rápida.[m
+[32m+[m
+[32m+[m[32m## 5. Escopo[m
+[32m+[m
+[32m+[m[32m### 5.1 MVP da Unidade 1 (entrega de PIF)[m
+[32m+[m[32mA fase do **Estagiário** jogável do início ao fim: menu, sala com movimento, cartas de dilema, os 4 medidores no HUD, fim de jogo e jogar novamente. O detalhamento está em [Requisitos](./requisitos.md).[m
+[32m+[m
+[32m+[m[32m### 5.2 Unidade 2[m
+[32m+[m[32mProgressão de carreira (Estagiário, Júnior, Pleno, Sênior e Tech Líder), consequências de decisões passadas, notícias inesperadas, auditoria, conversa com colegas, enigma da máquina de café, galeria de finais, salvar progresso e regras do jogo em Haskell.[m
+[32m+[m
+[32m+[m[32m### 5.3 Fora do escopo[m
+[32m+[m[32m- Versão web ou para celular. O ELSE é um jogo de computador feito em C com raylib.[m
+[32m+[m[32m- Multiplayer, ranking online, contas de usuário ou servidor próprio.[m
+[32m+[m[32m- Monetização e tradução para outros idiomas.[m
+[32m+[m
+[32m+[m[32m## 6. Stakeholders[m
+[32m+[m
+[32m+[m[32m| Stakeholder | Interesse |[m
+[32m+[m[32m|---|---|[m
+[32m+[m[32m| Jogadores | Uma experiência divertida que ensine algo real sobre IA |[m
+[32m+[m[32m| Professores do Projeto Integrador (PIF, FDS, LMC, IHC e Gestão) | Avaliar a aplicação dos conteúdos de cada disciplina no produto |[m
+[32m+[m[32m| Squad 8 (7 integrantes) | Entregar o projeto no prazo, com qualidade técnica e documentação coerente |[m
+[32m+[m[32m| Instituições de ensino (potencial) | Usar o jogo como apoio para ensinar ética em IA |[m
+[32m+[m
+[32m+[m[32m## 7. Como saberemos que deu certo[m
+[32m+[m
+[32m+[m[32m- Um jogador que nunca viu o jogo consegue jogar uma partida inteira sem ajuda.[m
+[32m+[m[32m- Cada escolha produz um efeito claro e visível nos medidores.[m
+[32m+[m[32m- Ao final, o jogador consegue citar pelo menos um conceito de IA que viveu no jogo (por exemplo, viés ou alucinação).[m
+[32m+[m[32m- O jogo compila e roda no Windows sem erros.[m
+[32m+[m[32m- A documentação descreve fielmente o jogo que foi implementado.[m
+[1mdiff --git a/cenario/Frame3.png b/cenario/Frame3.png[m
+[1mdeleted file mode 100644[m
+[1mindex bfc5f0d..0000000[m
+Binary files a/cenario/Frame3.png and /dev/null differ
+[1mdiff --git a/jogo.exe b/jogo.exe[m
+[1mindex f41f52e..30c651e 100644[m
+Binary files a/jogo.exe and b/jogo.exe differ
+[1mdiff --git a/tatus b/tatus[m
+[1mdeleted file mode 100644[m
+[1mindex 924109b..0000000[m
+[1m--- a/tatus[m
+[1m+++ /dev/null[m
+[36m@@ -1,219 +0,0 @@[m
+[31m-[1mdiff --git "a/Documenta\303\247\303\243o/Processo.md" "b/Documenta\303\247\303\243o/Processo.md"[m[m
+[31m-[1mdeleted file mode 100644[m[m
+[31m-[1mindex 6ae1243..0000000[m[m
+[31m-[1m--- "a/Documenta\303\247\303\243o/Processo.md"[m[m
+[31m-[1m+++ /dev/null[m[m
+[31m-[36m@@ -1,75 +0,0 @@[m[m
+[31m-[31m-# Definição de Processo — [Nome a definir][m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 1. Metodologia adotada[m[m
+[31m-[31m-[m[m
+[31m-[31m-Com uma equipe de 7 pessoas, o projeto passa a comportar uma estrutura mais próxima do **Scrum tradicional**, onde papéis formais não se justificam. Optou-se por um **Scrum simplificado com sprints curtos** (1 semana cada), combinado com um **quadro Kanban** para visualização do fluxo dentro de cada sprint.[m[m
+[31m-[31m-[m[m
+[31m-[31m-Justificativa:[m[m
+[31m-[31m-- Uma equipe de 7 pessoas precisa de papéis claros para evitar sobreposição de trabalho e gargalos de decisão[m[m
+[31m-[31m-- Sprints curtos (1 semana) se encaixam melhor no calendário da disciplina do que sprints de 2-4 semanas, permitindo entregas parciais frequentes[m[m
+[31m-[31m-- O quadro Kanban dentro de cada sprint mantém a simplicidade visual do fluxo de trabalho, sem burocratizar demais o processo[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 2. Papéis da equipe[m[m
+[31m-[31m-[m[m
+[31m-[31m-| Papel | Responsável | Função |[m[m
+[31m-[31m-|---|---|---|[m[m
+[31m-[31m-| **Facilitador da sprint** | Conduz a Planning e a Retrospectiva, mantém o quadro Kanban atualizado, comunica bloqueios ao restante da equipe |[m[m
+[31m-[31m-| **Guardião da Visão** | Confere se as entregas da semana continuam coerentes com o Documento de Visão antes da Review |[m[m
+[31m-[31m-| **Revisor de tarefa** | Aprova ou pede ajustes antes de mover o card para "Concluído" |[m[m
+[31m-[31m-| **Responsável pela entrega documental** | Principal responsável da entrega da tarefa em específico ||[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 3. Cerimônias Scrum[m[m
+[31m-[31m-[m[m
+[31m-[31m-| Cerimônia | Frequência | Objetivo |[m[m
+[31m-[31m-|---|---|---|[m[m
+[31m-[31m-| **Planning** | Início de cada sprint (semanal) | Definir o que será feito na semana, distribuir os cards do backlog entre os membros |[m[m
+[31m-[31m-| **Daily assíncrona** | 3x por semana (não precisa ser diária, dado o contexto acadêmico) | Cada integrante compartilha em texto (grupo/canal) o que fez, o que vai fazer e se há impedimentos |[m[m
+[31m-[31m-| **Review** | Fim de cada sprint | Demonstração do que foi produzido (documento ou funcionalidade do protótipo) para o restante da equipe |[m[m
+[31m-[31m-| **Retrospectiva** | Fim de cada sprint | O que funcionou bem, o que travou, o que ajustar no próximo sprint |[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 4. Fluxo de trabalho (quadro Kanban dentro do sprint)[m[m
+[31m-[31m-[m[m
+[31m-[31m-```[m[m
+[31m-[31m-BACKLOG  →  EM ANDAMENTO  →  EM REVISÃO  →  CONCLUÍDO[m[m
+[31m-[31m-```[m[m
+[31m-[31m-[m[m
+[31m-[31m-- **Backlog:** histórias de usuário e tarefas de documentação, priorizadas pelo PO[m[m
+[31m-[31m-- **Em andamento:** limite de 1-2 cards por pessoa simultaneamente (WIP limit), para evitar dispersão em uma equipe grande[m[m
+[31m-[31m-- **Em revisão:** toda tarefa concluída passa por revisão de **pelo menos 1 outro integrante** antes de ser considerada pronta — em equipe de 7, a revisão cruzada é dividida em pares fixos por sprint (definidos na Planning), não aleatória[m[m
+[31m-[31m-- **Concluído:** aprovado pelo revisor e, no caso de documentos estruturais (Visão, Requisitos), também validado pelo PO[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 5. Ferramentas utilizadas[m[m
+[31m-[31m-[m[m
+[31m-[31m-| Categoria | Ferramenta | Uso |[m[m
+[31m-[31m-|---|---|---|[m[m
+[31m-[31m-| Gestão do quadro | GitHub Projects (ou Trello) | Quadro Kanban com as 4 colunas, cards vinculados às issues do repositório |[m[m
+[31m-[31m-| Versionamento de código | Git + GitHub | Controle de versão do protótipo e da documentação, com Pull Requests obrigatórios |[m[m
+[31m-[31m-| Comunicação da equipe | Discord ou WhatsApp (canal único) | Alinhamentos rápidos, dailies assíncronas, avisos de bloqueios |[m[m
+[31m-[31m-| Reuniões síncronas | Google Meet ou presencial | Planning, Review e Retrospectiva semanais |[m[m
+[31m-[31m-| Documentação | Markdown (`.md`) no repositório, organizados em `/docs` | Visão, Requisitos, Histórias de Usuário, Modelagem, Arquitetura, Processo e Testes |[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 6. Fluxo de trabalho no Git[m[m
+[31m-[31m-[m[m
+[31m-[31m-.......[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 7. Critérios de "pronto" [m[m
+[31m-[31m-[m[m
+[31m-[31m-Uma tarefa só é movida para **Concluído** quando:[m[m
+[31m-[31m-- Foi revisada por pelo menos 1 outro integrante da equipe (par definido na Planning)[m[m
+[31m-[31m-- É coerente com o Documento de Visão, sem contradizer decisões de escopo já tomadas[m[m
+[31m-[31m-- No caso de funcionalidades do protótipo: foi testada manualmente em desktop e mobile, e validada pela pessoa responsável por Testes[m[m
+[31m-[31m-- No caso de documentos estruturais (Visão, Requisitos, Arquitetura): validada também pelo Product Owner [m[m
+[31m-[31m-- Não possui pendências como "[Nome integrante]" ou seções incompletas[m[m
+[31m-[1mdiff --git "a/Documenta\303\247\303\243o/Vis\303\243o.md" "b/Documenta\303\247\303\243o/Vis\303\243o.md"[m[m
+[31m-[1mdeleted file mode 100644[m[m
+[31m-[1mindex 1f2d0a0..0000000[m[m
+[31m-[1m--- "a/Documenta\303\247\303\243o/Vis\303\243o.md"[m[m
+[31m-[1m+++ /dev/null[m[m
+[31m-[36m@@ -1,96 +0,0 @@[m[m
+[31m-[31m-# Documento de Visão — else[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 1. Descrição geral do produto[m[m
+[31m-[31m-[m[m
+[31m-[31m-**else** é um jogo de exploração e decisões, inspirado no jogo *Reigns*, no qual o jogador assume o papel de responsável por uma empresa/laboratório de Inteligência Artificial. O jogador explora os ambientes de cada fase em perspectiva top-down, movimentando o personagem com **WASD** e interagindo com NPCs e computadores para acionar cenários de decisão. A cada cenário, o jogador recebe um dilema real enfrentado por empresas de tecnologia — como vieses algorítmicos, vazamento de dados, deepfakes e pressão de investidores — e precisa decidir arrastando um cartão para a esquerda ou para a direita.[m[m
+[31m-[31m-[m[m
+[31m-[31m-Cada decisão impacta quatro medidores que representam os pilares de equilíbrio da empresa: **Confiança**, **Privacidade**, **Lucro** e **Viés**. Conforme avança, o jogador progride por diferentes fases de carreira — de **Estagiário** a **Tech Lead** — cada uma com seu próprio ambiente e conjunto de dilemas. O objetivo é sobreviver o maior número de dias possível sem deixar nenhum medidor zerar ou estourar, enquanto aprende, na prática, conceitos reais de letramento em Inteligência Artificial.[m[m
+[31m-[31m-[m[m
+[31m-[31m-O produto combina uma mecânica de exploração simples com o núcleo de decisão por *card-swipe*, já validado pelo gênero, e uma camada educativa: toasts explicativos, mini-quizzes, telas de auditoria e finais de jogo narrativos, todos baseados em situações reais do campo de IA.[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 2. Problema / Oportunidade[m[m
+[31m-[31m-[m[m
+[31m-[31m-Discussões sobre Inteligência Artificial se tornaram parte do cotidiano em notícias, redes sociais e no ambiente de trabalho, mas grande parte da população não tem contato prático com os dilemas éticos e técnicos que envolvem o desenvolvimento e uso de sistemas de IA. Conceitos como viés algorítmico, alucinação de modelos, deepfakes e privacidade de dados costumam ser tratados de forma técnica ou abstrata, distante da experiência de quem não trabalha diretamente na área.[m[m
+[31m-[31m-[m[m
+[31m-[31m-Ao mesmo tempo, jogos de decisão no estilo *Reigns* têm um histórico comprovado de engajamento por serem simples, rápidos e viciantes, sem exigir tutoriais extensos. **A oportunidade identificada é usar essa mecânica já validada como veículo para letramento em IA**, tornando o aprendizado sobre riscos, limitações e responsabilidades da tecnologia algo acessível, interativo e memorável — em vez de puramente teórico.[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 3. Objetivo do produto[m[m
+[31m-[31m-[m[m
+[31m-[31m-### 3.1 Objetivo principal[m[m
+[31m-[31m-Proporcionar uma experiência de jogo envolvente que, através de decisões simuladas de gestão de uma empresa de IA, promova o letramento prático do jogador sobre conceitos fundamentais de Inteligência Artificial e seus riscos éticos, sociais e técnicos.[m[m
+[31m-[31m-[m[m
+[31m-[31m-### 3.2 Objetivos específicos[m[m
+[31m-[31m-- Traduzir conceitos técnicos de IA (viés, alucinação, privacidade, deepfake, segurança de dados) em dilemas de fácil compreensão[m[m
+[31m-[31m-- Demonstrar, na prática, que decisões sobre IA envolvem trade-offs — raramente existe uma opção sem consequência[m[m
+[31m-[31m-- Gerar engajamento e replay por meio de uma mecânica simples, rápida e visualmente reativa[m[m
+[31m-[31m-- Servir como material de apoio educativo, utilizável em contextos de ensino introdutório sobre IA[m[m
+[31m-[31m-[m[m
+[31m-[31m-### 3.3 Público-alvo[m[m
+[31m-[31m-- Estudantes e curiosos sobre tecnologia e Inteligência Artificial, sem necessidade de conhecimento técnico prévio[m[m
+[31m-[31m-- Professores e educadores que busquem uma ferramenta lúdica de apoio para introduzir temas de ética e letramento em IA[m[m
+[31m-[31m-- Jogadores casuais interessados em jogos de decisão rápida (fãs do gênero *Reigns*-like)[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 4. Escopo do produto[m[m
+[31m-[31m-[m[m
+[31m-[31m-### 4.1 Escopo incluso na versão atual (MVP)[m[m
+[31m-[31m-- Exploração de ambientes em perspectiva top-down, com movimentação do personagem via WASD[m[m
+[31m-[31m-- Interação com NPCs e computadores para acionar cenários de decisão[m[m
+[31m-[31m-- Mecânica principal de decisão por arraste (swipe esquerda/direita), com suporte a mouse e toque[m[m
+[31m-[31m-- Sistema de 4 medidores (Confiança, Privacidade, Lucro, Viés) que reagem a cada decisão[m[m
+[31m-[31m-- Baralho de cartas/dilemas baseados em situações reais do campo de IA[m[m
+[31m-[31m-- Progressão de carreira em fases (Estagiário → Programador Júnior → Pleno → Sênior → Tech Lead), cada uma com seu ambiente[m[m
+[31m-[31m-- Núcleo visual da IA que reage ao estado geral do sistema (estável, em alerta, crítico)[m[m
+[31m-[31m-- Interações complementares: prévia de impacto ao segurar o cartão, investigação de dilema (arrastar para cima), consulta a conselheiros (duplo toque)[m[m
+[31m-[31m-- Eventos dinâmicos: notificações inesperadas simulando notícias/eventos externos[m[m
+[31m-[31m-- Camada educativa: toasts explicativos pós-decisão, mini-quiz de viés, tela de auditoria periódica[m[m
+[31m-[31m-- Múltiplos finais de jogo, cada um associado a uma lição educativa distinta[m[m
+[31m-[31m-- Opção de reiniciar a partida[m[m
+[31m-[31m-- Interface responsiva (funcional em desktop e mobile)[m[m
+[31m-[31m-[m[m
+[31m-[31m-### 4.2 Fora do escopo desta versão[m[m
+[31m-[31m-- Modo multiplayer ou disputa entre jogadores[m[m
+[31m-[31m-- Aplicativo mobile nativo (a versão atual roda via navegador/web)[m[m
+[31m-[31m-- Sistema de contas de usuário, login ou persistência de progresso entre dispositivos[m[m
+[31m-[31m-- Backend próprio ou ranking global entre jogadores[m[m
+[31m-[31m-- Expansões pagas ou monetização[m[m
+[31m-[31m-- Tradução para outros idiomas além do português[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 5. Stakeholders[m[m
+[31m-[31m-[m[m
+[31m-[31m-| Stakeholder | Interesse no projeto |[m[m
+[31m-[31m-|---|---|[m[m
+[31m-[31m-| **Jogadores/Usuários finais** | Experiência de jogo envolvente e aprendizado prático sobre IA |[m[m
+[31m-[31m-| **Professor(a) da disciplina** | Avaliação da aplicação correta de conceitos de Fundamentos de Desenvolvimento de Software (visão, requisitos, modelagem, arquitetura, processo e testes) |[m[m
+[31m-[31m-| **Dupla desenvolvedora** | Entrega do projeto dentro do prazo, com qualidade técnica e de documentação |[m[m
+[31m-[31m-| **Instituições educacionais (potenciais)** | Uso do jogo como material de apoio para ensino introdutório de IA e ética tecnológica |[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 6. Contexto e justificativa[m[m
+[31m-[31m-[m[m
+[31m-[31m-O tema Inteligência Artificial está no centro do debate público e tecnológico atual, mas o letramento sobre o assunto ainda é desigual: enquanto profissionais da área discutem riscos e limitações com profundidade, grande parte da sociedade tem contato apenas superficial — muitas vezes limitado ao uso de chatbots ou geradores de imagem, sem entender os riscos por trás dessas ferramentas (viés, desinformação, privacidade, entre outros).[m[m
+[31m-[31m-[m[m
+[31m-[31m-Jogos de decisão rápida, como o já consagrado *Reigns*, demonstraram que é possível ensinar sistemas complexos (na obra original, política e governança medieval) por meio de escolhas simples e consequências visíveis, sem depender de textos longos ou aulas formais. **REIGNS: IA** aplica esse mesmo princípio ao campo da Inteligência Artificial, aproveitando um formato já validado de engajamento para abordar um tema de relevância crescente e urgente.[m[m
+[31m-[31m-[m[m
+[31m-[31m-Além do valor educacional, o projeto também serve como estudo de caso completo de desenvolvimento de software dentro da disciplina, cobrindo desde a concepção do produto até sua arquitetura técnica, processo de trabalho em equipe e estratégias de teste — permitindo à dupla aplicar, na prática, os fundamentos estudados ao longo do semestre.[m[m
+[31m-[31m-[m[m
+[31m-[31m----[m[m
+[31m-[31m-[m[m
+[31m-[31m-## 7. Visão de sucesso[m[m
+[31m-[31m-[m[m
+[31m-[31m-O projeto será considerado bem-sucedido se, ao final do desenvolvimento:[m[m
+[31m-[31m-- O jogador conseguir completar uma partida do início ao fim sem instruções externas, apenas pela interface[m[m
+[31m-[31m-- Cada decisão tomada resultar em uma consequência clara e compreensível nos medidores[m[m
+[31m-[31m-- O jogador conseguir associar, mesmo que informalmente, pelo menos um conceito de IA (viés, alucinação, deepfake, privacidade, etc.) a uma situação vivida durante o jogo[m[m
+[31m-[31m-- O protótipo funcionar corretamente em desktop e mobile, sem necessidade de instalação[m[m
+[31m-[31m-- A documentação de engenharia de software (visão, requisitos, modelagem, arquitetura, processo, testes) refletir fielmente o produto implementado[m[m
+[31m-[1mdiff --git "a/Documenta\303\247\303\243o/processo.md" "b/Documenta\303\247\303\243o/processo.md"[m[m
+[31m-[1mnew file mode 100644[m[m
+[31m-[1mindex 0000000..0800978[m[m
+[31m-[1m--- /dev/null[m[m
+[31m-[1m+++ "b/Documenta\303\247\303\243o/processo.md"[m[m
+[31m-[36m@@ -0,0 +1,97 @@[m[m
+[31m-[32m+[m[32m# ELSE · Processo de Trabalho[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m[32m## 1. Metodologia[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m[32mA Squad 8 usa um **Scrum simplificado**, adaptado ao calendário acadêmico:[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m[32m- **Sprints de duas semanas**, seguindo o cronograma oficial do Projeto Integrador (W01 a W17-18).[m[m
+[31m-[32m+[m[32m- **Organização semanal dentro da sprint:** o trabalho é planejado e acompanhado semana a semana, de domingo a sábado.[m[m
+[31m-[32m+[m[32m- **Priorização com MoSCoW:** Must Have (obrigatório), Should Have (importante), Could Have (se der tempo) e Won't Have (não nesta fase).[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m[32m## 2. Papéis[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m[32m| Papel | Quem | O que faz |[m[m
+[31m-[32m+[m[32m|---|---|---|[m[m
+[31m-[32m+[m[32m| Product Owner (PO) | Daniela dos Anjos | Mantém e prioriza o backlog, escreve as histórias de usuário, define o que entra em cada entrega e aprova o que é entregue do ponto de vista do produto |[m[m
+[31m-[32m+[m[32m| Scrum Master (SM) | Igor Almeida | Cuida do processo e do quadro, acompanha prazos e dependências e ajuda a remover bloqueios |[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m[32mCada frente de trabalho segue a **matriz RACI** abaixo:[m[m
+[31m-[32m+[m[32m**R** faz · **A** aprova (só uma pessoa) · **C** é consultado · **I** é informado.[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m[32m| Frente | R | A | C |[m[m
+[31m-[32m+[m[32m|---|---|---|---|[m[m
+[31m-[32m+[m[32m| Gestão ágil: backlog e histórias (FP2) | Dani | Dani | Almeida, Arthur |[m[m
+[31m-[32m+[m[32m| Processo, quadro e cerimônias | Almeida | Dani | Todos |[m[m
+[31m-[32m+[m[32m| Engenharia de Software (FDS) | Caio, Athos | Almeida | Pierre, França |[m[m
+[31m-[32m+[m[32m| Design de Interação (IHC) | Dani, Arthur, França | Arthur | Almeida |[m[m
+[31m-[32m+[m[32m| Arte, assets e UI visual | França | Dani | Arthur, Almeida |[m[m
+[31m-[32m+[m[32m| Lógica Matemática (LMC) | Pierre, Caio | Pierre | Athos |[m[m
+[31m-[32m+[m[32m| Motor em C + raylib (PIF) | Almeida, Pierre | Almeida | França, Arthur, Dani |[m[m
+[31m-[32m[m
+\ No newline at end of file[m
+[1mdiff --git a/tempCodeRunnerFile.python b/tempCodeRunnerFile.python[m
+[1mdeleted file mode 100644[m
+[1mindex 8e1e415..0000000[m
+[1m--- a/tempCodeRunnerFile.python[m
+[1m+++ /dev/null[m
+[36m@@ -1,7 +0,0 @@[m
+[31m-lista1= [1,2,3,4][m
+[31m-lista2 = lista1[m
+[31m-[m
+[31m-lista2.append(6)[m
+[31m-[m
+[31m-print(lista1)[m
+[31m-print(lista2)[m
+\ No newline at end of file[m
