@@ -103,6 +103,9 @@ int main()
 
     Texture2D botaoJogar = LoadTexture("Botoes/BotaoJogar.png");
     Texture2D logoInicio = LoadTexture("cenario/logoInicio.png");
+    Texture2D fundoCarta = LoadTexture("cenario/Frame3.png");
+    fundoCarta.height*=0.95;
+    fundoCarta.width*=0.95;
     bool mensagem = false;
     bool cartaAbertaPararDeAndar = false;
 
@@ -131,6 +134,8 @@ int main()
     int andando = 0;
     bool pausado = false;
     Texture2D texturaAtualGuardada = frente1;
+
+    bool abrirCarta = false;
 
     while (!WindowShouldClose())
     {
@@ -352,7 +357,7 @@ int main()
 
         if (!cartaAbertaPararDeAndar)
         {   
-            
+
             if (!botaoAeDapertados && !botaoWeSapertados)
             {
                 if (IsKeyDown(KEY_W))
@@ -508,6 +513,9 @@ int main()
         ClearBackground(RAYWHITE); 
         
         DrawTexture(fundoCeramica, 0, 0, WHITE);
+        // DrawTexture(fundoCarta, (larguraResolucao-fundoCarta.width)/2, (alturaResolucao-fundoCarta.height)/2, WHITE);
+        
+        
         Rectangle colisaoMesaBoneco_Boneco ={x,y,frente1.width,frente1.height};
         Rectangle colisaoMesaBoneco_Mesa ={(larguraResolucao-mesa.width)-20+mesa.width*0.1,mesa.height-40,mesa.width*0.8,mesa.height*0.3};
         if (CheckCollisionRecs(colisaoMesaBoneco_Boneco,colisaoMesaBoneco_Mesa)){
@@ -540,8 +548,13 @@ int main()
         alturaResolucao
     );
     
-    // DrawRectangle((larguraResolucao-confianca.width-vies.width-privacidade.width-lucro.width-90)/2,3,confianca.width+vies.width+privacidade.width+lucro.width+90,privacidade.height+5,ColorAlpha(BLACK,0.70));
 
+        if (IsKeyPressed(KEY_P)){
+            abrirCarta = !abrirCarta;
+                }
+        if (abrirCarta){
+            DrawTexture(fundoCarta,0,0, WHITE);
+        }
 
 DrawTexture(fundoHUD,((larguraResolucao-confianca.width)/2)-confianca.width-145,privacidade.height*0.05,WHITE);
 
@@ -642,6 +655,8 @@ BeginScissorMode(
 
         texturaAtualGuardada = texturaAtual;
 
+
+
         
 
         EndTextureMode();
@@ -672,7 +687,7 @@ BeginScissorMode(
             0,
             WHITE
         );
-        
+    
 
         EndDrawing();
     }

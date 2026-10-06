@@ -358,13 +358,13 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         LIGHTGRAY
     );
 
-    DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);
-    DrawText(TextFormat("EXP: %d",experiencia),25,50,20,WHITE);
-    DrawText(TextFormat("Reputacao: %d",reputacao),25,75,20,WHITE);
-    DrawText(TextFormat("Competencia: %d",competencia),25,100,20,WHITE);
-    DrawText(TextFormat("Energia: %d",energia),25,125,20,WHITE);
-    DrawText(TextFormat("Etica: %d",etica),25,150,20,WHITE);
-    DrawText(TextFormat("Dinheiro: R$ %d",dinheiro),25,175,20,WHITE);
+    // DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);
+    // DrawText(TextFormat("EXP: %d",experiencia),25,50,20,WHITE);
+    // DrawText(TextFormat("Reputacao: %d",reputacao),25,75,20,WHITE);
+    // DrawText(TextFormat("Competencia: %d",competencia),25,100,20,WHITE);
+    // DrawText(TextFormat("Energia: %d",energia),25,125,20,WHITE);
+    // DrawText(TextFormat("Etica: %d",etica),25,150,20,WHITE);
+    // DrawText(TextFormat("Dinheiro: R$ %d",dinheiro),25,175,20,WHITE);
 }
 
 void descarregarCartas()
