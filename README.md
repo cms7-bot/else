@@ -127,17 +127,17 @@ else/
 
 
 
-Toda a documentação de engenharia de software está disponível na pasta [`/docs`](./docs):
+Toda a documentação de engenharia de software está disponível na pasta [`/Documentação`](./Documenta%C3%A7%C3%A3o):
 
 | Documento | Descrição |
 |---|---|
-| [Visão](./docs/visao.md) | Propósito, escopo e stakeholders do produto |
-| [Requisitos](./docs/requisitos.md) | Requisitos funcionais, não-funcionais e restrições |
-| [Histórias de Usuário](./docs/historias-usuario.md) | 15+ histórias no padrão 3Cs (Card, Conversation, Confirmation) |
-| [Modelagem](./docs/modelagem.md) | Diagrama e descrição de casos de uso |
-| [Arquitetura](./docs/arquitetura.md) | Componentes do sistema e decisões técnicas |
-| [Processo](./docs/processo.md) | Metodologia, papéis e fluxo de trabalho da equipe |
-| [Testes](./docs/testes.md) | Estratégias, tipos de teste e critérios de aceite |
+| [Visão](./Documenta%C3%A7%C3%A3o/visao.md) | Propósito, escopo e stakeholders do produto |
+| [Requisitos](./Documenta%C3%A7%C3%A3o/requisitos.md) | Requisitos funcionais, não-funcionais e restrições |
+| [Histórias de Usuário](./Documenta%C3%A7%C3%A3o/historias-usuario.md) | 15+ histórias no padrão 3Cs (Card, Conversation, Confirmation) |
+| [Modelagem](./Documenta%C3%A7%C3%A3o/modelagem.md) | Diagrama e descrição de casos de uso |
+| [Arquitetura](./Documenta%C3%A7%C3%A3o/arquitetura.md) | Componentes do sistema e decisões técnicas |
+| [Processo](./Documenta%C3%A7%C3%A3o/processo.md) | Metodologia, papéis e fluxo de trabalho da equipe |
+| [Testes](./Documenta%C3%A7%C3%A3o/testes.md) | Estratégias, tipos de teste e critérios de aceite |
 
 ---
 
@@ -145,7 +145,7 @@ Toda a documentação de engenharia de software está disponível na pasta [`/do
 
 Sprints, backlog e tarefas é feito no board do Jira:
 
-🔗 [Board do projeto (Jira)](https://algs2.atlassian.net/jira/software/c/projects/PI2E8/boards/8)
+🔗 [Board do projeto (trello)](https://trello.com/invite/b/6ab7228e40ff14f38be9f55b/ATTIa4223772b64eccef9d08a9bf0c63c73eED83464F/else-gestao-de-sprints-squad-8)
 
 ---
 
@@ -163,7 +163,7 @@ Sprints, backlog e tarefas é feito no board do Jira:
 |---|---|
 | Diagramas de atividade | [FigJam](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0) |
 | Storyboards | [Figma](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else) |
-| Wireframes das telas | [FigJam](https://www.figma.com/board/KysbFg6xFmuL41d14R8jWr) |  
+ 
 
 <details>
 <summary><b>Rastreabilidade por história de usuário</b></summary>
@@ -172,20 +172,21 @@ Sprints, backlog e tarefas é feito no board do Jira:
 
 | História | Diagrama de atividade | Storyboard |
 |---|---|---|
-| US01: Iniciar uma nova partida | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-563) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-20) |
-| US02: Tomar uma decisão e ver o impacto | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-564) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-21) |
-| US03: HUD de medidores éticos | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-565) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-22) |
-| US04: Interagir com cards de decisão | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-566) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-23) |
-| US06: Núcleo da IA reage ao estado do jogo | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-575) | não se aplica |
-| US07: Receber notificações inesperadas | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-576) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-31) |
-| US08: Aprender um conceito de IA após a decisão | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-577) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-24) |
-| US09: Progressão entre escritórios de carreira | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-578) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-27) |
-| US10: Conjunto mínimo de cartas de decisão | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-579) | não se aplica |
-| US11: Revisar decisões passadas em auditoria | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-580) | não se aplica |
-| US12: Tela de fim de jogo | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-581) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-28) |
-| US13: Reiniciar a partida | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-582) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-29) |
-| US14: Executar o jogo no computador | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-583) | não se aplica |
-| US15: Compartilhar o resultado final | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=72-584) | [ver](https://www.figma.com/design/jk3QiWfnkW9yzDmboFz8R9/Storyboards-Else?node-id=88-30) |
+| US01: Iniciar uma nova partida | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=97-563) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-2&t=rp6Ep2IlsBj6sKU6-4) |
+| US02: Tomar uma decisão e ver o impacto | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=100-513) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-210&t=rp6Ep2IlsBj6sKU6-4) |
+| US03: HUD e regras | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=101-593) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-464&t=rp6Ep2IlsBj6sKU6-4) |
+| US04: Consequências passadas | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=100-530) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-736&t=rp6Ep2IlsBj6sKU6-4) |
+| US05: Receber notificações inesperadas | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=100-537) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-950&t=rp6Ep2IlsBj6sKU6-4) |
+| US06: Aprender um conceito de IA após a decisão | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=100-541) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-1202&t=rp6Ep2IlsBj6sKU6-4) |
+| US07: Promoção e troca de escritório | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=100-548) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-1455&t=rp6Ep2IlsBj6sKU6-4) |
+| US08: Tela de fim de jogo | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=100-561) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-1664&t=rp6Ep2IlsBj6sKU6-4) |
+| US09: Reiniciar a partida | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=106-768) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-1825&t=rp6Ep2IlsBj6sKU6-4) |
+| US10: Compartilhar o resultado | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=109-2) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-1932&t=rp6Ep2IlsBj6sKU6-4) |
+| US11: Passar pela auditoria | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=106-766) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-2001&t=rp6Ep2IlsBj6sKU6-4) |
+| US12: Conversar com colegas no escritório | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=106-765) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-2272&t=rp6Ep2IlsBj6sKU6-4) |
+| US13: Resolver enigma da máquina de café | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=112-12) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-2533&t=rp6Ep2IlsBj6sKU6-4) |
+| US14: Desbloquear finais diferentes | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=100-585) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-2713&t=rp6Ep2IlsBj6sKU6-4) |
+| US15: Continuar de onde parei | [ver](https://www.figma.com/board/3xdh1WRdeCV1OWxPhDDmk0/US01---Iniciar-uma-nova-partida?node-id=105-746) | [ver](https://www.figma.com/design/2BYlnZ1Bia64w96XLPb5Eq/ELSE-%C2%B7-Storyboards-v2--US01-a-US15-?node-id=11-2800&t=rp6Ep2IlsBj6sKU6-4) |
 
 </details>
 
