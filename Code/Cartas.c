@@ -12,16 +12,14 @@ typedef struct Evento
     const char *direita;
     int experienciaEsquerda;
     int experienciaDireita;
-    int reputacaoEsquerda;
-    int reputacaoDireita;
-    int competenciaEsquerda;
-    int competenciaDireita;
-    int energiaEsquerda;
-    int energiaDireita;
-    int eticaEsquerda;
-    int eticaDireita;
-    int dinheiroEsquerda;
-    int dinheiroDireita;
+    int confiancaEsquerda;
+    int confiancaDireita;
+    int viesEsquerda;
+    int viesDireita;
+    int privacidadeEsquerda;
+    int privacidadeDireita;
+    int lucroEsquerda;
+    int lucroDireita;
 } Evento;
 
 Evento *obterBancoPerguntas(int *quantidade);
@@ -32,11 +30,11 @@ static int quantidadeEventos = 0;
 
 static int cargo = 0;
 static int experiencia = 0;
-static int reputacao = 50;
-static int competencia = 50;
-static int energia = 100;
-static int etica = 50;
-static int dinheiro = 0;
+
+static int confianca = 50;
+static int vies = 50;
+static int privacidade = 50;
+static int lucro = 50;
 
 static bool cartaAberta = false;
 
@@ -56,6 +54,26 @@ const char *nomeCargo()
 bool cartasEstaoAbertas()
 {
     return cartaAberta;
+}
+
+int obterConfianca()
+{
+    return confianca;
+}
+
+int obterVies()
+{
+    return vies;
+}
+
+int obterPrivacidade()
+{
+    return privacidade;
+}
+
+int obterLucro()
+{
+    return lucro;
 }
 
 bool eventoFoiRecente(int id)
@@ -78,17 +96,17 @@ void adicionarHistorico(int id)
 
 void limitarAtributos()
 {
-    if (reputacao < 0) reputacao = 0;
-    if (reputacao > 100) reputacao = 100;
+    if (confianca < 0) confianca = 0;
+    if (confianca > 100) confianca = 100;
 
-    if (competencia < 0) competencia = 0;
-    if (competencia > 100) competencia = 100;
+    if (vies < 0) vies = 0;
+    if (vies > 100) vies = 100;
 
-    if (energia < 0) energia = 0;
-    if (energia > 100) energia = 100;
+    if (privacidade < 0) privacidade = 0;
+    if (privacidade > 100) privacidade = 100;
 
-    if (etica < 0) etica = 0;
-    if (etica > 100) etica = 100;
+    if (lucro < 0) lucro = 0;
+    if (lucro > 100) lucro = 100;
 }
 
 void verificarPromocao()
@@ -145,11 +163,10 @@ void iniciarCartas()
 
     cargo = 0;
     experiencia = 0;
-    reputacao = 50;
-    competencia = 50;
-    energia = 100;
-    etica = 50;
-    dinheiro = 0;
+    confianca = 50;
+    vies = 50;
+    privacidade = 50;
+    lucro = 50;
     eventoAtual = 0;
     cartaAberta = false;
 
@@ -163,11 +180,10 @@ void escolherEsquerda()
         return;
 
     experiencia += eventoAtual->experienciaEsquerda;
-    reputacao += eventoAtual->reputacaoEsquerda;
-    competencia += eventoAtual->competenciaEsquerda;
-    energia += eventoAtual->energiaEsquerda;
-    etica += eventoAtual->eticaEsquerda;
-    dinheiro += eventoAtual->dinheiroEsquerda;
+    confianca += eventoAtual->confiancaEsquerda;
+    vies += eventoAtual->viesEsquerda;
+    privacidade += eventoAtual->privacidadeEsquerda;
+    lucro += eventoAtual->lucroEsquerda;
 
     limitarAtributos();
     verificarPromocao();
@@ -179,11 +195,10 @@ void escolherDireita()
         return;
 
     experiencia += eventoAtual->experienciaDireita;
-    reputacao += eventoAtual->reputacaoDireita;
-    competencia += eventoAtual->competenciaDireita;
-    energia += eventoAtual->energiaDireita;
-    etica += eventoAtual->eticaDireita;
-    dinheiro += eventoAtual->dinheiroDireita;
+    confianca += eventoAtual->confiancaDireita;
+    vies += eventoAtual->viesDireita;
+    privacidade += eventoAtual->privacidadeDireita;
+    lucro += eventoAtual->lucroDireita;
 
     limitarAtributos();
     verificarPromocao();
@@ -332,39 +347,34 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         SKYBLUE
     );
 
-    DrawText(
+    desenharTextoQuebrado(
         eventoAtual->esquerda,
         xCarta + 30,
         yCarta + alturaCarta - 70,
+        larguraCarta / 2 - 50,
         20,
         LIGHTGRAY
     );
 
-    int larguraDireita = MeasureText(eventoAtual->direita,20);
-
     DrawText(
         "D",
-        xCarta + larguraCarta - 50,
+        xCarta + larguraCarta / 2 + 20,
         yCarta + alturaCarta - 105,
         28,
         SKYBLUE
     );
 
-    DrawText(
+    desenharTextoQuebrado(
         eventoAtual->direita,
-        xCarta + larguraCarta - larguraDireita - 30,
+        xCarta + larguraCarta / 2 + 20,
         yCarta + alturaCarta - 70,
+        larguraCarta / 2 - 50,
         20,
         LIGHTGRAY
     );
 
     // DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);
     // DrawText(TextFormat("EXP: %d",experiencia),25,50,20,WHITE);
-    // DrawText(TextFormat("Reputacao: %d",reputacao),25,75,20,WHITE);
-    // DrawText(TextFormat("Competencia: %d",competencia),25,100,20,WHITE);
-    // DrawText(TextFormat("Energia: %d",energia),25,125,20,WHITE);
-    // DrawText(TextFormat("Etica: %d",etica),25,150,20,WHITE);
-    // DrawText(TextFormat("Dinheiro: R$ %d",dinheiro),25,175,20,WHITE);
 }
 
 void descarregarCartas()
