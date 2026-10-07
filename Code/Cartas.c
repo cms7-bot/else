@@ -2,6 +2,10 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define VALOR_INICIAL_MEDIDORES 50
+#define FAIXA_SEGURA_MINIMA 30
+#define FAIXA_SEGURA_MAXIMA 70
+
 typedef struct Evento
 {
     int id;
@@ -10,8 +14,6 @@ typedef struct Evento
     const char *texto;
     const char *esquerda;
     const char *direita;
-    int experienciaEsquerda;
-    int experienciaDireita;
     int confiancaEsquerda;
     int confiancaDireita;
     int viesEsquerda;
@@ -29,26 +31,28 @@ static Evento *eventoAtual = 0;
 static int quantidadeEventos = 0;
 
 static int cargo = 0;
-static int experiencia = 0;
+static int diasSobrevividos = 0;
+static int cartasResolvidasFase = 0;
 
-static int confianca = 50;
-static int vies = 50;
-static int privacidade = 50;
-static int lucro = 50;
+static int confianca = VALOR_INICIAL_MEDIDORES;
+static int vies = VALOR_INICIAL_MEDIDORES;
+static int privacidade = VALOR_INICIAL_MEDIDORES;
+static int lucro = VALOR_INICIAL_MEDIDORES;
 
 static bool cartaAberta = false;
+
+static int medidorDerrota = 0;
+static bool derrotaNoMaximo = false;
 
 static int historico[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 
 const char *nomeCargo()
 {
     if (cargo == 0) return "Estagiario";
-    if (cargo == 1) return "Assistente";
-    if (cargo == 2) return "Analista Junior";
-    if (cargo == 3) return "Analista Pleno";
-    if (cargo == 4) return "Analista Senior";
-    if (cargo == 5) return "Supervisor";
-    return "Gerente";
+    if (cargo == 1) return "Junior";
+    if (cargo == 2) return "Pleno";
+    if (cargo == 3) return "Senior";
+    return "Tech Lider";
 }
 
 bool cartasEstaoAbertas()
@@ -74,6 +78,88 @@ int obterPrivacidade()
 int obterLucro()
 {
     return lucro;
+}
+
+int obterDiasSobrevividos()
+{
+    return diasSobrevividos;
+}
+
+int obterDiaAtual()
+{
+    return diasSobrevividos + 1;
+}
+
+int obterCartasResolvidasFase()
+{
+    return cartasResolvidasFase;
+}
+
+bool jogadorPerdeu()
+{
+    return medidorDerrota != 0;
+}
+
+int obterMedidorDerrota()
+{
+    return medidorDerrota;
+}
+
+bool derrotaNoLimiteMaximo()
+{
+    return derrotaNoMaximo;
+}
+
+// 1 Confianca 0, 2 Confianca 100, 3 Vies 0, 4 Vies 100, 5 Privacidade 0, 6 Privacidade 100, 7 Lucro 0, 8 Lucro 100
+int obterFinalDerrota()
+{
+    if (medidorDerrota == 0)
+        return 0;
+
+    return (medidorDerrota - 1) * 2 + (derrotaNoMaximo ? 2 : 1);
+}
+
+// Mensagem de cada final provisoria
+
+const char *obterMensagemFinal()
+{
+    switch (obterFinalDerrota())
+    {
+        case 1: return "Ninguem mais confia na empresa. Clientes e equipe foram embora.";
+        case 2: return "Confianca cega: ninguem questiona nada, e o primeiro erro grave passou despercebido.";
+        case 3: return "Corrigir tudo virou paralisia: a empresa parou de decidir e nada sai do lugar.";
+        case 4: return "O vies tomou conta: a IA decide de forma injusta e a empresa virou alvo de processos.";
+        case 5: return "Os dados dos usuarios vazaram. A empresa perdeu a licenca para operar.";
+        case 6: return "Privacidade total: nenhum dado pode ser usado e a empresa nao consegue mais oferecer o servico.";
+        case 7: return "A empresa faliu. Sem dinheiro, nao ha como manter equipe nem sistemas.";
+        case 8: return "Lucro acima de tudo: a empresa virou alvo de investigacao por crescer a qualquer custo.";
+    }
+    return "";
+}
+
+int obterValorMedidor(int medidor)
+{
+    if (medidor == 1) return confianca;
+    if (medidor == 2) return vies;
+    if (medidor == 3) return privacidade;
+    if (medidor == 4) return lucro;
+    return 0;
+}
+
+bool medidorEstaSeguro(int medidor)
+{
+    int valor = obterValorMedidor(medidor);
+    return valor >= FAIXA_SEGURA_MINIMA && valor <= FAIXA_SEGURA_MAXIMA;
+}
+
+bool todosMedidoresSeguros()
+{
+    for (int medidor = 1; medidor <= 4; medidor++)
+    {
+        if (!medidorEstaSeguro(medidor))
+            return false;
+    }
+    return true;
 }
 
 bool eventoFoiRecente(int id)
@@ -109,15 +195,20 @@ void limitarAtributos()
     if (lucro > 100) lucro = 100;
 }
 
-void verificarPromocao()
+
+void verificarDerrota()
 {
-    if (experiencia >= 1700) cargo = 6;
-    else if (experiencia >= 1200) cargo = 5;
-    else if (experiencia >= 800) cargo = 4;
-    else if (experiencia >= 500) cargo = 3;
-    else if (experiencia >= 250) cargo = 2;
-    else if (experiencia >= 100) cargo = 1;
-    else cargo = 0;
+    if (medidorDerrota != 0)
+        return;
+
+    if (confianca <= 0 || confianca >= 100) medidorDerrota = 1;
+    else if (vies <= 0 || vies >= 100) medidorDerrota = 2;
+    else if (privacidade <= 0 || privacidade >= 100) medidorDerrota = 3;
+    else if (lucro <= 0 || lucro >= 100) medidorDerrota = 4;
+
+ 
+    if (medidorDerrota != 0)
+        derrotaNoMaximo = obterValorMedidor(medidorDerrota) >= 100;
 }
 
 void sortearNovaCarta()
@@ -162,13 +253,16 @@ void iniciarCartas()
     banco = obterBancoPerguntas(&quantidadeEventos);
 
     cargo = 0;
-    experiencia = 0;
-    confianca = 50;
-    vies = 50;
-    privacidade = 50;
-    lucro = 50;
+    diasSobrevividos = 0;
+    cartasResolvidasFase = 0;
+    confianca = VALOR_INICIAL_MEDIDORES;
+    vies = VALOR_INICIAL_MEDIDORES;
+    privacidade = VALOR_INICIAL_MEDIDORES;
+    lucro = VALOR_INICIAL_MEDIDORES;
     eventoAtual = 0;
     cartaAberta = false;
+    medidorDerrota = 0;
+    derrotaNoMaximo = false;
 
     for (int i = 0; i < 8; i++)
         historico[i] = -1;
@@ -179,14 +273,18 @@ void escolherEsquerda()
     if (eventoAtual == 0)
         return;
 
-    experiencia += eventoAtual->experienciaEsquerda;
     confianca += eventoAtual->confiancaEsquerda;
     vies += eventoAtual->viesEsquerda;
     privacidade += eventoAtual->privacidadeEsquerda;
     lucro += eventoAtual->lucroEsquerda;
 
     limitarAtributos();
-    verificarPromocao();
+    verificarDerrota();
+
+    cartasResolvidasFase++;
+
+    if (!jogadorPerdeu())
+        diasSobrevividos++;
 }
 
 void escolherDireita()
@@ -194,14 +292,18 @@ void escolherDireita()
     if (eventoAtual == 0)
         return;
 
-    experiencia += eventoAtual->experienciaDireita;
     confianca += eventoAtual->confiancaDireita;
     vies += eventoAtual->viesDireita;
     privacidade += eventoAtual->privacidadeDireita;
     lucro += eventoAtual->lucroDireita;
 
     limitarAtributos();
-    verificarPromocao();
+    verificarDerrota();
+
+    cartasResolvidasFase++;
+
+    if (!jogadorPerdeu())
+        diasSobrevividos++;
 }
 
 void atualizarCartas()
@@ -374,7 +476,6 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
     );
 
     // DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);
-    // DrawText(TextFormat("EXP: %d",experiencia),25,50,20,WHITE);
 }
 
 void descarregarCartas()
