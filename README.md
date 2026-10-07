@@ -124,26 +124,25 @@ else/
 ---
 
 
+## Documentação
 
 
-
-Toda a documentação de engenharia de software está disponível na pasta [`/Documentação`](./Documenta%C3%A7%C3%A3o):
+Tudo o que planejamos, desenhamos e decidimos sobre o ELSE está reunido aqui. Os documentos escritos ficam na pasta [`/Documentação`](./Documenta%C3%A7%C3%A3o):
 
 | Documento | Descrição |
 |---|---|
 | [Visão](./Documenta%C3%A7%C3%A3o/visao.md) | Propósito, escopo e stakeholders do produto |
 | [Requisitos](./Documenta%C3%A7%C3%A3o/requisitos.md) | Requisitos funcionais, não-funcionais e restrições |
-| [Histórias de Usuário](./Documenta%C3%A7%C3%A3o/historias-usuario.md) | 15+ histórias no padrão 3Cs (Card, Conversation, Confirmation) |
-| [Modelagem](./Documenta%C3%A7%C3%A3o/modelagem.md) | Diagrama e descrição de casos de uso |
-| [Arquitetura](./Documenta%C3%A7%C3%A3o/arquitetura.md) | Componentes do sistema e decisões técnicas |
+| [Histórias de Usuário](./Documenta%C3%A7%C3%A3o/historias-usuario.md) | 15 histórias no padrão 3Cs (Card, Conversation, Confirmation) |
 | [Processo](./Documenta%C3%A7%C3%A3o/processo.md) | Metodologia, papéis e fluxo de trabalho da equipe |
 | [Testes](./Documenta%C3%A7%C3%A3o/testes.md) | Estratégias, tipos de teste e critérios de aceite |
+| [Modelagem e prototipação](#modelagem-e-prototipação) | Diagramas de atividade e storyboards de cada história |
 
 ---
 
 ## 📋 Gestão do projeto
 
-Sprints, backlog e tarefas é feito no board do Jira:
+Sprints, backlog e tarefas são gerenciados no board do Trello:
 
 🔗 [Board do projeto (trello)](https://trello.com/invite/b/6ab7228e40ff14f38be9f55b/ATTIa4223772b64eccef9d08a9bf0c63c73eED83464F/else-gestao-de-sprints-squad-8)
 
