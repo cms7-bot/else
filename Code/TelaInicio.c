@@ -148,6 +148,9 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
 int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY)
 {
     static Texture2D TelaAviso = {0};
+    int monitor = GetCurrentMonitor();
+    int larguraMonitor = GetMonitorWidth(monitor);
+    int alturaMonitor = GetMonitorHeight(monitor);
 
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
@@ -155,18 +158,29 @@ int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, floa
     if (TelaAviso.id == 0)
         TelaAviso = LoadTexture("cenario/Aviso.png");
 
-    if (IsKeyDown(KEY_SPACE))
-        return 2;
+    Rectangle clicar = {larguraResolucao - 365, alturaResolucao - 105, 300, 60};
 
     BeginTextureMode(telaVirtual);
 
     ClearBackground(RAYWHITE);
 
     DrawTexture(TelaAviso, 0, 0, WHITE);
-
+    
+ 
     EndTextureMode();
 
-    BeginDrawing();
+
+
+    Vector2 mouse = GetMousePosition();
+
+    mouse.x = (mouse.x - offsetX) / escalaTela;
+    mouse.y = (mouse.y - offsetY) / escalaTela;
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+        CheckCollisionPointRec(mouse, clicar))
+    {
+        return 2;
+    }
 
     ClearBackground(BLACK);
 

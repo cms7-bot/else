@@ -683,21 +683,21 @@ BeginScissorMode(
         gameOver = true;
         UpdateMusicStream(gameOverSom);
 
-        DrawRectangle(0, 0, larguraResolucao+200, alturaResolucao+200, Fade(BLACK,0.8f));
+        DrawRectangle(0, 0, larguraMonitor, alturaMonitor, Fade(BLACK,0.8f));
 
 
-        DrawText("GAME OVER",(larguraResolucao-380)/2,(alturaResolucao-250)/2,80,GREEN);
-        DrawTexture(botaoExit, ((larguraResolucao - botaoExit.width) / 2)+50, 200 + (alturaResolucao - botaoExit.height) / 2, WHITE);
-        DrawTexture(botaoPlayAgain, ((larguraResolucao - botaoExit.width) / 2)+50, 50 + (alturaResolucao - botaoExit.height) / 2, WHITE);
+        DrawText("GAME OVER",(larguraMonitor-MeasureText("GAME OVER",80))/2,(alturaMonitor-250)/2,80,GREEN);
+        DrawTexture(botaoExit, ((larguraMonitor - botaoExit.width) / 2), 200 + (alturaMonitor - botaoExit.height) / 2, WHITE);
+        DrawTexture(botaoPlayAgain, ((larguraMonitor - botaoExit.width) / 2), 50 + (alturaMonitor - botaoExit.height) / 2, WHITE);
         
         Rectangle retExit = {
-        ((larguraResolucao - botaoExit.width) / 2) + 50,410 + (alturaResolucao - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
+        ((larguraMonitor - botaoExit.width) / 2),410 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
 
-        // DrawRectangle(((larguraResolucao - botaoExit.width) / 2) + 50,260 + (alturaResolucao - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5, Fade(GREEN,0.8f));
+        // DrawRectangle(((larguraMonitor - botaoExit.width) / 2) + 50,260 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5, Fade(GREEN,0.8f));
 
-        // DrawRectangle(((larguraResolucao - botaoExit.width) / 2) + 50,410 + (alturaResolucao - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5, Fade(RED,0.8f));
+        // DrawRectangle(((larguraMonitor - botaoExit.width) / 2) + 50,410 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5, Fade(RED,0.8f));
 
-        Rectangle retPlayAgain = {((larguraResolucao - botaoExit.width) / 2) + 50,260 + (alturaResolucao - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
+        Rectangle retPlayAgain = {((larguraMonitor - botaoExit.width) / 2) ,260 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
         PauseMusicStream(trilhaSonora2);
 
         Vector2 mouse = GetMousePosition();
@@ -716,8 +716,8 @@ BeginScissorMode(
                 porcentagemViesApagado = 0.33f;
                 porcentagemPrivacidadeApagado = 0.33f;
                 porcentagemLucroApagado = 0.33f;
-                x = (larguraResolucao - frente1.width) / 2;
-                y = (alturaResolucao - frente1.height) / 2;
+                x = (larguraMonitor - frente1.width) / 2;
+                y = (alturaMonitor - frente1.height) / 2;
             }
 
             if (CheckCollisionPointRec(mouse, retPlayAgain))
@@ -730,8 +730,8 @@ BeginScissorMode(
                 porcentagemViesApagado = 0.33f;
                 porcentagemPrivacidadeApagado = 0.33f;
                 porcentagemLucroApagado = 0.33f;
-                x = (larguraResolucao - frente1.width) / 2;
-                y = (alturaResolucao - frente1.height) / 2;
+                x = (larguraMonitor - frente1.width) / 2;
+                y = (alturaMonitor - frente1.height) / 2;
             }
         }
 
