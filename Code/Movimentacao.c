@@ -691,13 +691,13 @@ BeginScissorMode(
         DrawTexture(botaoPlayAgain, ((larguraMonitor - botaoExit.width) / 2), 50 + (alturaMonitor - botaoExit.height) / 2, WHITE);
         
         Rectangle retExit = {
-        ((larguraResolucao - botaoExit.width) / 2),410 + (alturaResolucao - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
+        ((larguraMonitor - botaoExit.width) / 2),410 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
 
-        // DrawRectangle(((larguraMonitor - botaoExit.width) / 2), 50 + (alturaMonitor - botaoExit.height), botaoPlayAgain.width,botaoPlayAgain.height/4.5, Fade(GREEN,0.8f)); 
+        // DrawRectangle(  ((larguraMonitor - botaoExit.width) / 2),410 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5, Fade(GREEN,0.8f)); 
 
-        // DrawRectangle(((larguraMonitor - botaoExit.width) / 2) ,260 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5, Fade(RED,0.8f)); playAgain
+        // DrawRectangle(((larguraMonitor - botaoExit.width) / 2) ,260 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5, Fade(RED,0.8f)); 
 
-        Rectangle retPlayAgain = {((larguraResolucao - botaoExit.width) / 2) ,260 + (alturaResolucao- botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
+        Rectangle retPlayAgain = {((larguraMonitor - botaoExit.width) / 2) ,260 + (alturaMonitor- botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
         PauseMusicStream(trilhaSonora2);
 
         Vector2 mouse = GetMousePosition();
