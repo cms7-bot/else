@@ -2,6 +2,12 @@
 #include <stdbool.h>
 #include <string.h>
 
+
+float *confiancaApagado;
+float *viesApagado;
+float *privacidadeApagada;
+float *lucroApagado;
+
 typedef struct Evento
 {
     int id;
@@ -10,18 +16,15 @@ typedef struct Evento
     const char *texto;
     const char *esquerda;
     const char *direita;
-    int experienciaEsquerda;
-    int experienciaDireita;
-    int reputacaoEsquerda;
-    int reputacaoDireita;
-    int competenciaEsquerda;
-    int competenciaDireita;
-    int energiaEsquerda;
-    int energiaDireita;
-    int eticaEsquerda;
-    int eticaDireita;
-    int dinheiroEsquerda;
-    int dinheiroDireita;
+    float confiancaEsquerda;
+    float confiancaDireita;
+    float viesEsquerda;
+    float viesDireita;
+    float privacidadeEsquerda;
+    float privacidadeDireita;
+    float lucroEsquerda;
+    float lucroDireita;
+
 } Evento;
 
 Evento *obterBancoPerguntas(int *quantidade);
@@ -32,11 +35,7 @@ static int quantidadeEventos = 0;
 
 static int cargo = 0;
 static int experiencia = 0;
-static int reputacao = 50;
-static int competencia = 50;
-static int energia = 100;
-static int etica = 50;
-static int dinheiro = 0;
+
 
 static bool cartaAberta = false;
 
@@ -76,20 +75,20 @@ void adicionarHistorico(int id)
     historico[0] = id;
 }
 
-void limitarAtributos()
-{
-    if (reputacao < 0) reputacao = 0;
-    if (reputacao > 100) reputacao = 100;
+// void limitarAtributos()
+// {
+//     if (reputacao < 0) reputacao = 0;
+//     if (reputacao > 100) reputacao = 100;
 
-    if (competencia < 0) competencia = 0;
-    if (competencia > 100) competencia = 100;
+//     if (competencia < 0) competencia = 0;
+//     if (competencia > 100) competencia = 100;
 
-    if (energia < 0) energia = 0;
-    if (energia > 100) energia = 100;
+//     if (energia < 0) energia = 0;
+//     if (energia > 100) energia = 100;
 
-    if (etica < 0) etica = 0;
-    if (etica > 100) etica = 100;
-}
+//     if (etica < 0) etica = 0;
+//     if (etica > 100) etica = 100;
+// }
 
 void verificarPromocao()
 {
@@ -139,17 +138,43 @@ void sortearNovaCarta()
     }
 }
 
-void iniciarCartas()
+void iniciarCartas( float *confianca, float *vies, float *privacidade, float *lucro)
 {
     banco = obterBancoPerguntas(&quantidadeEventos);
 
-    cargo = 0;
-    experiencia = 0;
-    reputacao = 50;
-    competencia = 50;
-    energia = 100;
-    etica = 50;
-    dinheiro = 0;
+    confiancaApagado = confianca;
+        if (*confiancaApagado<=0.0f){
+            *confiancaApagado=0.0f;
+        }
+        if (*confiancaApagado>=0.73f){
+            *confiancaApagado=0.73f;
+        }
+    viesApagado = vies;
+        if (*viesApagado<=0.0f){
+            *viesApagado=0.0f;
+        }
+        if (*viesApagado>=0.73){
+            *viesApagado=0.73;
+        }
+
+    privacidadeApagada = privacidade;
+        if (*privacidadeApagada<=0.0f){
+            *privacidadeApagada=0.0f;
+        }
+        if (*privacidadeApagada>=0.73f){
+            *privacidadeApagada=0.73f;
+        }
+    lucroApagado = lucro;
+        if (*lucroApagado<=0.0f){
+            *lucroApagado=0.0f;
+        }
+        if (*lucroApagado>=0.73f){
+            *lucroApagado=0.73f;
+        }
+
+
+
+
     eventoAtual = 0;
     cartaAberta = false;
 
@@ -162,14 +187,38 @@ void escolherEsquerda()
     if (eventoAtual == 0)
         return;
 
-    experiencia += eventoAtual->experienciaEsquerda;
-    reputacao += eventoAtual->reputacaoEsquerda;
-    competencia += eventoAtual->competenciaEsquerda;
-    energia += eventoAtual->energiaEsquerda;
-    etica += eventoAtual->eticaEsquerda;
-    dinheiro += eventoAtual->dinheiroEsquerda;
+    *confiancaApagado += eventoAtual->confiancaEsquerda;
+        if (*confiancaApagado<=0.0f){
+            *confiancaApagado=0.0f;
+        }
+        if (*confiancaApagado>=0.73f){
+            *confiancaApagado=0.73f;
+        }
 
-    limitarAtributos();
+    *viesApagado += eventoAtual->viesEsquerda;
+        if (*viesApagado<=0.0f){
+            *viesApagado=0.0f;
+        }
+        if (*viesApagado>=0.73f){
+            *viesApagado=0.73f;
+        }
+
+    *privacidadeApagada += eventoAtual->privacidadeEsquerda;
+        if (*privacidadeApagada<=0.0f){
+            *privacidadeApagada=0.0f;
+        }
+        if (*privacidadeApagada>=0.73f){
+            *privacidadeApagada=0.73f;
+        }
+    *lucroApagado += eventoAtual->lucroEsquerda;
+        if (*lucroApagado<=0.0f){
+            *lucroApagado=0.0f;
+        }
+        if (*lucroApagado>=0.73f){
+            *lucroApagado=0.73f;
+        }
+
+    // limitarAtributos();
     verificarPromocao();
 }
 
@@ -178,14 +227,13 @@ void escolherDireita()
     if (eventoAtual == 0)
         return;
 
-    experiencia += eventoAtual->experienciaDireita;
-    reputacao += eventoAtual->reputacaoDireita;
-    competencia += eventoAtual->competenciaDireita;
-    energia += eventoAtual->energiaDireita;
-    etica += eventoAtual->eticaDireita;
-    dinheiro += eventoAtual->dinheiroDireita;
+    *confiancaApagado += eventoAtual->confiancaDireita;
+    *viesApagado += eventoAtual->viesDireita;
+    *privacidadeApagada += eventoAtual->privacidadeDireita;
+    *lucroApagado += eventoAtual->lucroDireita;
+   
 
-    limitarAtributos();
+    // limitarAtributos();
     verificarPromocao();
 }
 
@@ -334,7 +382,7 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
 
     DrawText(
         eventoAtual->esquerda,
-        xCarta + 30,
+        xCarta -350,
         yCarta + alturaCarta - 70,
         20,
         LIGHTGRAY
@@ -352,7 +400,7 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
 
     DrawText(
         eventoAtual->direita,
-        xCarta + larguraCarta - larguraDireita - 30,
+        xCarta + larguraCarta - larguraDireita +200,
         yCarta + alturaCarta - 70,
         20,
         LIGHTGRAY
