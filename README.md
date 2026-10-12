@@ -135,7 +135,7 @@ Tudo o que planejamos, desenhamos e decidimos sobre o ELSE está reunido aqui. O
 | [Requisitos](./Documenta%C3%A7%C3%A3o/requisitos.md) | Requisitos funcionais, não-funcionais e restrições |
 | [Histórias de Usuário](./Documenta%C3%A7%C3%A3o/historias-usuario.md) | 15 histórias no padrão 3Cs (Card, Conversation, Confirmation) |
 | [Processo](./Documenta%C3%A7%C3%A3o/processo.md) | Metodologia, papéis e fluxo de trabalho da equipe |
-| [Testes](./Documenta%C3%A7%C3%A3o/testes.md) | Estratégias, tipos de teste e critérios de aceite |
+| [Testes](./Documenta%C3%A7%C3%A3o/Estrat%C3%A9gias%20e%20Casos%20de%20Teste.md) | Estratégias, tipos de teste e critérios de aceite |
 | [Modelagem e prototipação](#modelagem-e-prototipação) | Diagramas de atividade e storyboards de cada história |
 
 ---
@@ -153,6 +153,8 @@ Sprints, backlog e tarefas são gerenciados no board do Trello:
 **Solução de prototipação escolhida:** Storyboard
 
 ### Demonstração
+> [🎬 Screencast da primeira versão jogável do ELSE](COLE_O_LINK_AQUI)
+>
 
 > [🎬 Screencast explicando cada uma das histórias de usuário do ELSE, com seus storyboards](https://youtu.be/2Ui44BgcWFU)
 
