@@ -3,11 +3,18 @@
 #include <string.h>
 
 
+// ==========================================================
+// INDICADORES DO HUD (ponteiros para as barras)
+// ==========================================================
 float *confiancaApagado;
 float *viesApagado;
 float *privacidadeApagada;
 float *lucroApagado;
 
+
+// ==========================================================
+// TIPOS
+// ==========================================================
 typedef struct Evento
 {
     int id;
@@ -29,18 +36,37 @@ typedef struct Evento
 
 Evento *obterBancoPerguntas(int *quantidade);
 
+
+// ==========================================================
+// BANCO DE EVENTOS / CARTA ATUAL
+// ==========================================================
 static Evento *banco = 0;
 static Evento *eventoAtual = 0;
 static int quantidadeEventos = 0;
 
+
+// ==========================================================
+// CARGO / EXPERIÊNCIA
+// ==========================================================
 static int cargo = 0;
 static int experiencia = 0;
 
 
+// ==========================================================
+// ESTADO DA CARTA
+// ==========================================================
 static bool cartaAberta = false;
 
+
+// ==========================================================
+// HISTÓRICO DE EVENTOS RECENTES
+// ==========================================================
 static int historico[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 
+
+// ==========================================================
+// CARGO
+// ==========================================================
 const char *nomeCargo()
 {
     if (cargo == 0) return "Estagiario";
@@ -52,11 +78,19 @@ const char *nomeCargo()
     return "Gerente";
 }
 
+
+// ==========================================================
+// ESTADO DA CARTA
+// ==========================================================
 bool cartasEstaoAbertas()
 {
     return cartaAberta;
 }
 
+
+// ==========================================================
+// HISTÓRICO
+// ==========================================================
 bool eventoFoiRecente(int id)
 {
     for (int i = 0; i < 8; i++)
@@ -75,6 +109,10 @@ void adicionarHistorico(int id)
     historico[0] = id;
 }
 
+
+// ==========================================================
+// ATRIBUTOS / PROMOÇÃO ====> Será implementado futuramente
+// ==========================================================
 // void limitarAtributos()
 // {
 //     if (reputacao < 0) reputacao = 0;
@@ -101,6 +139,10 @@ void verificarPromocao()
     else cargo = 0;
 }
 
+
+// ==========================================================
+// SORTEIO DE CARTAS
+// ==========================================================
 void sortearNovaCarta()
 {
     int disponiveis[100];
@@ -138,6 +180,10 @@ void sortearNovaCarta()
     }
 }
 
+
+// ==========================================================
+// INICIALIZAÇÃO
+// ==========================================================
 void iniciarCartas( float *confianca, float *vies, float *privacidade, float *lucro)
 {
     banco = obterBancoPerguntas(&quantidadeEventos);
@@ -182,6 +228,10 @@ void iniciarCartas( float *confianca, float *vies, float *privacidade, float *lu
         historico[i] = -1;
 }
 
+
+// ==========================================================
+// ESCOLHAS (ESQUERDA / DIREITA)
+// ==========================================================
 void escolherEsquerda()
 {
     if (eventoAtual == 0)
@@ -231,12 +281,16 @@ void escolherDireita()
     *viesApagado += eventoAtual->viesDireita;
     *privacidadeApagada += eventoAtual->privacidadeDireita;
     *lucroApagado += eventoAtual->lucroDireita;
-   
+
 
     // limitarAtributos();
     verificarPromocao();
 }
 
+
+// ==========================================================
+// ATUALIZAÇÃO (ENTRADA DO JOGADOR)
+// ==========================================================
 void atualizarCartas()
 {
     if (!cartaAberta)
@@ -269,6 +323,10 @@ void atualizarCartas()
     }
 }
 
+
+// ==========================================================
+// DESENHO
+// ==========================================================
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor)
 {
     char palavra[128] = "";
@@ -335,6 +393,9 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
     if (!cartaAberta || eventoAtual == 0)
         return;
 
+    // ------------------------------------------------------
+    // Fundo escurecido e moldura da carta
+    // ------------------------------------------------------
     DrawRectangle(0,0,larguraResolucao,alturaResolucao,Fade(BLACK,0.65f));
 
     int larguraCarta = 540;
@@ -345,6 +406,9 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
     DrawRectangle(xCarta,yCarta,larguraCarta,alturaCarta,(Color){28,31,45,255});
     DrawRectangleLines(xCarta,yCarta,larguraCarta,alturaCarta,WHITE);
 
+    // ------------------------------------------------------
+    // Cargo, título e texto
+    // ------------------------------------------------------
     const char *cargoAtual = nomeCargo();
 
     DrawText(
@@ -372,6 +436,9 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         WHITE
     );
 
+    // ------------------------------------------------------
+    // Opções (esquerda / direita)
+    // ------------------------------------------------------
     DrawText(
         "A",
         xCarta + 30,
@@ -406,15 +473,12 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         LIGHTGRAY
     );
 
-    // DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);
-    // DrawText(TextFormat("EXP: %d",experiencia),25,50,20,WHITE);
-    // DrawText(TextFormat("Reputacao: %d",reputacao),25,75,20,WHITE);
-    // DrawText(TextFormat("Competencia: %d",competencia),25,100,20,WHITE);
-    // DrawText(TextFormat("Energia: %d",energia),25,125,20,WHITE);
-    // DrawText(TextFormat("Etica: %d",etica),25,150,20,WHITE);
-    // DrawText(TextFormat("Dinheiro: R$ %d",dinheiro),25,175,20,WHITE);
 }
 
+
+// ==========================================================
+// FINALIZAÇÃO
+// ==========================================================
 void descarregarCartas()
 {
     cartaAberta = false;
