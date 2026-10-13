@@ -153,6 +153,8 @@ Sprints, backlog e tarefas são gerenciados no board do Trello:
 **Solução de prototipação escolhida:** Storyboard
 
 ### Demonstração
+> [🎬 Screencast atualizado do PIF – Equipe 8](https://youtu.be/e5QQfuGNPAU)
+
 > [🎬 Screencast da primeira versão jogável do ELSE](https://youtu.be/P-mGNquMO1s)
 >
 
