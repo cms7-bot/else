@@ -4,7 +4,7 @@
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
 int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
 
-void iniciarCartas(void);
+void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro);
 void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 bool cartasEstaoAbertas(void);
@@ -12,6 +12,9 @@ void descarregarCartas(void);
 
 int main()
 {
+    // ==========================================================
+    // JANELA / RESOLUÇÃO
+    // ==========================================================
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
 
@@ -32,9 +35,14 @@ int main()
 
     RenderTexture2D telaVirtual = LoadRenderTexture(larguraResolucao, alturaResolucao);
 
+
+    // ==========================================================
+    // SOM
+    // ==========================================================
     Music trilhaSonora1 = LoadMusicStream("musicas/trilhaTemporaria.mp3");
     Music trilhaSonora2 = LoadMusicStream("musicas/JazzTrilha2.mp3");
     Music EscritorioTrilhaSonora = LoadMusicStream("musicas/Escritorio2.mp3");
+    Music gameOverSom = LoadMusicStream("musicas/GameOverSong.mp3");
     Sound somDePassos = LoadSound("EfeitosSonoros/Passos2.mp3");
 
     SetMusicVolume(trilhaSonora2, 0.05f);
@@ -44,10 +52,23 @@ int main()
     PlayMusicStream(trilhaSonora1);
     PlayMusicStream(EscritorioTrilhaSonora);
 
+
+    // ==========================================================
+    // TEXTURAS - CENÁRIO
+    // ==========================================================
     Texture2D fundoCeramica = LoadTexture("cenario/Cenario.png");
     Texture2D mesa = LoadTexture("cenario/mesa.png");
     mesa.height*=0.5;
     mesa.width*=0.5;
+    Texture2D logoInicio = LoadTexture("cenario/logoInicio.png");
+    Texture2D fundoCarta = LoadTexture("cenario/Frame3.png");
+    fundoCarta.height*=0.95;
+    fundoCarta.width*=0.95;
+
+
+    // ==========================================================
+    // TEXTURAS - HUD
+    // ==========================================================
     Texture2D confianca = LoadTexture("HUD/hud_confianca_vazia.png");
     confianca.width*=0.8;
     confianca.height*=0.8;
@@ -85,6 +106,9 @@ int main()
     fundoHUD.height*=0.8;
 
 
+    // ==========================================================
+    // TEXTURAS - PERSONAGEM
+    // ==========================================================
     Texture2D costas1 = LoadTexture("assets/Costas/BonecoParadoCostas.png");
     Texture2D costas2 = LoadTexture("assets/Costas/BonecoAndandoCostas1.png");
     Texture2D costas3 = LoadTexture("assets/Costas/BonecoAndandoCostas2.png");
@@ -101,42 +125,76 @@ int main()
     Texture2D esquerda2 = LoadTexture("assets/LadoEsquerdo/BonecoAndandoLadoEsquerdo1.png");
     Texture2D esquerda3 = LoadTexture("assets/LadoEsquerdo/BonecoAndandoLadoEsquerdo2.png");
 
+
+    // ==========================================================
+    // TEXTURAS - BOTÕES
+    // ==========================================================
     Texture2D botaoJogar = LoadTexture("Botoes/BotaoJogar.png");
-    Texture2D logoInicio = LoadTexture("cenario/logoInicio.png");
-    Texture2D fundoCarta = LoadTexture("cenario/Frame3.png");
-    fundoCarta.height*=0.95;
-    fundoCarta.width*=0.95;
-    bool mensagem = false;
-    bool cartaAbertaPararDeAndar = false;
+    Texture2D botaoExit = LoadTexture("Botoes/botaoExit.png");
+    Texture2D botaoPlayAgain = LoadTexture("Botoes/botaoPlayAgain.png");
 
-    // 73% é o mínimo
-    float porcentagemCadeadoApagado = 0.3f;
-    float porcentagemViesApagado = 0.32f;
-    float porcentagemPrivacidadeApagado = 0.0f;
-    float porcentagemLucroApagado = 0.40f;
-   
 
-    iniciarCartas();
-
+    // ==========================================================
+    // TELAS / INTRO
+    // ==========================================================
     int tela = -1;
 
     float tempoIntro = 0.0f;
     float tempoLogo = 2.0f;
     float tempoFade = 2.0f;
 
+
+    // ==========================================================
+    // MOVIMENTAÇÃO
+    // ==========================================================
     float x = (larguraResolucao - frente1.width) / 2;
     float y = (alturaResolucao - frente1.height) / 2;
 
     int velocidade = 5;
     int direcao = 0;
+    int andando = 0;
+
+
+    // ==========================================================
+    // ANIMAÇÃO DO PERSONAGEM
+    // ==========================================================
     int frame = 0;
     float tempo = 0;
-    int andando = 0;
-    bool pausado = false;
     Texture2D texturaAtualGuardada = frente1;
 
+
+    // ==========================================================
+    // HUD - PORCENTAGENS (73% é o mínimo)
+    // ==========================================================
+    float porcentagemConfiancaApagado = 0.33f;
+    float porcentagemViesApagado = 0.33f;
+    float porcentagemPrivacidadeApagado = 0.33f;
+    float porcentagemLucroApagado = 0.33f;
+
+    iniciarCartas(&porcentagemConfiancaApagado,&porcentagemViesApagado,&porcentagemPrivacidadeApagado,
+&porcentagemLucroApagado);
+
+
+    // ==========================================================
+    // MESA / CARTAS
+    // ==========================================================
+    bool mensagem = false;
+    bool cartaAbertaPararDeAndar = false;
     bool abrirCarta = false;
 
+
+    // ==========================================================
+    // PAUSE / GAME OVER
+    // ==========================================================
+    bool pausado = false;
+    bool gameOver = false;
+    int k = 0;
+    float tempoGameOver = 0.0f;
+
+
+    // ==========================================================
+    // LOOP PRINCIPAL
+    // ==========================================================
     while (!WindowShouldClose())
     {
         float escalaX = (float)GetScreenWidth() / larguraResolucao;
@@ -145,7 +203,7 @@ int main()
         int xGuardado = x;
         int yGuardado = y;
 
-        
+
 
         if (escalaX < escalaY)
             escala = escalaX;
@@ -158,6 +216,10 @@ int main()
         float offsetX = (GetScreenWidth() - larguraFinal) / 2;
         float offsetY = (GetScreenHeight() - alturaFinal) / 2;
 
+
+        // ------------------------------------------------------
+        // PAUSE
+        // ------------------------------------------------------
         if (tela == 2 && IsKeyPressed(KEY_ESCAPE))
         {
             pausado = !pausado;
@@ -227,6 +289,10 @@ int main()
             continue;
         }
 
+
+        // ------------------------------------------------------
+        // TELA -1: INTRO (LOGO)
+        // ------------------------------------------------------
         if (tela == -1)
         {
             tempoIntro += GetFrameTime();
@@ -311,6 +377,10 @@ int main()
             continue;
         }
 
+
+        // ------------------------------------------------------
+        // TELA 0: MENU INICIAL
+        // ------------------------------------------------------
         if (tela == 0)
         {
             UpdateMusicStream(trilhaSonora1);
@@ -325,6 +395,10 @@ int main()
             continue;
         }
 
+
+        // ------------------------------------------------------
+        // TELA 1: AVISO
+        // ------------------------------------------------------
         if (tela == 1)
         {
             UpdateMusicStream(EscritorioTrilhaSonora);
@@ -339,6 +413,10 @@ int main()
             continue;
         }
 
+
+        // ------------------------------------------------------
+        // TELA 2: JOGO
+        // ------------------------------------------------------
         if (tela == 2)
             UpdateMusicStream(trilhaSonora2);
 
@@ -349,20 +427,24 @@ int main()
         // bool cartaAgoraAberta = cartasEstaoAbertas();
         // bool bloquearMovimentoCarta = cartaEstavaAberta || cartaAgoraAberta;
 
+
+        // ------------------------------------------------------
+        // MOVIMENTAÇÃO
+        // ------------------------------------------------------
         andando = 0;
         Texture2D texturaAtual = texturaAtualGuardada;
 
         bool botaoAeDapertados = IsKeyDown(KEY_D) && IsKeyDown(KEY_A);
         bool botaoWeSapertados = IsKeyDown(KEY_W) && IsKeyDown(KEY_S);
 
-        if (!cartaAbertaPararDeAndar)
-        {   
+        if (!cartaAbertaPararDeAndar && !gameOver)
+        {
 
             if (!botaoAeDapertados && !botaoWeSapertados)
             {
                 if (IsKeyDown(KEY_W))
                 {
-                   
+
                     if (!IsSoundPlaying(somDePassos))
                         PlaySound(somDePassos);
 
@@ -447,6 +529,10 @@ int main()
                 texturaAtual = direita1;
         }
 
+
+        // ------------------------------------------------------
+        // ANIMAÇÃO DO PERSONAGEM
+        // ------------------------------------------------------
         if (andando == 1)
         {
             tempo += GetFrameTime();
@@ -493,6 +579,11 @@ int main()
                 else texturaAtual = direita3;
             }
         }
+
+
+        // ------------------------------------------------------
+        // LIMITES DA TELA
+        // ------------------------------------------------------
         if (x < 15) x = 15;
 
         if (x > larguraResolucao - texturaAtual.width - 15)
@@ -508,26 +599,35 @@ int main()
 
         if (y > alturaResolucao - texturaAtual.height)
             y = alturaResolucao - texturaAtual.height;
-        
+
+
+        // ------------------------------------------------------
+        // DESENHO DO CENÁRIO
+        // ------------------------------------------------------
         BeginTextureMode(telaVirtual);
-        ClearBackground(RAYWHITE); 
-        
+        ClearBackground(RAYWHITE);
+
         DrawTexture(fundoCeramica, 0, 0, WHITE);
-        // DrawTexture(fundoCarta, (larguraResolucao-fundoCarta.width)/2, (alturaResolucao-fundoCarta.height)/2, WHITE);
-        
-        
+
+        // ------------------------------------------------------
+        // COLISÃO COM A MESA
+        // ------------------------------------------------------
         Rectangle colisaoMesaBoneco_Boneco ={x,y,frente1.width,frente1.height};
         Rectangle colisaoMesaBoneco_Mesa ={(larguraResolucao-mesa.width)-20+mesa.width*0.1,mesa.height-40,mesa.width*0.8,mesa.height*0.3};
+
         if (CheckCollisionRecs(colisaoMesaBoneco_Boneco,colisaoMesaBoneco_Mesa)){
             mensagem = true;
             x = xGuardado;
             y= yGuardado;}
-        
-        
-        if (x>=larguraResolucao-mesa.width-60 && y<=mesa.height)  {  
+
+
+        // ------------------------------------------------------
+        // INTERAÇÃO COM A MESA / CARTAS
+        // ------------------------------------------------------
+        if (x>=larguraResolucao-mesa.width-60 && y<=mesa.height)  {
         DrawText("Pressione E para realizar a tarefa",larguraResolucao-400,60,20,GREEN);
         bool cartaEstavaAberta = cartasEstaoAbertas();
-
+        if (!gameOver)
         atualizarCartas();
 
         bool cartaAgoraAberta = cartasEstaoAbertas();
@@ -536,131 +636,100 @@ int main()
 
 
         }
-       
-        
 
 
+        // ------------------------------------------------------
+        // DESENHO: MESA, PERSONAGEM E CARTAS
+        // ------------------------------------------------------
+        DrawTexture(mesa,(larguraResolucao-mesa.width)-20,mesa.height-40,WHITE);
+        DrawTexture(texturaAtual, x, y, WHITE);
+        desenharCartas(
+            larguraResolucao,
+            alturaResolucao
+        );
 
-    DrawTexture(mesa,(larguraResolucao-mesa.width)-20,mesa.height-40,WHITE);
-    DrawTexture(texturaAtual, x, y, WHITE);
-    desenharCartas(
-        larguraResolucao,
-        alturaResolucao
-    );
-    
 
         if (IsKeyPressed(KEY_P)){
             abrirCarta = !abrirCarta;
-                }
+        }
         if (abrirCarta){
             DrawTexture(fundoCarta,0,0, WHITE);
         }
 
-DrawTexture(fundoHUD,((larguraResolucao-confianca.width)/2)-confianca.width-145,privacidade.height*0.05,WHITE);
 
-DrawTexture(confianca,((larguraResolucao-confianca.width)/2)-confianca.width-135,privacidade.height*0.05,WHITE);   
-BeginScissorMode(
-    ((larguraResolucao - confianca.width) / 2) - confianca.width - 135 ,
+        // ------------------------------------------------------
+        // DESENHO: HUD
+        // ------------------------------------------------------
+        DrawTexture(fundoHUD,((larguraResolucao-confianca.width)/2)-confianca.width-145,privacidade.height*0.05,WHITE);
 
-    privacidade.height * 0.05,
+        DrawTexture(confianca,((larguraResolucao-confianca.width)/2)-confianca.width-135,privacidade.height*0.05,WHITE);
+        BeginScissorMode(
+            ((larguraResolucao - confianca.width) / 2) - confianca.width - 135 ,
 
-    confiancaCheia.width * (1.0f -porcentagemCadeadoApagado),
-    confiancaCheia.height
-);
-DrawTexture(confiancaCheia, ((larguraResolucao - confianca.width) / 2) - confianca.width - 135, privacidade.height * 0.05,
-WHITE
-);
- EndScissorMode();
+            privacidade.height * 0.05,
 
-
-
-
-DrawTexture(fundoHUD,((larguraResolucao-vies.width)/2)-125,privacidade.height*0.05,WHITE);
-DrawTexture(vies,((larguraResolucao-vies.width)/2)-120,privacidade.height*0.05,WHITE);
-BeginScissorMode(
-    ((larguraResolucao-vies.width)/2)-120 ,
-
-    privacidade.height * 0.05,
-
-    viesCheio.width * (1.0f -porcentagemViesApagado),
-    viesCheio.height
-);
-DrawTexture(viesCheio,((larguraResolucao-vies.width)/2)-120,privacidade.height*0.05,WHITE);
-
- EndScissorMode();
+            confiancaCheia.width * (1.0f -porcentagemConfiancaApagado),
+            confiancaCheia.height
+        );
+        DrawTexture(confiancaCheia, ((larguraResolucao - confianca.width) / 2) - confianca.width - 135, privacidade.height * 0.05,
+        WHITE
+        );
+        EndScissorMode();
 
 
-DrawTexture(fundoHUD,((larguraResolucao-privacidade.width)/2)+lucro.width-115,privacidade.height*0.05,WHITE);
-DrawTexture(privacidade,((larguraResolucao-privacidade.width)/2)+lucro.width-105,privacidade.height*0.05,WHITE);
+        DrawTexture(fundoHUD,((larguraResolucao-vies.width)/2)-125,privacidade.height*0.05,WHITE);
+        DrawTexture(vies,((larguraResolucao-vies.width)/2)-120,privacidade.height*0.05,WHITE);
+        BeginScissorMode(
+            ((larguraResolucao-vies.width)/2)-120 ,
 
-BeginScissorMode(
-    ((larguraResolucao-privacidade.width)/2)+lucro.width-105 ,
+            privacidade.height * 0.05,
 
-    privacidade.height * 0.05,
+            viesCheio.width * (1.0f -porcentagemViesApagado),
+            viesCheio.height
+        );
+        DrawTexture(viesCheio,((larguraResolucao-vies.width)/2)-120,privacidade.height*0.05,WHITE);
 
-    privacidadeCheia.width * (1.0f -porcentagemPrivacidadeApagado),
-    privacidadeCheia.height
-);
-DrawTexture(privacidadeCheia,((larguraResolucao-privacidade.width)/2)+lucro.width-105,privacidade.height*0.05,WHITE);
-
- EndScissorMode();
-
-DrawTexture(fundoHUD,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-80,privacidade.height*0.05,WHITE);
-DrawTexture(lucro,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75,privacidade.height*0.05,WHITE);
-BeginScissorMode(
-    ((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75 ,
-
-    privacidade.height * 0.05,
-
-    lucroCheio.width * (1.0f -porcentagemViesApagado),
-    lucroCheio.height
-);
- DrawTexture(lucroCheio,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75,privacidade.height*0.05,WHITE);
-
- EndScissorMode();
+        EndScissorMode();
 
 
-    
+        DrawTexture(fundoHUD,((larguraResolucao-privacidade.width)/2)+lucro.width-115,privacidade.height*0.05,WHITE);
+        DrawTexture(privacidade,((larguraResolucao-privacidade.width)/2)+lucro.width-105,privacidade.height*0.05,WHITE);
 
+        BeginScissorMode(
+            ((larguraResolucao-privacidade.width)/2)+lucro.width-105 ,
 
+            privacidade.height * 0.05,
 
+            privacidadeCheia.width * (1.0f -porcentagemPrivacidadeApagado),
+            privacidadeCheia.height
+        );
+        DrawTexture(privacidadeCheia,((larguraResolucao-privacidade.width)/2)+lucro.width-105,privacidade.height*0.05,WHITE);
 
+        EndScissorMode();
 
-        
-        
+        DrawTexture(fundoHUD,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-80,privacidade.height*0.05,WHITE);
+        DrawTexture(lucro,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75,privacidade.height*0.05,WHITE);
+        BeginScissorMode(
+            ((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75 ,
 
+            privacidade.height * 0.05,
 
+            lucroCheio.width * (1.0f -porcentagemLucroApagado),
+            lucroCheio.height
+        );
+        DrawTexture(lucroCheio,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75,privacidade.height*0.05,WHITE);
 
-        
-        // DrawTexture(confianca,((larguraResolucao-confianca.width)/2)-confianca.width-135,privacidade.height*0.05,WHITE);
-        // DrawTexture(vies,((larguraResolucao-vies.width)/2)-120,privacidade.height*0.05,WHITE);
-        // DrawTexture(privacidade,((larguraResolucao-privacidade.width)/2)+lucro.width-105,privacidade.height*0.05,WHITE);
-        // DrawTexture(lucro,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75,privacidade.height*0.05,WHITE);
-
-        // DrawTexture(confiancaCheia,((larguraResolucao-confianca.width)/2)-confianca.width-135,privacidade.height*0.05,WHITE);
-        // DrawTexture(viesCheio,((larguraResolucao-vies.width)/2)-120,privacidade.height*0.05,WHITE);
-        // DrawTexture(privacidadeCheia,((larguraResolucao-privacidade.width)/2)+lucro.width-105,privacidade.height*0.05,WHITE);
-        // DrawTexture(lucroCheio,((larguraResolucao-lucro.width)/2)+2*(lucro.width)-75,privacidade.height*0.05,WHITE);
-
-       
-
-
-
-
-
-
-        // DrawText("Pressione E para realizar a tarefa",25,70,20,GREEN);
-        
+        EndScissorMode();
 
 
         texturaAtualGuardada = texturaAtual;
 
-
-
-        
-
         EndTextureMode();
 
+
+        // ------------------------------------------------------
+        // TELA VIRTUAL -> JANELA
+        // ------------------------------------------------------
         BeginDrawing();
 
         ClearBackground(BLACK);
@@ -687,12 +756,77 @@ BeginScissorMode(
             0,
             WHITE
         );
-    
+
+
+        // ------------------------------------------------------
+        // GAME OVER
+        // ------------------------------------------------------
+        if (porcentagemConfiancaApagado <= 0 || porcentagemConfiancaApagado >=0.73 || porcentagemViesApagado <= 0 || porcentagemViesApagado >=0.73 ||porcentagemPrivacidadeApagado <= 0 || porcentagemPrivacidadeApagado >=0.73 ||porcentagemLucroApagado <= 0 || porcentagemLucroApagado >=0.73 ){
+        if (k==0){
+            PlayMusicStream(gameOverSom);
+            k=1;
+        }
+
+
+        gameOver = true;
+        UpdateMusicStream(gameOverSom);
+
+        DrawRectangle(0, 0, larguraMonitor, alturaMonitor, Fade(BLACK,0.8f));
+
+
+        DrawText("GAME OVER",(larguraMonitor-MeasureText("GAME OVER",80))/2,(alturaMonitor-250)/2,80,GREEN);
+        DrawTexture(botaoExit, ((larguraMonitor - botaoExit.width) / 2), 200 + (alturaMonitor - botaoExit.height) / 2, WHITE);
+        DrawTexture(botaoPlayAgain, ((larguraMonitor - botaoExit.width) / 2), 50 + (alturaMonitor - botaoExit.height) / 2, WHITE);
+
+        Rectangle retExit = {
+        ((larguraMonitor - botaoExit.width) / 2),410 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
+
+        Rectangle retPlayAgain = {((larguraMonitor - botaoExit.width) / 2) ,260 + (alturaMonitor- botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
+        PauseMusicStream(trilhaSonora2);
+
+        Vector2 mouse = GetMousePosition();
+
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionPointRec(mouse, retExit))
+            {
+                PlayMusicStream(trilhaSonora1);
+                k=0;
+                tela = -1;
+                gameOver = false;
+                porcentagemConfiancaApagado = 0.33f;
+                porcentagemViesApagado = 0.33f;
+                porcentagemPrivacidadeApagado = 0.33f;
+                porcentagemLucroApagado = 0.33f;
+                x = (larguraMonitor - frente1.width) / 2;
+                y = (alturaMonitor - frente1.height) / 2;
+            }
+
+            if (CheckCollisionPointRec(mouse, retPlayAgain))
+            {
+                k=0;
+                PlayMusicStream(EscritorioTrilhaSonora);
+                gameOver = false;
+                tela = 1;
+                porcentagemConfiancaApagado = 0.33f;
+                porcentagemViesApagado = 0.33f;
+                porcentagemPrivacidadeApagado = 0.33f;
+                porcentagemLucroApagado = 0.33f;
+                x = (larguraMonitor - frente1.width) / 2;
+                y = (alturaMonitor - frente1.height) / 2;
+            }
+        }
+        }
+
 
         EndDrawing();
     }
-    
 
+
+    // ==========================================================
+    // FINALIZAÇÃO
+    // ==========================================================
     descarregarCartas();
 
     UnloadTexture(costas1);

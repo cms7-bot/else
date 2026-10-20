@@ -2,6 +2,9 @@
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY, Music trilhaSonora1)
 {
+    // ==========================================================
+    // TEXTURAS / ESTADO (persistem entre as chamadas)
+    // ==========================================================
     static Texture2D fundoInicio = {0};
     static Texture2D botaoSom = {0};
     static Texture2D botaoMute = {0};
@@ -16,14 +19,26 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     if (botaoMute.id == 0)
         botaoMute = LoadTexture("Botoes/Mute.png");
 
+
+    // ==========================================================
+    // RESOLUÇÃO
+    // ==========================================================
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
 
+
+    // ==========================================================
+    // MOUSE
+    // ==========================================================
     Vector2 mouse = GetMousePosition();
 
     mouse.x = (mouse.x - offsetX) / escalaTela;
     mouse.y = (mouse.y - offsetY) / escalaTela;
 
+
+    // ==========================================================
+    // BOTÕES (escala e áreas de clique)
+    // ==========================================================
     float escala = 1.0f;
 
     Rectangle botao = {
@@ -40,6 +55,10 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
         75
     };
 
+
+    // ==========================================================
+    // INTERAÇÃO: BOTÃO DE SOM / MUTE
+    // ==========================================================
     if (CheckCollisionPointRec(mouse, botaoAudio))
     {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
@@ -57,6 +76,10 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
         }
     }
 
+
+    // ==========================================================
+    // INTERAÇÃO: BOTÃO JOGAR
+    // ==========================================================
     if (CheckCollisionPointRec(mouse, botao))
     {
         escala = 1.1f;
@@ -65,6 +88,10 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
             return 1;
     }
 
+
+    // ==========================================================
+    // DESENHO NA TELA VIRTUAL
+    // ==========================================================
     BeginTextureMode(telaVirtual);
 
     ClearBackground(RAYWHITE);
@@ -113,6 +140,10 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
 
     EndTextureMode();
 
+
+    // ==========================================================
+    // TELA VIRTUAL -> JANELA
+    // ==========================================================
     BeginDrawing();
 
     ClearBackground(BLACK);
@@ -147,27 +178,67 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
 
 int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY)
 {
+    // ==========================================================
+    // TEXTURAS (persistem entre as chamadas)
+    // ==========================================================
     static Texture2D TelaAviso = {0};
 
+
+    // ==========================================================
+    // MONITOR
+    // ==========================================================
+    int monitor = GetCurrentMonitor();
+    int larguraMonitor = GetMonitorWidth(monitor);
+    int alturaMonitor = GetMonitorHeight(monitor);
+
+
+    // ==========================================================
+    // RESOLUÇÃO
+    // ==========================================================
     int larguraResolucao = 1280;
     int alturaResolucao = 720;
 
     if (TelaAviso.id == 0)
         TelaAviso = LoadTexture("cenario/Aviso.png");
 
-    if (IsKeyDown(KEY_SPACE))
-        return 2;
 
+    // ==========================================================
+    // ÁREA DE CLIQUE
+    // ==========================================================
+    Rectangle clicar = {larguraResolucao - 365, alturaResolucao - 105, 300, 60};
+
+
+    // ==========================================================
+    // DESENHO NA TELA VIRTUAL
+    // ==========================================================
     BeginTextureMode(telaVirtual);
 
     ClearBackground(RAYWHITE);
 
     DrawTexture(TelaAviso, 0, 0, WHITE);
 
+
     EndTextureMode();
 
-    BeginDrawing();
 
+    // ==========================================================
+    // MOUSE / INTERAÇÃO
+    // ==========================================================
+    Vector2 mouse = GetMousePosition();
+
+    mouse.x = (mouse.x - offsetX) / escalaTela;
+    mouse.y = (mouse.y - offsetY) / escalaTela;
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+        CheckCollisionPointRec(mouse, clicar))
+    {
+        return 2;
+    }
+
+
+    // ==========================================================
+    // TELA VIRTUAL -> JANELA
+    // ==========================================================
     ClearBackground(BLACK);
 
     Rectangle origem = {
