@@ -2,10 +2,19 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define VALOR_INICIAL_MEDIDORES 50
-#define FAIXA_SEGURA_MINIMA 30
-#define FAIXA_SEGURA_MAXIMA 70
 
+// ==========================================================
+// INDICADORES DO HUD (ponteiros para as barras)
+// ==========================================================
+float *confiancaApagado;
+float *viesApagado;
+float *privacidadeApagada;
+float *lucroApagado;
+
+
+// ==========================================================
+// TIPOS
+// ==========================================================
 typedef struct Evento
 {
     int id;
@@ -14,136 +23,121 @@ typedef struct Evento
     const char *texto;
     const char *esquerda;
     const char *direita;
-    int confiancaEsquerda;
-    int confiancaDireita;
-    int viesEsquerda;
-    int viesDireita;
-    int privacidadeEsquerda;
-    int privacidadeDireita;
-    int lucroEsquerda;
-    int lucroDireita;
+    float confiancaEsquerda;
+    float confiancaDireita;
+    float viesEsquerda;
+    float viesDireita;
+    float privacidadeEsquerda;
+    float privacidadeDireita;
+    float lucroEsquerda;
+    float lucroDireita;
+
 } Evento;
 
 Evento *obterBancoPerguntas(int *quantidade);
 
+
+// ==========================================================
+// BANCO DE EVENTOS / CARTA ATUAL
+// ==========================================================
 static Evento *banco = 0;
 static Evento *eventoAtual = 0;
 static int quantidadeEventos = 0;
 
+
+// ==========================================================
+// CARGO / EXPERIÊNCIA
+// ==========================================================
 static int cargo = 0;
-static int diasSobrevividos = 0;
-static int cartasResolvidasFase = 0;
+static int experiencia = 0;
 
-static int confianca = VALOR_INICIAL_MEDIDORES;
-static int vies = VALOR_INICIAL_MEDIDORES;
-static int privacidade = VALOR_INICIAL_MEDIDORES;
-static int lucro = VALOR_INICIAL_MEDIDORES;
 
+// ==========================================================
+// ESTADO DA CARTA
+// ==========================================================
 static bool cartaAberta = false;
 
-static int medidorDerrota = 0;
-static bool derrotaNoMaximo = false;
 
+// ==========================================================
+// HISTÓRICO DE EVENTOS RECENTES
+// ==========================================================
 static int historico[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 
+
+// ==========================================================
+// CARGO
+// ==========================================================
 const char *nomeCargo()
 {
     if (cargo == 0) return "Estagiario";
-    if (cargo == 1) return "Junior";
-    if (cargo == 2) return "Pleno";
-    if (cargo == 3) return "Senior";
-    return "Tech Lider";
+    if (cargo == 1) return "Assistente";
+    if (cargo == 2) return "Analista Junior";
+    if (cargo == 3) return "Analista Pleno";
+    if (cargo == 4) return "Analista Senior";
+    if (cargo == 5) return "Supervisor";
+    return "Gerente";
 }
 
+
+// ==========================================================
+// ESTADO DA CARTA
+// ==========================================================
 bool cartasEstaoAbertas()
 {
     return cartaAberta;
 }
 
-int obterConfianca()
+// ==========================================================
+// PARTIDA: DIAS, DERROTA E FINAIS
+//
+// Tudo aqui LE os medidores direto das barras do HUD. Assim
+// continua certo quando o Movimentacao.c zera as barras no
+// "jogar de novo", sem precisar chamar nada de novo.
+// Escala: a barra "apagada" vai de 0 a 0.73 e representa 100 a 0
+// pontos. Apagada >= 0.73 = medidor em 0; apagada <= 0 = em 100
+// (mesma regra de game over do Movimentacao.c).
+// ==========================================================
+#define LIMITE_APAGADO_MAXIMO 0.73
+#define FAIXA_SEGURA_MINIMA 30
+#define FAIXA_SEGURA_MAXIMA 70
+
+static int diasSobrevividos = 0;
+static int cartasResolvidasFase = 0;
+static bool partidaTerminou = false;
+
+// Medidores: 1 Confianca, 2 Vies, 3 Privacidade, 4 Lucro
+static float *ponteiroMedidor(int medidor)
 {
-    return confianca;
+    if (medidor == 1) return confiancaApagado;
+    if (medidor == 2) return viesApagado;
+    if (medidor == 3) return privacidadeApagada;
+    if (medidor == 4) return lucroApagado;
+    return 0;
 }
 
-int obterVies()
+// -1 = medidor em 0, +1 = medidor em 100, 0 = ainda em jogo
+static int estadoLimiteMedidor(int medidor)
 {
-    return vies;
+    float *apagado = ponteiroMedidor(medidor);
+
+    if (apagado == 0) return 0;
+    if (*apagado >= LIMITE_APAGADO_MAXIMO) return -1;
+    if (*apagado <= 0) return 1;
+    return 0;
 }
 
-int obterPrivacidade()
-{
-    return privacidade;
-}
-
-int obterLucro()
-{
-    return lucro;
-}
-
-int obterDiasSobrevividos()
-{
-    return diasSobrevividos;
-}
-
-int obterDiaAtual()
-{
-    return diasSobrevividos + 1;
-}
-
-int obterCartasResolvidasFase()
-{
-    return cartasResolvidasFase;
-}
-
-bool jogadorPerdeu()
-{
-    return medidorDerrota != 0;
-}
-
-int obterMedidorDerrota()
-{
-    return medidorDerrota;
-}
-
-bool derrotaNoLimiteMaximo()
-{
-    return derrotaNoMaximo;
-}
-
-// 1 Confianca 0, 2 Confianca 100, 3 Vies 0, 4 Vies 100, 5 Privacidade 0, 6 Privacidade 100, 7 Lucro 0, 8 Lucro 100
-int obterFinalDerrota()
-{
-    if (medidorDerrota == 0)
-        return 0;
-
-    return (medidorDerrota - 1) * 2 + (derrotaNoMaximo ? 2 : 1);
-}
-
-// Mensagem de cada final provisoria
-
-const char *obterMensagemFinal()
-{
-    switch (obterFinalDerrota())
-    {
-        case 1: return "Ninguem mais confia na empresa. Clientes e equipe foram embora.";
-        case 2: return "Confianca cega: ninguem questiona nada, e o primeiro erro grave passou despercebido.";
-        case 3: return "Corrigir tudo virou paralisia: a empresa parou de decidir e nada sai do lugar.";
-        case 4: return "O vies tomou conta: a IA decide de forma injusta e a empresa virou alvo de processos.";
-        case 5: return "Os dados dos usuarios vazaram. A empresa perdeu a licenca para operar.";
-        case 6: return "Privacidade total: nenhum dado pode ser usado e a empresa nao consegue mais oferecer o servico.";
-        case 7: return "A empresa faliu. Sem dinheiro, nao ha como manter equipe nem sistemas.";
-        case 8: return "Lucro acima de tudo: a empresa virou alvo de investigacao por crescer a qualquer custo.";
-    }
-    return "";
-}
-
+// Valor do medidor de 0 a 100 (50 se o HUD ainda nao foi ligado).
 int obterValorMedidor(int medidor)
 {
-    if (medidor == 1) return confianca;
-    if (medidor == 2) return vies;
-    if (medidor == 3) return privacidade;
-    if (medidor == 4) return lucro;
-    return 0;
+    float *apagado = ponteiroMedidor(medidor);
+
+    if (apagado == 0) return 50;
+
+    int valor = (int)(100.0f * (1.0f - *apagado / (float)LIMITE_APAGADO_MAXIMO) + 0.5f);
+
+    if (valor < 0) valor = 0;
+    if (valor > 100) valor = 100;
+    return valor;
 }
 
 bool medidorEstaSeguro(int medidor)
@@ -162,6 +156,98 @@ bool todosMedidoresSeguros()
     return true;
 }
 
+int obterConfianca() { return obterValorMedidor(1); }
+int obterVies() { return obterValorMedidor(2); }
+int obterPrivacidade() { return obterValorMedidor(3); }
+int obterLucro() { return obterValorMedidor(4); }
+
+// 0 = ninguem perdeu; 1 a 4 = medidor que causou a derrota
+int obterMedidorDerrota()
+{
+    for (int medidor = 1; medidor <= 4; medidor++)
+    {
+        if (estadoLimiteMedidor(medidor) != 0)
+            return medidor;
+    }
+    return 0;
+}
+
+bool jogadorPerdeu()
+{
+    return obterMedidorDerrota() != 0;
+}
+
+bool derrotaNoLimiteMaximo()
+{
+    int medidor = obterMedidorDerrota();
+    return medidor != 0 && estadoLimiteMedidor(medidor) == 1;
+}
+
+// 1 Confianca 0, 2 Confianca 100, 3 Vies 0, 4 Vies 100,
+// 5 Privacidade 0, 6 Privacidade 100, 7 Lucro 0, 8 Lucro 100
+int obterFinalDerrota()
+{
+    int medidor = obterMedidorDerrota();
+
+    if (medidor == 0)
+        return 0;
+
+    return (medidor - 1) * 2 + (derrotaNoLimiteMaximo() ? 2 : 1);
+}
+
+// Mensagem de cada final (provisoria)
+const char *obterMensagemFinal()
+{
+    switch (obterFinalDerrota())
+    {
+        case 1: return "Ninguem mais confia na empresa. Clientes e equipe foram embora.";
+        case 2: return "Confianca cega: ninguem questiona nada, e o primeiro erro grave passou despercebido.";
+        case 3: return "Corrigir tudo virou paralisia: a empresa parou de decidir e nada sai do lugar.";
+        case 4: return "O vies tomou conta: a IA decide de forma injusta e a empresa virou alvo de processos.";
+        case 5: return "Os dados dos usuarios vazaram. A empresa perdeu a licenca para operar.";
+        case 6: return "Privacidade total: nenhum dado pode ser usado e a empresa nao consegue mais oferecer o servico.";
+        case 7: return "A empresa faliu. Sem dinheiro, nao ha como manter equipe nem sistemas.";
+        case 8: return "Lucro acima de tudo: a empresa virou alvo de investigacao por crescer a qualquer custo.";
+    }
+    return "";
+}
+
+// Contador de dias: cada carta resolvida sem derrota = 1 dia sobrevivido.
+int obterDiasSobrevividos() { return diasSobrevividos; }
+int obterDiaAtual() { return diasSobrevividos + 1; }
+int obterCartasResolvidasFase() { return cartasResolvidasFase; }
+
+static void registrarCartaResolvida()
+{
+    cartasResolvidasFase++;
+
+    if (jogadorPerdeu())
+        partidaTerminou = true;
+    else
+        diasSobrevividos++;
+}
+
+// Quando o jogador volta a jogar (o Movimentacao zera as barras),
+// o primeiro sorteio de carta zera dias e cartas resolvidas.
+static void reiniciarPartidaSeNecessario()
+{
+    if (partidaTerminou && !jogadorPerdeu())
+    {
+        diasSobrevividos = 0;
+        cartasResolvidasFase = 0;
+        partidaTerminou = false;
+
+        // Baralho embaralhado de novo (US09): esquece as cartas ja vistas.
+        for (int i = 0; i < 8; i++)
+            historico[i] = -1;
+    }
+}
+
+
+
+// ==========================================================
+// HISTÓRICO
+// ==========================================================
 bool eventoFoiRecente(int id)
 {
     for (int i = 0; i < 8; i++)
@@ -180,39 +266,44 @@ void adicionarHistorico(int id)
     historico[0] = id;
 }
 
-void limitarAtributos()
+
+// ==========================================================
+// ATRIBUTOS / PROMOÇÃO ====> Será implementado futuramente
+// ==========================================================
+// void limitarAtributos()
+// {
+//     if (reputacao < 0) reputacao = 0;
+//     if (reputacao > 100) reputacao = 100;
+
+//     if (competencia < 0) competencia = 0;
+//     if (competencia > 100) competencia = 100;
+
+//     if (energia < 0) energia = 0;
+//     if (energia > 100) energia = 100;
+
+//     if (etica < 0) etica = 0;
+//     if (etica > 100) etica = 100;
+// }
+
+void verificarPromocao()
 {
-    if (confianca < 0) confianca = 0;
-    if (confianca > 100) confianca = 100;
-
-    if (vies < 0) vies = 0;
-    if (vies > 100) vies = 100;
-
-    if (privacidade < 0) privacidade = 0;
-    if (privacidade > 100) privacidade = 100;
-
-    if (lucro < 0) lucro = 0;
-    if (lucro > 100) lucro = 100;
+    if (experiencia >= 1700) cargo = 6;
+    else if (experiencia >= 1200) cargo = 5;
+    else if (experiencia >= 800) cargo = 4;
+    else if (experiencia >= 500) cargo = 3;
+    else if (experiencia >= 250) cargo = 2;
+    else if (experiencia >= 100) cargo = 1;
+    else cargo = 0;
 }
 
 
-void verificarDerrota()
-{
-    if (medidorDerrota != 0)
-        return;
-
-    if (confianca <= 0 || confianca >= 100) medidorDerrota = 1;
-    else if (vies <= 0 || vies >= 100) medidorDerrota = 2;
-    else if (privacidade <= 0 || privacidade >= 100) medidorDerrota = 3;
-    else if (lucro <= 0 || lucro >= 100) medidorDerrota = 4;
-
- 
-    if (medidorDerrota != 0)
-        derrotaNoMaximo = obterValorMedidor(medidorDerrota) >= 100;
-}
-
+// ==========================================================
+// SORTEIO DE CARTAS
+// ==========================================================
 void sortearNovaCarta()
 {
+    reiniciarPartidaSeNecessario();
+
     int disponiveis[100];
     int quantidadeDisponiveis = 0;
 
@@ -248,43 +339,100 @@ void sortearNovaCarta()
     }
 }
 
-void iniciarCartas()
+
+// ==========================================================
+// INICIALIZAÇÃO
+// ==========================================================
+void iniciarCartas( float *confianca, float *vies, float *privacidade, float *lucro)
 {
     banco = obterBancoPerguntas(&quantidadeEventos);
 
-    cargo = 0;
-    diasSobrevividos = 0;
-    cartasResolvidasFase = 0;
-    confianca = VALOR_INICIAL_MEDIDORES;
-    vies = VALOR_INICIAL_MEDIDORES;
-    privacidade = VALOR_INICIAL_MEDIDORES;
-    lucro = VALOR_INICIAL_MEDIDORES;
+    confiancaApagado = confianca;
+        if (*confiancaApagado<=0.0f){
+            *confiancaApagado=0.0f;
+        }
+        if (*confiancaApagado>=0.73f){
+            *confiancaApagado=0.73f;
+        }
+    viesApagado = vies;
+        if (*viesApagado<=0.0f){
+            *viesApagado=0.0f;
+        }
+        if (*viesApagado>=0.73){
+            *viesApagado=0.73;
+        }
+
+    privacidadeApagada = privacidade;
+        if (*privacidadeApagada<=0.0f){
+            *privacidadeApagada=0.0f;
+        }
+        if (*privacidadeApagada>=0.73f){
+            *privacidadeApagada=0.73f;
+        }
+    lucroApagado = lucro;
+        if (*lucroApagado<=0.0f){
+            *lucroApagado=0.0f;
+        }
+        if (*lucroApagado>=0.73f){
+            *lucroApagado=0.73f;
+        }
+
+
+
+
     eventoAtual = 0;
     cartaAberta = false;
-    medidorDerrota = 0;
-    derrotaNoMaximo = false;
+    diasSobrevividos = 0;
+    cartasResolvidasFase = 0;
+    partidaTerminou = false;
 
     for (int i = 0; i < 8; i++)
         historico[i] = -1;
 }
 
+
+// ==========================================================
+// ESCOLHAS (ESQUERDA / DIREITA)
+// ==========================================================
 void escolherEsquerda()
 {
     if (eventoAtual == 0)
         return;
 
-    confianca += eventoAtual->confiancaEsquerda;
-    vies += eventoAtual->viesEsquerda;
-    privacidade += eventoAtual->privacidadeEsquerda;
-    lucro += eventoAtual->lucroEsquerda;
+    *confiancaApagado += eventoAtual->confiancaEsquerda;
+        if (*confiancaApagado<=0.0f){
+            *confiancaApagado=0.0f;
+        }
+        if (*confiancaApagado>=0.73f){
+            *confiancaApagado=0.73f;
+        }
 
-    limitarAtributos();
-    verificarDerrota();
+    *viesApagado += eventoAtual->viesEsquerda;
+        if (*viesApagado<=0.0f){
+            *viesApagado=0.0f;
+        }
+        if (*viesApagado>=0.73f){
+            *viesApagado=0.73f;
+        }
 
-    cartasResolvidasFase++;
+    *privacidadeApagada += eventoAtual->privacidadeEsquerda;
+        if (*privacidadeApagada<=0.0f){
+            *privacidadeApagada=0.0f;
+        }
+        if (*privacidadeApagada>=0.73f){
+            *privacidadeApagada=0.73f;
+        }
+    *lucroApagado += eventoAtual->lucroEsquerda;
+        if (*lucroApagado<=0.0f){
+            *lucroApagado=0.0f;
+        }
+        if (*lucroApagado>=0.73f){
+            *lucroApagado=0.73f;
+        }
 
-    if (!jogadorPerdeu())
-        diasSobrevividos++;
+    // limitarAtributos();
+    verificarPromocao();
+    registrarCartaResolvida();
 }
 
 void escolherDireita()
@@ -292,20 +440,21 @@ void escolherDireita()
     if (eventoAtual == 0)
         return;
 
-    confianca += eventoAtual->confiancaDireita;
-    vies += eventoAtual->viesDireita;
-    privacidade += eventoAtual->privacidadeDireita;
-    lucro += eventoAtual->lucroDireita;
+    *confiancaApagado += eventoAtual->confiancaDireita;
+    *viesApagado += eventoAtual->viesDireita;
+    *privacidadeApagada += eventoAtual->privacidadeDireita;
+    *lucroApagado += eventoAtual->lucroDireita;
 
-    limitarAtributos();
-    verificarDerrota();
 
-    cartasResolvidasFase++;
-
-    if (!jogadorPerdeu())
-        diasSobrevividos++;
+    // limitarAtributos();
+    verificarPromocao();
+    registrarCartaResolvida();
 }
 
+
+// ==========================================================
+// ATUALIZAÇÃO (ENTRADA DO JOGADOR)
+// ==========================================================
 void atualizarCartas()
 {
     if (!cartaAberta)
@@ -338,6 +487,10 @@ void atualizarCartas()
     }
 }
 
+
+// ==========================================================
+// DESENHO
+// ==========================================================
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor)
 {
     char palavra[128] = "";
@@ -404,6 +557,9 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
     if (!cartaAberta || eventoAtual == 0)
         return;
 
+    // ------------------------------------------------------
+    // Fundo escurecido e moldura da carta
+    // ------------------------------------------------------
     DrawRectangle(0,0,larguraResolucao,alturaResolucao,Fade(BLACK,0.65f));
 
     int larguraCarta = 540;
@@ -414,6 +570,9 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
     DrawRectangle(xCarta,yCarta,larguraCarta,alturaCarta,(Color){28,31,45,255});
     DrawRectangleLines(xCarta,yCarta,larguraCarta,alturaCarta,WHITE);
 
+    // ------------------------------------------------------
+    // Cargo, título e texto
+    // ------------------------------------------------------
     const char *cargoAtual = nomeCargo();
 
     DrawText(
@@ -441,6 +600,9 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         WHITE
     );
 
+    // ------------------------------------------------------
+    // Opções (esquerda / direita)
+    // ------------------------------------------------------
     DrawText(
         "A",
         xCarta + 30,
@@ -449,35 +611,38 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         SKYBLUE
     );
 
-    desenharTextoQuebrado(
+    DrawText(
         eventoAtual->esquerda,
-        xCarta + 30,
+        xCarta -350,
         yCarta + alturaCarta - 70,
-        larguraCarta / 2 - 50,
         20,
         LIGHTGRAY
     );
 
+    int larguraDireita = MeasureText(eventoAtual->direita,20);
+
     DrawText(
         "D",
-        xCarta + larguraCarta / 2 + 20,
+        xCarta + larguraCarta - 50,
         yCarta + alturaCarta - 105,
         28,
         SKYBLUE
     );
 
-    desenharTextoQuebrado(
+    DrawText(
         eventoAtual->direita,
-        xCarta + larguraCarta / 2 + 20,
+        xCarta + larguraCarta - larguraDireita +200,
         yCarta + alturaCarta - 70,
-        larguraCarta / 2 - 50,
         20,
         LIGHTGRAY
     );
 
-    // DrawText(TextFormat("Cargo: %s",nomeCargo()),25,25,20,WHITE);
 }
 
+
+// ==========================================================
+// FINALIZAÇÃO
+// ==========================================================
 void descarregarCartas()
 {
     cartaAberta = false;
