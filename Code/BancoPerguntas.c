@@ -17,11 +17,11 @@ typedef struct Evento
 
     float privacidadeEsquerda;
     float privacidadeDireita;
-    
+
     float lucroEsquerda;
     float lucroDireita;
 
-    
+
 } Evento;
 
 
@@ -38,106 +38,97 @@ Evento bancoPerguntas[] =
 
 // ==========================================================
 // CARGO 0 - ESTAGIÁRIO  (ÚNICAS CARTAS ATIVAS NO JOGO)
+//
+// 8 cartas do doc Estagiário (sem a 4 e a 8).
+// Valores escritos em PONTOS, como no doc da Dani:
+//   +  / -  = 5      ++ / -- = 15
+// PT(x) converte pontos para o HUD: a barra vai de 0 a 0.73
+// (apagado) e representa 0 a 100 pontos. Como a variável é a
+// parte APAGADA, subir o medidor reduz o valor (por isso o sinal).
+// Medidor que a carta não cita fica 0 (não muda).
+// "Alucinação" e "Dependência" são só tema da carta, não medidor.
 // ==========================================================
+#define PT(pontos) (-(pontos) * 0.0073f)
+
 {
-    1, 0, "Vies na triagem",
-    "A empresa quer usar um sistema que filtra candidatos de universidades caras para acelerar a selecao.",
-    "Usar o sistema para agilizar a contratacao.",
-    "Sinalizar o problema e revisar os criterios.",
-    0.11f, -0.11f,
-    -0.11f, 0.11f,
-    0.0f, 0.0f,
-    -0.11f, 0.11f
+    // Carta 1 - Viés (contratação)
+    .id = 1, .cargo = 0,
+    .titulo = "Triagem de curriculos",
+    .texto = "Seu chefe pede pra usar um modelo de triagem de curriculos que ja existe no sistema. Voce percebe que ele filtra quase so candidatos de universidades caras.",
+    .esquerda = "Usar assim mesmo, e rapido",
+    .direita = "Sinalizar o problema antes de rodar",
+    .lucroEsquerda = PT(+5), .viesEsquerda = PT(+5), .confiancaEsquerda = PT(-5),
+    .viesDireita = PT(-5), .lucroDireita = PT(-5), .confiancaDireita = PT(+5)
 },
 {
-    2, 0, "Dado inventado",
-    "O chatbot citou um dado tecnico que nao aparece na documentacao.",
-    "Deixar a resposta passar para nao atrasar a entrega.",
-    "Corrigir o dado e avisar o cliente.",
-    0.22f, -0.11f,
-    0.0f, 0.0f,
-    0.0f, 0.0f,
-    -0.11f, 0.11f
+    // Carta 2 - Alucinação
+    .id = 2, .cargo = 0,
+    .titulo = "Chatbot inventou um dado",
+    .texto = "O chatbot de suporte gerou uma resposta tecnica para um cliente, mas o dado que ele citou nao existe em nenhuma documentacao.",
+    .esquerda = "Deixar passar, o cliente nao vai notar",
+    .direita = "Corrigir e avisar o cliente do erro",
+    .lucroEsquerda = PT(+5), .confiancaEsquerda = PT(-15),
+    .lucroDireita = PT(-5), .confiancaDireita = PT(+5)
 },
 {
-    3, 0, "Dados sem consentimento",
-    "A equipe quer usar o historico de navegacao dos usuarios para gerar recomendacoes sem pedir consentimento.",
-    "Usar os dados para melhorar as recomendacoes.",
-    "Solicitar consentimento antes de utilizar os dados.",
-    0.0f, 0.0f,
-    0.0f, 0.0f,
-    0.22f, -0.11f,
-    -0.11f, 0.11f
+    // Carta 3 - Privacidade
+    .id = 3, .cargo = 0,
+    .titulo = "Historico de navegacao",
+    .texto = "Voce tem acesso ao historico de navegacao dos usuarios dentro da empresa \"pra melhorar recomendacoes\". Ninguem pediu autorizacao explicita pra isso.",
+    .esquerda = "Usar os dados, todo mundo faz",
+    .direita = "Pedir consentimento antes",
+    .lucroEsquerda = PT(+5), .privacidadeEsquerda = PT(-15),
+    .privacidadeDireita = PT(+5), .lucroDireita = PT(-5)
 },
 {
-    4, 0, "Decisao automatizada",
-    "A IA recomenda cortar um pequeno fornecedor com base em um padrao de risco, mas nao ha tempo para verificar os dados.",
-    "Aprovar a recomendacao imediatamente.",
-    "Revisar os dados antes de decidir.",
-    0.11f, -0.11f,
-    0.0f, 0.0f,
-    0.0f, 0.0f,
-    -0.11f, 0.11f
+    // Carta 5 - Viés (reconhecimento facial)
+    .id = 5, .cargo = 0,
+    .titulo = "Reconhecimento facial",
+    .texto = "Um sistema de reconhecimento facial da empresa erra bem mais em rostos de pele escura. Alguem pede pra \"ajustar o threshold\" so pra esconder o problema nas metricas do relatorio.",
+    .esquerda = "Ajustar o threshold como pedido",
+    .direita = "Reportar o problema real",
+    .viesEsquerda = PT(+15), .confiancaEsquerda = PT(-5),
+    .viesDireita = PT(-5), .confiancaDireita = PT(+5)
 },
 {
-    5, 0, "Metrica manipulada",
-    "O reconhecimento facial erra mais com pessoas de pele escura. Um colega sugere ajustar o limite apenas para esconder o problema nas metricas.",
-    "Ajustar o limite para melhorar os resultados apresentados.",
-    "Relatar o problema real e investigar a causa.",
-    0.11f, -0.11f,
-    -0.22f, 0.11f,
-    0.0f, 0.0f,
-    0.0f, 0.0f
+    // Carta 6 - Alucinação
+    .id = 6, .cargo = 0,
+    .titulo = "Estatistica suspeita",
+    .texto = "Um relatorio automatico de vendas cita uma estatistica que parece forte demais pra ser real. Voce esta sob pressao pra entregar o relatorio hoje.",
+    .esquerda = "Entregar assim, sem checar",
+    .direita = "Investigar a fonte antes de enviar",
+    .lucroEsquerda = PT(+5), .confiancaEsquerda = PT(-15),
+    .confiancaDireita = PT(+5), .lucroDireita = PT(-5)
 },
 {
-    6, 0, "Estatistica suspeita",
-    "Um relatorio automatico de vendas apresenta uma estatistica suspeita perto do prazo de entrega.",
-    "Entregar o relatorio sem verificar o dado.",
-    "Investigar a origem da estatistica.",
-    0.22f, -0.11f,
-    0.0f, 0.0f,
-    0.0f, 0.0f,
-    -0.11f, 0.11f
+    // Carta 7 - Privacidade (versão atual: esquerda = Lucro ++)
+    .id = 7, .cargo = 0,
+    .titulo = "Dados do marketing",
+    .texto = "Marketing pede pra usar dados de usuarios (nome, e-mail, comportamento) pra treinar um novo modelo, sem anonimizar.",
+    .esquerda = "Liberar os dados como pedido",
+    .direita = "Anonimizar antes de liberar",
+    .lucroEsquerda = PT(+15), .privacidadeEsquerda = PT(-15),
+    .privacidadeDireita = PT(+5), .lucroDireita = PT(-5)
 },
 {
-    7, 0, "Dados expostos",
-    "A equipe de marketing quer receber nomes, emails e comportamentos dos usuarios para treinar um modelo, sem anonimizar os dados.",
-    "Disponibilizar os dados como solicitado.",
-    "Anonimizar os dados antes de compartilha-los.",
-    0.0f, 0.0f,
-    0.0f, 0.0f,
-    0.22f, -0.11f,
-    -0.22f, 0.11f
+    // Carta 9 - Viés (precificação) (versão atual: esquerda = Lucro ++)
+    .id = 9, .cargo = 0,
+    .titulo = "Precificacao por bairro",
+    .texto = "A IA de precificacao esta cobrando mais de usuarios de certos bairros, com base em \"risco de inadimplencia\".",
+    .esquerda = "Manter, os numeros fecham",
+    .direita = "Revisar o criterio de precificacao",
+    .lucroEsquerda = PT(+15), .viesEsquerda = PT(+15),
+    .viesDireita = PT(-5), .lucroDireita = PT(-5)
 },
 {
-    8, 0, "Sem revisao humana",
-    "Um sistema de credito aprova emprestimos automaticamente, e a equipe sugere retirar a revisao humana para ganhar velocidade.",
-    "Retirar a revisao humana para acelerar o processo.",
-    "Manter a revisao humana nas decisoes.",
-    0.11f, -0.11f,
-    0.0f, 0.0f,
-    0.0f, 0.0f,
-    -0.11f, 0.11f
-},
-{
-    9, 0, "Preco discriminatorio",
-    "A IA cobra precos maiores de usuarios de alguns bairros devido a uma estimativa de risco.",
-    "Manter os precos porque os numeros parecem corretos.",
-    "Revisar os criterios utilizados pelo sistema.",
-    0.0, 0.0,
-    -0.22f, 0.11f,
-    0.0, 0.0,
-    -0.22f, 0.11f
-},
-{
-    10, 0, "Confianca cega",
-    "Um colega vai apresentar um numero gerado por IA que parece inventado, mas confia nele sem verificar.",
-    "Deixar o colega apresentar o numero sem conferir.",
-    "Insistir em verificar o numero em conjunto.",
-    0.22f, -0.11f,
-    0.0, 0.0,
-    0.0, 0.0,
-    -0.11f, 0.11f
+    // Carta 10 - Alucinação + Dependência (carta final da fase)
+    .id = 10, .cargo = 0,
+    .titulo = "Numero inventado",
+    .texto = "Um colega vai apresentar pro cliente um numero que a IA gerou, mas parece inventado. Ele ja confia cegamente no sistema e nao quer perder tempo checando.",
+    .esquerda = "Deixar ele apresentar assim",
+    .direita = "Insistir em checar juntos antes",
+    .confiancaEsquerda = PT(-15), .lucroEsquerda = PT(+5),
+    .confiancaDireita = PT(+5), .lucroDireita = PT(-5)
 },
 
 
