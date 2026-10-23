@@ -9,7 +9,6 @@
   <img src="https://img.shields.io/badge/status-em%20desenvolvimento-0098DB">
   <img src="https://img.shields.io/badge/C-motor-203562?logo=c&logoColor=white">
   <img src="https://img.shields.io/badge/raylib-visual-1E579C">
-  <img src="https://img.shields.io/badge/Haskell-regras-252446?logo=haskell&logoColor=white">
 </p>
 
 ---
@@ -29,7 +28,7 @@ Cada decisão mexe com quatro coisas ao mesmo tempo, e elas aparecem como medido
 | **Viés** | A IA está tratando todo mundo do mesmo jeito? |
 
 ## Como o jogo funciona
-Você explora o escritório em visão de cima, no estilo dos RPGs clássicos de 16 bits. Quando conversa com um colega ou usa um computador, surge uma carta com um dilema. Arraste pra esquerda ou pra direita pra decidir, e veja os medidores reagirem na hora.
+Você explora o escritório em visão de cima, no estilo dos RPGs clássicos de 16 bits.
 
 ```mermaid
 flowchart LR
@@ -45,7 +44,7 @@ Se qualquer medidor chegar a 0 ou a 100, o jogo acaba. E cada final explica o qu
 
 ## Arquitetura
 
-O jogo é dividido em duas camadas, cada uma com uma responsabilidade clara.
+O jogo é todo feito em C com a biblioteca raylib. As regras de pontuação, as cartas e as condições de fim de jogo também ficam em C.
 
 ```mermaid
 flowchart LR
@@ -54,30 +53,26 @@ flowchart LR
     subgraph M[Motor em C + raylib]
         L[Game loop] --> R[Desenho da tela<br>em pixel art]
         L --> E[Estado do jogo<br>cargo, medidores, cartas]
+        L --> H[Regras em C<br>pontuação e fim de jogo]
     end
 
-    M -. decisão tomada .-> H[Regras em Haskell<br>pontuação e validação]
-    H -. novos valores .-> M
-
     classDef camada fill:#203562,stroke:#0098DB,stroke-width:2px,color:#ffffff
-    classDef futuro fill:#413A42,stroke:#96A2B3,stroke-width:2px,stroke-dasharray:5 5,color:#ffffff
     classDef jogador fill:#0098DB,stroke:#0098DB,color:#ffffff
 
-    class L,R,E camada
-    class H futuro
+    class L,R,E,H camada
     class J jogador
 ```
 
 | Camada | Tecnologia | O que faz |
 |---|---|---|
 | Motor e visual | C + [raylib](https://www.raylib.com/) | Game loop, leitura de teclado e mouse, desenho das telas e controle do estado do jogo |
-| Regras | Haskell | Cálculo de pontuação e validação das regras, com funções puras (Unidade 2) |
+| Regras | C | Cálculo de pontuação, efeito das cartas nos medidores e condições de fim de jogo |
 
 ### Por que essas escolhas
 
 - **C** é requisito do projeto, e engines comerciais (como Unity ou Godot) não são permitidas. O desafio era ter um jogo visual sem sair do C.
 - **raylib** resolve isso: é uma biblioteca gráfica leve, feita pra C, que permite desenhar sprites, tocar sons e ler o teclado sem esconder a lógica do jogo atrás de uma engine.
-- **Haskell** cuida das regras porque funções puras sempre dão o mesmo resultado pra mesma entrada. Isso torna a pontuação previsível e fácil de testar.
+- **Regras em C:** no início a ideia era usar Haskell para as regras, mas como a linguagem não faz parte da disciplina de PIF, a equipe decidiu manter tudo em C para simplificar o projeto.
 
 ---
 ## Como rodar
@@ -155,11 +150,85 @@ Sprints, backlog e tarefas são gerenciados no board do Trello:
 ### Demonstração
 > [🎬 Screencast atualizado do PIF – Equipe 8](https://youtu.be/e5QQfuGNPAU)
 
-> [🎬 Screencast da primeira versão jogável do ELSE](https://youtu.be/P-mGNquMO1s)
->
-
 > [🎬 Screencast explicando cada uma das histórias de usuário do ELSE, com seus storyboards](https://youtu.be/2Ui44BgcWFU)
 
+---
+
+## Entrega 03: Report da Sprint 01
+
+Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionando. A Sprint 01 entregou 6 histórias de usuário jogáveis, desenvolvidas em pares, versionadas no GitHub e testadas com uma partida completa gravada em vídeo.
+
+### Demonstração
+> [🎬 Screencast dos testes da Sprint 01: partida completa mostrando cada história](LINK_DO_VIDEO)
+
+<details>
+<summary><b>Histórias implementadas na Sprint 01</b></summary>
+
+<br>
+
+| História | O que já funciona no jogo | Screencast do teste |
+|---|---|---|
+| US01: Iniciar uma nova partida | Menu inicial, tela de introdução e escritório do Estagiário com os 4 medidores em 50 | [ver](LINK) |
+| US02: Tomar uma decisão e ver o impacto | Interagir com a mesa abre uma carta de dilema; escolher um lado (A/D) altera os medidores | [ver](LINK) |
+| US08: Tela de fim de jogo | Quando um medidor zera ou estoura, aparece a tela de fim de jogo com música própria | [ver](LINK) |
+| US09: Reiniciar a partida | Botão "Play Again" na tela de fim de jogo reinicia a partida do zero | [ver](LINK) |
+| US10: Compartilhar o resultado | Botão "Share" na tela de fim de jogo salva uma imagem do resultado na pasta do jogo | [ver](LINK) |
+
+</details>
+
+<details>
+<summary><b>Programação em pares</b></summary>
+
+<br>
+
+| Par | O que implementou |
+|---|---|
+| Igor (Almeida) + Pierre | Menu inicial, tela de introdução, movimentação do personagem com limites da sala, pause, mute e tela cheia (US01) |
+| Athos + Arthur | Cartas da fase Estagiário e banco de perguntas no código (US02) |
+| Pierre + Athos | Ligação das cartas com os 4 medidores, HUD e contador de dias, e integração das cartas no main (US02, US03) |
+| Pierre + Caio | Condição de fim de jogo, tela de Game Over e botão Play Again (US08, US09) |
+| Dani + França | Tela definitiva de Fim do Expediente, frases dos 8 finais e botão Share (US08, US10) |
+
+</details>
+
+<details>
+<summary><b>Board da sprint e backlog</b></summary>
+
+<br>
+
+**Sprint 01 no board:** as 6 histórias concluídas ficam na lista *Sprint 01 · Histórias concluídas (Entrega 03 FDS)*.
+
+<p align="center">
+  <img src="./Documenta%C3%A7%C3%A3o/prints/sprint1.png" alt="Lista Sprint 01 no board do Trello com as histórias US01, US02, US03, US08, US09 e US10 concluídas" width="260">
+</p>
+
+**Backlog e semanas de trabalho:** cada coluna é uma semana do projeto, do kick-off até a semana atual.
+
+![Backlog do produto no board do Trello, organizado por semanas](./Documenta%C3%A7%C3%A3o/prints/backlog.png)
+
+</details>
+
+<details>
+<summary><b>Testes e bugs</b></summary>
+
+<br>
+
+Os testes de sistema foram feitos de forma manual, jogando uma partida completa no `jogo.exe` e gravando a tela. Cada caso abaixo corresponde a uma história da Sprint 01, e o link de cada trecho do vídeo também está anexado no card da história no board, na lista Sprint 01.
+
+| ID | História | Pré-condição | Ação | Resultado esperado | Resultado |
+|---|---|---|---|---|---|
+| TS01 | US01 | Jogo fechado | Abrir o `jogo.exe` e começar uma partida pelo menu | Tela de introdução e, em seguida, o escritório do Estagiário com os 4 medidores na metade | ✅ Passou |
+| TS02 | US02 | Personagem perto da mesa | Apertar **E** para abrir a carta e escolher um lado com **A** ou **D** | A carta de dilema aparece e os medidores mudam conforme a escolha | ✅ Passou |
+| TS03 | US03 | Partida em andamento | Tomar algumas decisões seguidas | HUD com Confiança, Viés, Privacidade e Lucro sempre visível e o contador de dias avança a cada carta resolvida | ✅ Passou |
+| TS04 | US08 | Um medidor perto do limite | Escolher a opção que leva o medidor a 0 ou 100 | Tela de Fim do Expediente com a frase do final correspondente e os dias sobrevividos | ✅ Passou |
+| TS05 | US09 | Tela de fim de jogo visível | Clicar em **Play Again** | A partida recomeça do zero, com medidores e dias reiniciados | ✅ Passou |
+| TS06 | US10 | Tela de fim de jogo visível | Clicar em **Share** | Uma imagem `else_resultado_Ndias.png` é salva na pasta do jogo | ✅ Passou |
+
+A estratégia geral e os casos de teste do produto completo estão em [Estratégias e Casos de Teste](./Documenta%C3%A7%C3%A3o/Estrat%C3%A9gias%20e%20Casos%20de%20Teste.md). Os bugs encontrados durante a sprint são registrados nas [Issues do repositório](https://github.com/cms7-bot/else/issues?q=label%3Abug), com a etiqueta `bug`.
+
+</details>
+
+---
 ### Modelagem e Prototipação
 
 | Artefato | Onde encontrar |
