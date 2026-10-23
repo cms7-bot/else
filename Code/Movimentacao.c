@@ -10,6 +10,11 @@ void desenharCartas(int larguraResolucao, int alturaResolucao);
 bool cartasEstaoAbertas(void);
 void descarregarCartas(void);
 
+const char *obterMensagemFinal(void);
+int obterDiasSobrevividos(void);
+const char *nomeCargo(void);
+void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
+
 int main()
 {
     // ==========================================================
@@ -132,6 +137,8 @@ int main()
     Texture2D botaoJogar = LoadTexture("Botoes/BotaoJogar.png");
     Texture2D botaoExit = LoadTexture("Botoes/botaoExit.png");
     Texture2D botaoPlayAgain = LoadTexture("Botoes/botaoPlayAgain.png");
+    Texture2D botaoShare = LoadTexture("Botoes/botaoShare.png");
+    Texture2D painelFimExpediente = LoadTexture("Telas/painelFimExpediente.png");
 
 
     // ==========================================================
@@ -771,24 +778,43 @@ int main()
         gameOver = true;
         UpdateMusicStream(gameOverSom);
 
-        DrawRectangle(0, 0, larguraMonitor, alturaMonitor, Fade(BLACK,0.8f));
+         // ----- TELA FIM DO EXPEDIENTE (Dani) -----
+        // Posicoes da tela virtual (1280x720), iguais as do LEIA-ME.
+        // offset + posicao * escala = posicao na tela de verdade.
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.65f));
 
+        // Painel: titulo + cracha + frase fixa com a lacuna dos dias
+        DrawTextureEx(painelFimExpediente, (Vector2){offsetX + 190 * escala, offsetY + 80 * escala}, 0, escala, WHITE);
 
-        DrawText("GAME OVER",(larguraMonitor-MeasureText("GAME OVER",80))/2,(alturaMonitor-250)/2,80,GREEN);
-        DrawTexture(botaoExit, ((larguraMonitor - botaoExit.width) / 2), 200 + (alturaMonitor - botaoExit.height) / 2, WHITE);
-        DrawTexture(botaoPlayAgain, ((larguraMonitor - botaoExit.width) / 2), 50 + (alturaMonitor - botaoExit.height) / 2, WHITE);
+        // Cargo no cracha (centro em x 347, y 414)
+        const char *cargoFinal = TextToUpper(nomeCargo());
+        int tamanhoCargo = 20 * escala;
+        DrawText(cargoFinal, offsetX + 347 * escala - MeasureText(cargoFinal, tamanhoCargo) / 2, offsetY + 432 * escala - tamanhoCargo / 2, tamanhoCargo, (Color){70, 74, 90, 255});
 
-        Rectangle retExit = {
-        ((larguraMonitor - botaoExit.width) / 2),410 + (alturaMonitor - botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
+        // Frase do final (caixa x 520, y 230, largura 530)
+        desenharTextoQuebrado(obterMensagemFinal(), offsetX + 520 * escala, offsetY + 230 * escala, 530 * escala, 24 * escala, WHITE);
 
-        Rectangle retPlayAgain = {((larguraMonitor - botaoExit.width) / 2) ,260 + (alturaMonitor- botaoExit.height) / 2, botaoExit.width,botaoExit.height/4.5};
-        PauseMusicStream(trilhaSonora2);
+        // Numero de dias na lacuna (centro em x 735, y 385)
+        const char *textoDias = TextFormat("%d", obterDiasSobrevividos());
+        int tamanhoDias = 28 * escala;
+        DrawText(textoDias, offsetX + 735 * escala - MeasureText(textoDias, tamanhoDias) / 2, offsetY + 400 * escala - tamanhoDias / 2, tamanhoDias, (Color){255, 214, 102, 255});
+
+        // Botoes: so a area util do PNG (sem a sobra transparente)
+        Rectangle areaUtil = {30, 207, 447, 112};
+        Rectangle retPlayAgain = {offsetX + 266 * escala, offsetY + 550 * escala, 223.5f * escala, 56 * escala};
+        Rectangle retShare = {offsetX + 529 * escala, offsetY + 550 * escala, 223.5f * escala, 56 * escala};
+        Rectangle retExit = {offsetX + 792 * escala, offsetY + 550 * escala, 223.5f * escala, 56 * escala};
+        DrawTexturePro(botaoPlayAgain, areaUtil, retPlayAgain, (Vector2){0, 0}, 0, WHITE);
+        DrawTexturePro(botaoShare, areaUtil, retShare, (Vector2){0, 0}, 0, WHITE);
+        DrawTexturePro(botaoExit, areaUtil, retExit, (Vector2){0, 0}, 0, WHITE);PauseMusicStream(trilhaSonora2);
 
         Vector2 mouse = GetMousePosition();
 
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
+             if (CheckCollisionPointRec(mouse, retShare))
+                TakeScreenshot(TextFormat("else_resultado_%ddias.png", obterDiasSobrevividos()));
             if (CheckCollisionPointRec(mouse, retExit))
             {
                 PlayMusicStream(trilhaSonora1);
