@@ -166,13 +166,14 @@ Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionan
 
 <br>
 
-| História | O que já funciona no jogo | Screencast do teste |
-|---|---|---|
-| US01: Iniciar uma nova partida | Menu inicial, tela de introdução e escritório do Estagiário com os 4 medidores em 50 | [ver](LINK) |
-| US02: Tomar uma decisão e ver o impacto | Interagir com a mesa abre uma carta de dilema; escolher um lado (A/D) altera os medidores | [ver](LINK) |
-| US08: Tela de fim de jogo | Quando um medidor zera ou estoura, aparece a tela de fim de jogo com música própria | [ver](LINK) |
-| US09: Reiniciar a partida | Botão "Play Again" na tela de fim de jogo reinicia a partida do zero | [ver](LINK) |
-| US10: Compartilhar o resultado | Botão "Share" na tela de fim de jogo salva uma imagem do resultado na pasta do jogo | [ver](LINK) |
+| História | O que já funciona no jogo |
+|---|---|
+| US01: Iniciar uma nova partida | Menu inicial, tela de introdução e escritório do Estagiário com os 4 medidores em 50 |
+| US02: Tomar uma decisão e ver o impacto | Interagir com a mesa abre uma carta de dilema; escolher um lado (A/D) altera os medidores |
+| US03: HUD de medidores e regras da empresa | HUD com Confiança, Viés, Privacidade e Lucro sempre visível e contador de dias |
+| US08: Tela de fim de jogo | Quando um medidor zera ou estoura, aparece a tela de fim de jogo com música própria |
+| US09: Reiniciar a partida | Botão "Play Again" na tela de fim de jogo reinicia a partida do zero |
+| US10: Compartilhar o resultado | Botão "Share" na tela de fim de jogo salva uma imagem do resultado na pasta do jogo |
 
 </details>
 
@@ -213,7 +214,7 @@ Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionan
 
 <br>
 
-Os testes de sistema foram feitos de forma manual, jogando uma partida completa no `jogo.exe` e gravando a tela. Cada caso abaixo corresponde a uma história da Sprint 01, e o link de cada trecho do vídeo também está anexado no card da história no board, na lista Sprint 01.
+Os testes de sistema foram feitos de forma manual, jogando uma partida completa no `jogo.exe` e gravando a tela. Cada caso abaixo corresponde a uma história da Sprint 01, e o link do vídeo também está anexado nos cards das histórias no board, na lista Sprint 01.
 
 | ID | História | Pré-condição | Ação | Resultado esperado | Resultado |
 |---|---|---|---|---|---|
