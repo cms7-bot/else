@@ -195,19 +195,27 @@ int obterFinalDerrota()
     return (medidor - 1) * 2 + (derrotaNoLimiteMaximo() ? 2 : 1);
 }
 
-// Mensagem de cada final (provisoria)
+// Mensagem de cada final Definitiva 
 const char *obterMensagemFinal()
 {
     switch (obterFinalDerrota())
     {
-        case 1: return "Ninguem mais confia na empresa. Clientes e equipe foram embora.";
-        case 2: return "Confianca cega: ninguem questiona nada, e o primeiro erro grave passou despercebido.";
-        case 3: return "Corrigir tudo virou paralisia: a empresa parou de decidir e nada sai do lugar.";
-        case 4: return "O vies tomou conta: a IA decide de forma injusta e a empresa virou alvo de processos.";
-        case 5: return "Os dados dos usuarios vazaram. A empresa perdeu a licenca para operar.";
-        case 6: return "Privacidade total: nenhum dado pode ser usado e a empresa nao consegue mais oferecer o servico.";
-        case 7: return "A empresa faliu. Sem dinheiro, nao ha como manter equipe nem sistemas.";
-        case 8: return "Lucro acima de tudo: a empresa virou alvo de investigacao por crescer a qualquer custo.";
+         // CONFIANCA chegou a 0 -> final "Sem Credito"
+        case 1: return  "Foram tantas respostas erradas que os clientes voltaram a fazer tudo na mao. E juraram nunca mais confiar numa IA.";
+         // CONFIANCA chegou a 100 -> final "Fe Cega"
+        case 2: return "Todo mundo confiava tanto na IA que ninguem conferiu o relatorio. Era tudo inventado.";
+         // VIES chegou a 0 -> final "Regua"
+        case 3: return  "A IA tratou todo mundo exatamente igual. Igualdade perfeita no papel; na vida real, ninguem foi atendido direito.";
+        // VIES chegou a 100 -> final "Tendencioso"
+        case 4: return  "Ninguem programou a IA pra discriminar. Ela aprendeu sozinha, com os nossos dados. Os processos chegaram.";
+        // PRIVACIDADE chegou a 0 -> final "Peneira"
+        case 5: return  "A IA conhecia muito bem os clientes. A internet inteira tambem, depois do vazamento.";
+        // PRIVACIDADE chegou a 100 -> final "Cadeado"
+        case 6: return "Os dados estavam perfeitamente protegidos. Tao protegidos que nem a IA conseguia usar.";
+         // LUCRO chegou a 0 -> final "Mao-Aberta" ATENCAO: a frase termina cortada ("fra") DE PROPOSITO.
+        case 7: return "Sem dinheiro pra pagar o servidor, a IA foi desligada no meio de uma fra";
+        // LUCRO chegou a 100 -> final "Cifrao"
+        case 8: return "Os acionistas comemoraram ate a investigacao comecar.";
     }
     return "";
 }
