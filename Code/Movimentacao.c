@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "rlgl.h"
 #include <stdbool.h>
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
@@ -811,10 +812,14 @@ int main()
         Vector2 mouse = GetMousePosition();
 
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
              if (CheckCollisionPointRec(mouse, retShare))
+             {
+                rlDrawRenderBatchActive(); // desenha a fila antes do print, senao sai preto
                 TakeScreenshot(TextFormat("else_resultado_%ddias.png", obterDiasSobrevividos()));
+             }
+
             if (CheckCollisionPointRec(mouse, retExit))
             {
                 PlayMusicStream(trilhaSonora1);

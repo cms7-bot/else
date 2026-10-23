@@ -156,10 +156,10 @@ Sprints, backlog e tarefas são gerenciados no board do Trello:
 
 ## Entrega 03: Report da Sprint 01
 
-Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionando. A Sprint 01 entregou 6 histórias de usuário jogáveis, desenvolvidas em pares, versionadas no GitHub e testadas com uma partida completa gravada em vídeo.
+Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionando. A Sprint 01 entregou 5 histórias de usuário jogáveis, desenvolvidas em pares, versionadas no GitHub e testadas com uma partida completa gravada em vídeo.
 
 ### Demonstração
-> [🎬 Screencast dos testes da Sprint 01: partida completa mostrando cada história](LINK_DO_VIDEO)
+> [🎬 Screencast dos testes da Sprint 01: partida completa mostrando as 5 histórias funcionando](https://youtu.be/PerQLox7oNw)
 
 <details>
 <summary><b>Histórias implementadas na Sprint 01</b></summary>
@@ -169,8 +169,7 @@ Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionan
 | História | O que já funciona no jogo |
 |---|---|
 | US01: Iniciar uma nova partida | Menu inicial, tela de introdução e escritório do Estagiário com os 4 medidores em 50 |
-| US02: Tomar uma decisão e ver o impacto | Interagir com a mesa abre uma carta de dilema; escolher um lado (A/D) altera os medidores |
-| US03: HUD de medidores e regras da empresa | HUD com Confiança, Viés, Privacidade e Lucro sempre visível e contador de dias |
+| US02: Tomar uma decisão e ver o impacto | Interagir com a mesa abre uma carta de dilema; escolher um lado (A/D) altera os medidores do HUD (Confiança, Viés, Privacidade e Lucro) e avança o contador de dias |
 | US08: Tela de fim de jogo | Quando um medidor zera ou estoura, aparece a tela de fim de jogo com música própria |
 | US09: Reiniciar a partida | Botão "Play Again" na tela de fim de jogo reinicia a partida do zero |
 | US10: Compartilhar o resultado | Botão "Share" na tela de fim de jogo salva uma imagem do resultado na pasta do jogo |
@@ -186,7 +185,7 @@ Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionan
 |---|---|
 | Igor (Almeida) + Pierre | Menu inicial, tela de introdução, movimentação do personagem com limites da sala, pause, mute e tela cheia (US01) |
 | Athos + Arthur | Cartas da fase Estagiário e banco de perguntas no código (US02) |
-| Pierre + Athos | Ligação das cartas com os 4 medidores, HUD e contador de dias, e integração das cartas no main (US02, US03) |
+| Pierre + Athos | Ligação das cartas com os 4 medidores, HUD e contador de dias, e integração das cartas no main (US02) |
 | Pierre + Caio | Condição de fim de jogo, tela de Game Over e botão Play Again (US08, US09) |
 | Dani + França | Tela definitiva de Fim do Expediente, frases dos 8 finais e botão Share (US08, US10) |
 
@@ -197,10 +196,10 @@ Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionan
 
 <br>
 
-**Sprint 01 no board:** as 6 histórias concluídas ficam na lista *Sprint 01 · Histórias concluídas (Entrega 03 FDS)*.
+**Sprint 01 no board:** as 5 histórias concluídas ficam na lista *Sprint 01 · Histórias concluídas (Entrega 03 FDS)*.
 
 <p align="center">
-  <img src="./Documenta%C3%A7%C3%A3o/prints/sprint1.png" alt="Lista Sprint 01 no board do Trello com as histórias US01, US02, US03, US08, US09 e US10 concluídas" width="260">
+  <img src="./Documenta%C3%A7%C3%A3o/prints/sprint1.png" alt="Lista Sprint 01 no board do Trello com as histórias US01, US02, US08, US09 e US10 concluídas" width="260">
 </p>
 
 **Backlog e semanas de trabalho:** cada coluna é uma semana do projeto, do kick-off até a semana atual.
@@ -219,11 +218,10 @@ Os testes de sistema foram feitos de forma manual, jogando uma partida completa 
 | ID | História | Pré-condição | Ação | Resultado esperado | Resultado |
 |---|---|---|---|---|---|
 | TS01 | US01 | Jogo fechado | Abrir o `jogo.exe` e começar uma partida pelo menu | Tela de introdução e, em seguida, o escritório do Estagiário com os 4 medidores na metade | ✅ Passou |
-| TS02 | US02 | Personagem perto da mesa | Apertar **E** para abrir a carta e escolher um lado com **A** ou **D** | A carta de dilema aparece e os medidores mudam conforme a escolha | ✅ Passou |
-| TS03 | US03 | Partida em andamento | Tomar algumas decisões seguidas | HUD com Confiança, Viés, Privacidade e Lucro sempre visível e o contador de dias avança a cada carta resolvida | ✅ Passou |
-| TS04 | US08 | Um medidor perto do limite | Escolher a opção que leva o medidor a 0 ou 100 | Tela de Fim do Expediente com a frase do final correspondente e os dias sobrevividos | ✅ Passou |
-| TS05 | US09 | Tela de fim de jogo visível | Clicar em **Play Again** | A partida recomeça do zero, com medidores e dias reiniciados | ✅ Passou |
-| TS06 | US10 | Tela de fim de jogo visível | Clicar em **Share** | Uma imagem `else_resultado_Ndias.png` é salva na pasta do jogo | ✅ Passou |
+| TS02 | US02 | Personagem perto da mesa | Apertar **E** para abrir a carta e escolher um lado com **A** ou **D** | A carta de dilema aparece, os medidores do HUD mudam conforme a escolha e o contador de dias avança | ✅ Passou |
+| TS03 | US08 | Um medidor perto do limite | Escolher a opção que leva o medidor a 0 ou 100 | Tela de Fim do Expediente com a frase do final correspondente e os dias sobrevividos | ✅ Passou |
+| TS04 | US09 | Tela de fim de jogo visível | Clicar em **Play Again** | A partida recomeça do zero, com medidores e dias reiniciados | ✅ Passou |
+| TS05 | US10 | Tela de fim de jogo visível | Clicar em **Share** | Uma imagem `else_resultado_Ndias.png` é salva na pasta do jogo | ✅ Passou |
 
 A estratégia geral e os casos de teste do produto completo estão em [Estratégias e Casos de Teste](./Documenta%C3%A7%C3%A3o/Estrat%C3%A9gias%20e%20Casos%20de%20Teste.md). Os bugs encontrados durante a sprint são registrados nas [Issues do repositório](https://github.com/cms7-bot/else/issues?q=label%3Abug), com a etiqueta `bug`.
 
