@@ -196,10 +196,10 @@ Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionan
 
 <br>
 
-**Sprint 01 no board:** as 5 histórias concluídas ficam na lista *Sprint 01 · Histórias concluídas (Entrega 03 FDS)*.
+**Sprint 01 no board:** as 5 histórias concluídas ficam na lista *Sprint 01 · Histórias concluídas (Entrega 03 FDS)*, junto com o card do screencast dos testes.
 
 <p align="center">
-  <img src="./Documenta%C3%A7%C3%A3o/prints/sprint1.png" alt="Lista Sprint 01 no board do Trello com as histórias US01, US02, US08, US09 e US10 concluídas" width="260">
+  <img src="./Documenta%C3%A7%C3%A3o/prints/sprint1.png" alt="Lista Sprint 01 no board do Trello com as histórias US01, US02, US08, US09 e US10 concluídas e o card do screencast dos testes" width="260">
 </p>
 
 **Backlog e semanas de trabalho:** cada coluna é uma semana do projeto, do kick-off até a semana atual.
@@ -213,7 +213,7 @@ Nesta etapa a equipe saiu do planejamento e passou a entregar software funcionan
 
 <br>
 
-Os testes de sistema foram feitos de forma manual, jogando uma partida completa no `jogo.exe` e gravando a tela. Cada caso abaixo corresponde a uma história da Sprint 01, e o link do vídeo também está anexado nos cards das histórias no board, na lista Sprint 01.
+Os testes de sistema foram feitos de forma manual, jogando uma partida completa no `jogo.exe` e gravando a tela. Cada caso abaixo corresponde a uma história da Sprint 01, e todos aparecem no [screencast dos testes](https://youtu.be/PerQLox7oNw). O vídeo também está anexado no card *🎬 Screencast dos testes · Sprint 01*, na lista Sprint 01 do board.
 
 | ID | História | Pré-condição | Ação | Resultado esperado | Resultado |
 |---|---|---|---|---|---|
