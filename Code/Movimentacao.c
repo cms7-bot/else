@@ -139,6 +139,7 @@ int main()
     Texture2D botaoExit = LoadTexture("Botoes/botaoExit.png");
     Texture2D botaoPlayAgain = LoadTexture("Botoes/botaoPlayAgain.png");
     Texture2D botaoShare = LoadTexture("Botoes/botaoShare.png");
+    Texture2D botaoContinue = LoadTexture("Botoes/BotaoContinue.png");
     Texture2D painelFimExpediente = LoadTexture("Telas/painelFimExpediente.png");
 
 
@@ -291,6 +292,12 @@ int main()
                 tamanhoTexto,
                 WHITE
             );
+
+            Rectangle areaUtilContinue = {30, 207, 447, 112};
+            Rectangle retContinue = {offsetX + (larguraFinal - 223.5f * escala) / 2, offsetY + alturaFinal / 2 + 80 * escala, 223.5f * escala, 56 * escala};
+            DrawTexturePro(botaoContinue, areaUtilContinue, retContinue, (Vector2){0, 0}, 0, WHITE);
+            Vector2 mousePause = GetMousePosition();
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePause, retContinue)){ pausado = false; ResumeMusicStream(trilhaSonora2); }
 
             EndDrawing();
 
@@ -854,10 +861,6 @@ int main()
         EndDrawing();
     }
 
-
-    // ==========================================================
-    // FINALIZAÇÃO
-    // ==========================================================
     descarregarCartas();
 
     UnloadTexture(costas1);
@@ -877,6 +880,7 @@ int main()
     UnloadTexture(esquerda3);
 
     UnloadTexture(botaoJogar);
+    UnloadTexture(botaoContinue);
     UnloadTexture(logoInicio);
 
     UnloadRenderTexture(telaVirtual);
