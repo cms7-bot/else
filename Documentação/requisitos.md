@@ -20,7 +20,7 @@ O MVP da U1 é a **fase do Estagiário jogável do início ao fim**, em C com ra
 | HUD com os 4 medidores e o dia (US03, sem o painel de regras) | Promoção e troca de sala (US07) |
 | Fim de jogo e jogar novamente (US08 e US09, versão simples) | Compartilhar resultado (US10) |
 | Explicação do conceito de IA no verso da carta (US06), se der tempo | Auditoria (US11), conversa com colegas (US12), máquina de café (US13), galeria de finais (US14), salvar progresso (US15) |
-| | Regras em Haskell e painel "Regras da empresa" |
+| | Painel "Regras da empresa" |
 
 ---
 
@@ -55,7 +55,7 @@ As métricas abaixo são **metas propostas pela equipe** e devem ser validadas n
 | ID | Categoria | Requisito | Como medir |
 |:--:|---|---|---|
 | RNF01 | Plataforma | O jogo deve rodar como aplicativo de computador no Windows 10 e 11, sem precisar de internet ou servidor. | Abrir e jogar uma partida com a internet desligada |
-| RNF02 | Tecnologia | O jogo deve ser feito em C com a biblioteca raylib, sem engine de jogos. Haskell entra só na U2. | Revisão do código |
+| RNF02 | Tecnologia | O jogo deve ser feito em C com a biblioteca raylib, sem engine de jogos. As regras do jogo ficam num módulo separado, também em C. | Revisão do código |
 | RNF03 | Compilação | O jogo deve compilar por um único script, sem erros e sem avisos. | 0 erros e 0 avisos com `gcc -Wall`, a partir de um clone novo do repositório |
 | RNF04 | Desempenho | O jogo deve rodar a 60 quadros por segundo e abrir a tela inicial em até 5 segundos. | Medir num notebook usado em aula |
 | RNF05 | Interface | A janela do jogo deve ter resolução de 1280 × 720. | Conferir ao abrir o jogo |

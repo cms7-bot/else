@@ -27,7 +27,7 @@ Cada frente de trabalho segue a **matriz RACI** abaixo:
 | Arte, assets e UI visual | França | Dani | Arthur, Almeida |
 | Lógica Matemática (LMC) | Pierre, Caio | Pierre | Athos |
 | Motor em C + raylib (PIF) | Almeida, Pierre | Almeida | França, Arthur, Dani |
-| Regras em Haskell (PIF) | Athos, Caio, Arthur | Athos | Pierre |
+| Módulo de regras em C (LMC) | Caio, Pierre | Almeida | Athos |
 
 Quem não aparece numa linha é **informado** sobre aquela frente.
 

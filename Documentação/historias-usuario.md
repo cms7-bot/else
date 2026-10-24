@@ -100,7 +100,7 @@ Como jogador, quero responder a dilemas éticos sobre o uso de IA, para refletir
 
 - Base inicial com pelo menos 8 dilemas cobrindo os 4 pilares educativos: confiança, privacidade, lucro e viés.
 
-- Efeitos e pré-condições de cada card calculados pelo módulo de regras em Haskell, seguindo as fórmulas do relatório de LMC.
+- Efeitos e pré-condições de cada card calculados pelo módulo de regras em C, seguindo as fórmulas do relatório de LMC.
 
 ### US03: HUD de medidores e regras da empresa
 
@@ -128,7 +128,7 @@ Como jogador, quero ver os 4 medidores sempre na tela e consultar as regras da e
 
 - Faixa segura testada nos dois limites (30 e 70) de cada medidor.
 
-- Valores do painel calculados pela mesma função do módulo Haskell que o jogo usa, sem fórmulas reescritas na interface.
+- Valores do painel calculados pela mesma função do módulo de regras em C que o jogo usa, sem fórmulas reescritas na interface.
 
 - Animação de variação testada para subida e para descida de cada medidor.
 
