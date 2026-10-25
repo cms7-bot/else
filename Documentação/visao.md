@@ -36,7 +36,7 @@ Jogos de decisão rápida, como *Reigns*, mostram que é possível ensinar siste
 A fase do **Estagiário** jogável do início ao fim: menu, sala com movimento, cartas de dilema, os 4 medidores no HUD, fim de jogo e jogar novamente. O detalhamento está em [Requisitos](./requisitos.md).
 
 ### 5.2 Unidade 2
-Progressão de carreira (Estagiário, Júnior, Pleno, Sênior e Tech Líder), consequências de decisões passadas, notícias inesperadas, auditoria, conversa com colegas, enigma da máquina de café, galeria de finais, salvar progresso e regras do jogo em Haskell.
+Progressão de carreira (Estagiário, Júnior, Pleno, Sênior e Tech Líder), consequências de decisões passadas, notícias inesperadas, auditoria, conversa com colegas, enigma da máquina de café, galeria de finais e salvar progresso.
 
 ### 5.3 Fora do escopo
 - Versão web ou para celular. O ELSE é um jogo de computador feito em C com raylib.

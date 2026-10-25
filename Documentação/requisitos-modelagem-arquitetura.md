@@ -1,4 +1,4 @@
-# Documento de Fundamentos de Desenvolvimento de Software — Decifra.IA
+# Documento de Fundamentos de Desenvolvimento de Software — ELSE
 
 
 ---
@@ -103,7 +103,7 @@ Final -->|"Sem cartas restantes"| Concluido["Jogo concluído"] --> Resumo["Resum
 | `RNF10` | **"Separação de responsabilidades"** | A interface, o gerenciamento do estado e as regras do jogo devem possuir responsabilidades separadas. |
 | `RNF11` | **"Testabilidade"** | As principais regras e comportamentos do sistema devem ser estruturados de maneira que possam ser testados. |
 | `RNF12` | **"Tecnologia"** | O projeto não deverá utilizar uma engine de jogos. |
-| `RNF13` | **"Arquitetura"** | A solução deverá utilizar **Frontend Web**, **C** e **Haskell**, com comunicação entre os componentes. |
+| `RNF13` | **"Arquitetura"** | A solução deverá utilizar **C** com a biblioteca gráfica **raylib**, com as regras do jogo num módulo separado, também em C. |
 | `RNF14` | **"Backend"** | O jogo não deverá depender de um backend próprio para seu funcionamento principal. |
 | `RNF15` | **"Usabilidade"** | O jogador deve conseguir compreender o fluxo básico de exploração, interação e decisão por meio da interface. |
 | `RNF16` | **"Consistência"** | Uma mesma decisão, considerando o mesmo estado da partida, deve produzir as mesmas consequências de acordo com as regras definidas. |
@@ -332,11 +332,13 @@ Os temas previstos incluem:
 
 ## 4. Esboço de Arquitetura
 
-A arquitetura do Decifra.IA será organizada em três componentes principais:
+> Atualizado em out/2026: o projeto não usa mais Haskell nem frontend web. O professor de PIF não vai ensinar Haskell em sala, então a equipe manteve tudo em C. O jogo é um aplicativo de computador feito em C com a biblioteca gráfica raylib.
 
-- **"Frontend Web"**: apresentação visual e interação com o jogador
-- **"C"**: gerenciamento do estado e fluxo principal do jogo
-- **"Haskell"**: processamento das regras e consequências
+A arquitetura do ELSE é organizada em três partes, todas em C:
+
+- **"Telas e desenho (raylib)"**: apresentação visual e leitura do teclado e do mouse
+- **"Estado e fluxo do jogo"**: posição do personagem, cartas, medidores, dias e troca de telas
+- **"Módulo de regras"**: proposições e fórmulas do relatório de LMC (fim de jogo, promoção, auditoria)
 
 
 ### 4.1 "Visão geral"
@@ -345,110 +347,96 @@ A arquitetura do Decifra.IA será organizada em três componentes principais:
 flowchart TD
 Jogador(["Jogador"])
 Jogador --> Teclado["Teclado"]
-Jogador --> Mouse["Mouse / Toque"]
+Jogador --> Mouse["Mouse"]
 
-Teclado --> FE
-Mouse --> FE
+Teclado --> R
+Mouse --> R
 
-FE["<b>Frontend Web</b><br/>Ambiente top-down<br/>Personagem<br/>Movimentação WASD<br/>Interações<br/>Cartas<br/>Swipe<br/>Medidores<br/>Feedback<br/>Telas"]
+R["<b>Telas e desenho (raylib)</b><br/>Escritório<br/>Personagem<br/>Cartas<br/>HUD dos medidores<br/>Menus e telas de resultado"]
 
-FE --> C["<b>C</b><br/>Estado da partida<br/>Fluxo do jogo<br/>Personagem<br/>Exploração<br/>Interações<br/>Dilemas<br/>Medidores<br/>Progressão<br/>Condições de término"]
+R --> C["<b>Estado e fluxo do jogo (C)</b><br/>Estado da partida<br/>Movimentação WASD<br/>Interações<br/>Cartas da fase<br/>Medidores<br/>Contador de dias"]
 
-C --> H["<b>Haskell</b><br/>Regras<br/>Consequências<br/>Pontuação<br/>Validações"]
+C --> M["<b>Módulo de regras (C)</b><br/>Proposições do relatório de LMC<br/>Fim de jogo<br/>Promoção<br/>Auditoria"]
 ```
 
-### 4.2 "Frontend Web"
+### 4.2 "Telas e desenho (raylib)"
 
-> Responsável pela camada de apresentação e pela interação direta com o jogador.
+> Responsável pela parte visual e pela leitura dos comandos do jogador.
 **Responsabilidades:**
-- Apresentar o ambiente de cada fase
-- Apresentar o personagem
-- Capturar comandos de movimentação
-- Permitir movimentação utilizando WASD
-- Apresentar elementos interativos
-- Apresentar NPCs e computadores
-- Iniciar as telas de dilema
-- Apresentar cartas de decisão
-- Implementar o swipe para esquerda e direita
-- Apresentar os quatro medidores
-- Apresentar feedbacks
-- Apresentar eventos
-- Apresentar telas de Game Over
-- Apresentar o resumo final
-- Apresentar a progressão entre fases
-- Adaptar a interface aos dispositivos suportados
+- Desenhar o escritório de cada fase e o personagem
+- Ler o teclado (WASD para andar, E para interagir, A/D para escolher a carta) e o mouse
+- Desenhar NPCs, mesas e elementos interativos
+- Desenhar as cartas de decisão
+- Desenhar os quatro medidores e o contador de dias no HUD
+- Desenhar o menu principal, a pausa, as instruções e as telas de fim de jogo e de promoção
+- Ajustar a imagem de 1280×720 ao tamanho da janela
 
 
-### 4.3 "C"
+### 4.3 "Estado e fluxo do jogo"
 
-> Responsável pelo gerenciamento do estado e pelo fluxo principal da partida.
+> Responsável por guardar o estado e controlar o fluxo da partida.
 **Responsabilidades:**
-- Controlar o estado atual do jogo
-- Controlar o estado e a posição do personagem
-- Controlar a exploração
-- Processar interações relevantes
-- Controlar a sequência dos cenários
-- Controlar as cartas disponíveis
-- Receber as decisões realizadas pelo jogador
-- Controlar os quatro medidores
-- Verificar condições de término
-- Controlar a progressão de carreira
-- Controlar o fluxo entre exploração e tomada de decisão
-- Comunicar-se com Haskell para processamento das regras
+- Controlar o estado atual do jogo e a tela ativa
+- Controlar a posição do personagem e as colisões
+- Processar as interações com mesas, NPCs e a máquina de café
+- Sortear as cartas da fase sem repetir
+- Receber a decisão do jogador e aplicar o efeito nos medidores
+- Controlar o contador de dias
+- Consultar o módulo de regras depois de cada decisão
+- Trocar para a tela de fim de jogo ou de promoção quando o módulo de regras indicar
 
-### 4.4 "Haskell"
+### 4.4 "Módulo de regras"
 
-> Utilizado para concentrar as regras relacionadas ao processamento das decisões.
+> Arquivo separado, em C, que concentra as regras de lógica do relatório de LMC. Cada função representa uma proposição ou fórmula e devolve verdadeiro ou falso.
 **Responsabilidades:**
-- Processar as regras dos dilemas
-- Determinar consequências das escolhas
-- Calcular pontuações
-- Realizar validações
-- Auxiliar na determinação dos resultados
-- Processar regras necessárias para os diferentes finais
+- Calcular as proposições da seção 6 do relatório de LMC
+- Definir o fim de jogo (um medidor chegou a 0 ou a 100)
+- Definir a promoção para Júnior
+- Definir a entrada e a saída da auditoria
+- Fornecer os valores mostrados no painel "Regras da empresa"
 
-### 4.5 "Integração entre os componentes"
-**Fluxo geral de comunicação:**
+### 4.5 "Integração entre as partes"
+**Fluxo geral:**
 
 ```mermaid
 flowchart TD
-Jogador1(["Jogador"]) -->|"ações do jogador"| FE1["Frontend Web"]
-FE1 -->|"estado + decisão"| C1["C"]
-C1 -->|"regras + consequências"| H1["Haskell"]
-H1 -->|"estado atualizado"| C1
-C1 --> FE1
-FE1 --> Jogador1
+Jogador1(["Jogador"]) -->|"ações do jogador"| R1["Telas e desenho (raylib)"]
+R1 -->|"comando ou decisão"| C1["Estado e fluxo (C)"]
+C1 -->|"estado dos medidores"| M1["Módulo de regras (C)"]
+M1 -->|"verdadeiro ou falso"| C1
+C1 -->|"estado atualizado"| R1
+R1 --> Jogador1
 ```
-**Exemplo — durante a exploração:**
+**Exemplo: durante a exploração**
 
 ```mermaid
 sequenceDiagram
     participant J as Jogador
-    participant F as Frontend Web
-    participant C as C
+    participant R as Telas (raylib)
+    participant C as Estado e fluxo
 
-    J->>F: Pressiona W
-    F->>C: Envia comando de movimentação
+    J->>R: Pressiona W
+    R->>C: Envia comando de movimentação
     C->>C: Atualiza posição do personagem
-    C-->>F: Retorna novo estado
-    F-->>J: Atualiza posição na tela
+    C-->>R: Novo estado
+    R-->>J: Desenha o personagem na nova posição
 ```
-**Exemplo — durante uma decisão:**
+**Exemplo: durante uma decisão**
 
 ```mermaid
 sequenceDiagram
     participant J as Jogador
-    participant F as Frontend Web
-    participant C as C
-    participant H as Haskell
+    participant R as Telas (raylib)
+    participant C as Estado e fluxo
+    participant M as Módulo de regras
 
-    J->>F: Realiza swipe
-    F->>C: Envia decisão (esquerda/direita)
-    C->>H: Solicita processamento da decisão
-    H-->>C: Retorna consequências
-    C->>C: Atualiza estado da partida
-    C-->>F: Retorna estado atualizado
-    F-->>J: Exibe medidores e feedback
+    J->>R: Pressiona A ou D
+    R->>C: Envia decisão (esquerda/direita)
+    C->>C: Aplica o efeito nos medidores
+    C->>M: Consulta fim de jogo, promoção e auditoria
+    M-->>C: Devolve o resultado de cada regra
+    C-->>R: Estado atualizado
+    R-->>J: Mostra os medidores, o próximo dia ou a tela de resultado
 ```
 
 ### 4.6 "Arquitetura e progressão do jogo"
@@ -469,7 +457,7 @@ Proximo --> Progressao["Progressão"]
 Progressao --> NovaFase["Nova fase"]
 ```
 
-> Dessa forma, a progressão de **Estagiário Júnior Pleno Sênior Tech Lead** poderá utilizar a mesma estrutura arquitetural, alterando principalmente os ambientes, cenários, dilemas e conteúdos associados a cada fase.
+> Dessa forma, a progressão de **Estagiário → Júnior → Pleno → Sênior → Tech Líder** poderá utilizar a mesma estrutura arquitetural, alterando principalmente os ambientes, cenários, dilemas e conteúdos associados a cada fase.
 
 ---
 
