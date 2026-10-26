@@ -140,7 +140,7 @@ int main()
     Texture2D botaoPlayAgain = LoadTexture("Botoes/botaoPlayAgain.png");
     Texture2D botaoShare = LoadTexture("Botoes/botaoShare.png");
     Texture2D botaoContinue = LoadTexture("Botoes/BotaoContinue.png");
-    Texture2D painelFimExpediente = LoadTexture("Telas/painelFimExpediente.png");
+    Texture2D painelFimExpediente = LoadTexture("cenario/Telas/painelFimExpediente.png");
 
 
     // ==========================================================
