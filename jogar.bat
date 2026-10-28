@@ -8,7 +8,7 @@ echo.
 echo COMPILANDO O JOGO...
 echo.
 
-gcc "Code\Movimentacao.c" "Code\TelaInicio.c" "Code\Cartas.c" "Code\BancoPerguntas.c" -o jogo_novo.exe ^
+gcc "Code\Movimentacao.c" "Code\TelaInicio.c" "Code\Cartas.c" "Code\BancoPerguntas.c" "Code\Regras.c" -o jogo_novo.exe ^
 -IC:\msys64\ucrt64\include ^
 -LC:\msys64\ucrt64\lib ^
 -lraylib -lglfw3 -lopengl32 -lgdi32 -lwinmm
