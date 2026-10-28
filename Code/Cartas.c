@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include <stdbool.h>
 #include <string.h>
+#include "Regras.h"
 
 
 // ==========================================================
@@ -93,107 +94,10 @@ bool cartasEstaoAbertas()
 // Tudo aqui LE os medidores direto das barras do HUD. Assim
 // continua certo quando o Movimentacao.c zera as barras no
 // "jogar de novo", sem precisar chamar nada de novo.
-// Escala: a barra "apagada" vai de 0 a 0.73 e representa 100 a 0
-// pontos. Apagada >= 0.73 = medidor em 0; apagada <= 0 = em 100
-// (mesma regra de game over do Movimentacao.c).
 // ==========================================================
-#define LIMITE_APAGADO_MAXIMO 0.73
-#define FAIXA_SEGURA_MINIMA 30
-#define FAIXA_SEGURA_MAXIMA 70
-
 static int diasSobrevividos = 0;
 static int cartasResolvidasFase = 0;
 static bool partidaTerminou = false;
-
-// Medidores: 1 Confianca, 2 Vies, 3 Privacidade, 4 Lucro
-static float *ponteiroMedidor(int medidor)
-{
-    if (medidor == 1) return confiancaApagado;
-    if (medidor == 2) return viesApagado;
-    if (medidor == 3) return privacidadeApagada;
-    if (medidor == 4) return lucroApagado;
-    return 0;
-}
-
-// -1 = medidor em 0, +1 = medidor em 100, 0 = ainda em jogo
-static int estadoLimiteMedidor(int medidor)
-{
-    float *apagado = ponteiroMedidor(medidor);
-
-    if (apagado == 0) return 0;
-    if (*apagado >= LIMITE_APAGADO_MAXIMO) return -1;
-    if (*apagado <= 0) return 1;
-    return 0;
-}
-
-// Valor do medidor de 0 a 100 (50 se o HUD ainda nao foi ligado).
-int obterValorMedidor(int medidor)
-{
-    float *apagado = ponteiroMedidor(medidor);
-
-    if (apagado == 0) return 50;
-
-    int valor = (int)(100.0f * (1.0f - *apagado / (float)LIMITE_APAGADO_MAXIMO) + 0.5f);
-
-    if (valor < 0) valor = 0;
-    if (valor > 100) valor = 100;
-    return valor;
-}
-
-bool medidorEstaSeguro(int medidor)
-{
-    int valor = obterValorMedidor(medidor);
-    return valor >= FAIXA_SEGURA_MINIMA && valor <= FAIXA_SEGURA_MAXIMA;
-}
-
-bool todosMedidoresSeguros()
-{
-    for (int medidor = 1; medidor <= 4; medidor++)
-    {
-        if (!medidorEstaSeguro(medidor))
-            return false;
-    }
-    return true;
-}
-
-int obterConfianca() { return obterValorMedidor(1); }
-int obterVies() { return obterValorMedidor(2); }
-int obterPrivacidade() { return obterValorMedidor(3); }
-int obterLucro() { return obterValorMedidor(4); }
-
-// 0 = ninguem perdeu; 1 a 4 = medidor que causou a derrota
-int obterMedidorDerrota()
-{
-    for (int medidor = 1; medidor <= 4; medidor++)
-    {
-        if (estadoLimiteMedidor(medidor) != 0)
-            return medidor;
-    }
-    return 0;
-}
-
-bool jogadorPerdeu()
-{
-    return obterMedidorDerrota() != 0;
-}
-
-bool derrotaNoLimiteMaximo()
-{
-    int medidor = obterMedidorDerrota();
-    return medidor != 0 && estadoLimiteMedidor(medidor) == 1;
-}
-
-// 1 Confianca 0, 2 Confianca 100, 3 Vies 0, 4 Vies 100,
-// 5 Privacidade 0, 6 Privacidade 100, 7 Lucro 0, 8 Lucro 100
-int obterFinalDerrota()
-{
-    int medidor = obterMedidorDerrota();
-
-    if (medidor == 0)
-        return 0;
-
-    return (medidor - 1) * 2 + (derrotaNoLimiteMaximo() ? 2 : 1);
-}
 
 // Mensagem de cada final Definitiva 
 const char *obterMensagemFinal()

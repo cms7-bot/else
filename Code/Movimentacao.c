@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "rlgl.h"
 #include <stdbool.h>
+#include "Regras.h"
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
 int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
@@ -776,7 +777,8 @@ int main()
         // ------------------------------------------------------
         // GAME OVER
         // ------------------------------------------------------
-        if (porcentagemConfiancaApagado <= 0 || porcentagemConfiancaApagado >=0.73 || porcentagemViesApagado <= 0 || porcentagemViesApagado >=0.73 ||porcentagemPrivacidadeApagado <= 0 || porcentagemPrivacidadeApagado >=0.73 ||porcentagemLucroApagado <= 0 || porcentagemLucroApagado >=0.73 ){
+        // Regra g <-> (z v m): quem decide o game over e o Regras.c
+        if (regraGameOver()){
         if (k==0){
             PlayMusicStream(gameOverSom);
             k=1;
