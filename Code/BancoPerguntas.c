@@ -21,6 +21,9 @@ typedef struct Evento
     float lucroEsquerda;
     float lucroDireita;
 
+    // Onde a carta aparece: 0 = mesas, 1 = impressora
+    int origem;
+
 
 } Evento;
 
@@ -52,7 +55,7 @@ Evento bancoPerguntas[] =
 
 {
     // Carta 1 - Viés (contratação)
-    .id = 1, .cargo = 0,
+    .id = 1, .cargo = 0, .origem = 1,
     .titulo = "Triagem de curriculos",
     .texto = "Seu chefe pede pra usar um modelo de triagem de curriculos que ja existe no sistema. Voce percebe que ele filtra quase so candidatos de universidades caras.",
     .esquerda = "Usar assim mesmo, e rapido",
@@ -122,7 +125,7 @@ Evento bancoPerguntas[] =
 },
 {
     // Carta 10 - Alucinação + Dependência (carta final da fase)
-    .id = 10, .cargo = 0,
+    .id = 10, .cargo = 0, .origem = 1,
     .titulo = "Numero inventado",
     .texto = "Um colega vai apresentar pro cliente um numero que a IA gerou, mas parece inventado. Ele ja confia cegamente no sistema e nao quer perder tempo checando.",
     .esquerda = "Deixar ele apresentar assim",

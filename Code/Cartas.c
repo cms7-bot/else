@@ -33,6 +33,9 @@ typedef struct Evento
     float lucroEsquerda;
     float lucroDireita;
 
+    // Onde a carta aparece: 0 = mesas, 1 = impressora
+    int origem;
+
 } Evento;
 
 Evento *obterBancoPerguntas(int *quantidade);
@@ -44,6 +47,7 @@ Evento *obterBancoPerguntas(int *quantidade);
 static Evento *banco = 0;
 static Evento *eventoAtual = 0;
 static int quantidadeEventos = 0;
+static int origemCartas = 0; // de onde o jogador esta puxando a carta: 0 = mesas, 1 = impressora
 
 
 // ==========================================================
@@ -83,6 +87,11 @@ const char *nomeCargo()
 // ==========================================================
 // ESTADO DA CARTA
 // ==========================================================
+void definirOrigemCartas(int origem)
+{
+    origemCartas = origem;
+}
+
 bool cartasEstaoAbertas()
 {
     return cartaAberta;
@@ -221,7 +230,7 @@ void sortearNovaCarta()
 
     for (int i = 0; i < quantidadeEventos; i++)
     {
-        if (banco[i].cargo == cargo && !eventoFoiRecente(banco[i].id))
+        if (banco[i].cargo == cargo && banco[i].origem == origemCartas && !eventoFoiRecente(banco[i].id))
         {
             disponiveis[quantidadeDisponiveis] = i;
             quantidadeDisponiveis++;
@@ -235,7 +244,7 @@ void sortearNovaCarta()
 
         for (int i = 0; i < quantidadeEventos; i++)
         {
-            if (banco[i].cargo == cargo)
+            if (banco[i].cargo == cargo && banco[i].origem == origemCartas)
             {
                 disponiveis[quantidadeDisponiveis] = i;
                 quantidadeDisponiveis++;
