@@ -10,12 +10,40 @@ void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro
 void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 bool cartasEstaoAbertas(void);
+void definirOrigemCartas(int origem);
 void descarregarCartas(void);
 
 const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
 const char *nomeCargo(void);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
+
+// ==========================================================
+// OBJETOS DO ESCRITÓRIO (mesas, impressora, etc.)
+// ==========================================================
+typedef struct ObjetoCenario
+{
+    Texture2D textura;
+    float x, y;           
+    Rectangle colisao;    
+    bool interativo;      
+    int origemCartas;     
+} ObjetoCenario;
+
+
+static ObjetoCenario criarObjeto(const char *arquivo, float x, float y, Rectangle colisao, bool interativo, int origemCartas)
+{
+    ObjetoCenario objeto;
+    objeto.textura = LoadTexture(arquivo);
+    objeto.textura.width *= 0.5;
+    objeto.textura.height *= 0.5;
+    objeto.x = x;
+    objeto.y = y;
+    objeto.colisao = (Rectangle){ x + colisao.x, y + colisao.y, colisao.width, colisao.height };
+    objeto.interativo = interativo;
+    objeto.origemCartas = origemCartas;
+    return objeto;
+}
 
 int main()
 {
@@ -64,9 +92,30 @@ int main()
     // TEXTURAS - CENÁRIO
     // ==========================================================
     Texture2D fundoCeramica = LoadTexture("cenario/Cenario.png");
-    Texture2D mesa = LoadTexture("cenario/mesa.png");
-    mesa.height*=0.5;
-    mesa.width*=0.5;
+
+   
+    #define ELEMENTOS "cenario/elementos_estagiario/"
+    ObjetoCenario objetos[] = {
+        // canto do café e parede
+        criarObjeto(ELEMENTOS "planta.png",          12,  83, (Rectangle){ 5, 55,  45,  55}, false, 0),
+        criarObjeto(ELEMENTOS "balcao_cafe.png",     67,  91, (Rectangle){ 0, 45, 155,  70}, false, 0),
+        criarObjeto(ELEMENTOS "bebedouro.png",      234,  79, (Rectangle){ 0, 60,  52,  65}, false, 0),
+        // canto da impressora (carta 1 e 10)
+        criarObjeto(ELEMENTOS "lixeira.png",       1052, 148, (Rectangle){ 5, 10,  40,  40}, false, 0),
+        criarObjeto(ELEMENTOS "folhas.png",        1107, 121, (Rectangle){ 0, 30,  50,  52}, false, 0),
+        criarObjeto(ELEMENTOS "impressora.png",    1161,  99, (Rectangle){ 0, 55,  80,  45}, true,  1),
+        // mesas de cima (de frente)
+        criarObjeto(ELEMENTOS "MesaFrenteSemNpc.png",  430, 251, (Rectangle){10, 64, 142,  68}, true, 0),
+        criarObjeto(ELEMENTOS "MesaFrenteSemNpc.png",  574, 251, (Rectangle){10, 64, 142,  68}, true, 0),
+        criarObjeto(ELEMENTOS "MesaFrenteSemNpc.png",  824, 251, (Rectangle){10, 64, 142,  68}, true, 0),
+        criarObjeto(ELEMENTOS "MesaFrenteSemNpc.png",  968, 251, (Rectangle){10, 64, 142,  68}, true, 0),
+        // mesas de baixo (de costas)
+        criarObjeto(ELEMENTOS "MesaCostaComNpc/MesaCostaComNpc1.png",  428, 473, (Rectangle){10, 45, 142,  75}, true, 0),
+        criarObjeto(ELEMENTOS "MesaCostaSemNpc.png",                   573, 473, (Rectangle){10, 45, 142,  75}, true, 0),
+        criarObjeto(ELEMENTOS "MesaCostaSemNpc2.png",                  834, 473, (Rectangle){10, 45, 142,  75}, true, 0),
+        criarObjeto(ELEMENTOS "MesaCostaComNpc/MesaCostaComNpc2.png",  979, 473, (Rectangle){10, 45, 142,  75}, true, 0)
+    };
+    int quantidadeObjetos = sizeof(objetos) / sizeof(objetos[0]);
     Texture2D logoInicio = LoadTexture("cenario/logoInicio.png");
     Texture2D fundoCarta = LoadTexture("cenario/Frame3.png");
     fundoCarta.height*=0.95;
@@ -157,8 +206,8 @@ int main()
     // ==========================================================
     // MOVIMENTAÇÃO
     // ==========================================================
-    float x = (larguraResolucao - frente1.width) / 2;
-    float y = (alturaResolucao - frente1.height) / 2;
+    float x = 300;
+    float y = 170;
 
     int velocidade = 5;
     int direcao = 0;
@@ -626,21 +675,32 @@ int main()
         DrawTexture(fundoCeramica, 0, 0, WHITE);
 
         // ------------------------------------------------------
-        // COLISÃO COM A MESA
+        // COLISÃO COM OS OBJETOS DO ESCRITÓRIO
         // ------------------------------------------------------
         Rectangle colisaoMesaBoneco_Boneco ={x,y,frente1.width,frente1.height};
-        Rectangle colisaoMesaBoneco_Mesa ={(larguraResolucao-mesa.width)-20+mesa.width*0.1,mesa.height-40,mesa.width*0.8,mesa.height*0.3};
 
-        if (CheckCollisionRecs(colisaoMesaBoneco_Boneco,colisaoMesaBoneco_Mesa)){
-            mensagem = true;
-            x = xGuardado;
-            y= yGuardado;}
+        for (int i = 0; i < quantidadeObjetos; i++){
+            if (CheckCollisionRecs(colisaoMesaBoneco_Boneco,objetos[i].colisao)){
+                mensagem = true;
+                x = xGuardado;
+                y= yGuardado;
+                break;}
+        }
 
 
         // ------------------------------------------------------
-        // INTERAÇÃO COM A MESA / CARTAS
+        // INTERAÇÃO COM AS MESAS E A IMPRESSORA / CARTAS
         // ------------------------------------------------------
-        if (x>=larguraResolucao-mesa.width-60 && y<=mesa.height)  {
+        // Área de interação = colisão do objeto aumentada em 30 px para cada lado
+        int objetoPerto = -1;
+        for (int i = 0; i < quantidadeObjetos && objetoPerto < 0; i++){
+            Rectangle areaInteracao = {objetos[i].colisao.x-30,objetos[i].colisao.y-30,objetos[i].colisao.width+60,objetos[i].colisao.height+60};
+            if (objetos[i].interativo && CheckCollisionRecs(colisaoMesaBoneco_Boneco,areaInteracao))
+                objetoPerto = i;
+        }
+
+        if (objetoPerto >= 0)  {
+        definirOrigemCartas(objetos[objetoPerto].origemCartas);
         DrawText("Pressione E para realizar a tarefa",larguraResolucao-400,60,20,GREEN);
         bool cartaEstavaAberta = cartasEstaoAbertas();
         if (!gameOver)
@@ -655,9 +715,10 @@ int main()
 
 
         // ------------------------------------------------------
-        // DESENHO: MESA, PERSONAGEM E CARTAS
+        // DESENHO: OBJETOS, PERSONAGEM E CARTAS
         // ------------------------------------------------------
-        DrawTexture(mesa,(larguraResolucao-mesa.width)-20,mesa.height-40,WHITE);
+        for (int i = 0; i < quantidadeObjetos; i++)
+            DrawTexture(objetos[i].textura,objetos[i].x,objetos[i].y,WHITE);
         DrawTexture(texturaAtual, x, y, WHITE);
         desenharCartas(
             larguraResolucao,
@@ -864,6 +925,9 @@ int main()
     }
 
     descarregarCartas();
+
+    for (int i = 0; i < quantidadeObjetos; i++)
+        UnloadTexture(objetos[i].textura);
 
     UnloadTexture(costas1);
     UnloadTexture(costas2);
