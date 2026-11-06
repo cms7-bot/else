@@ -47,7 +47,11 @@ Evento *obterBancoPerguntas(int *quantidade);
 static Evento *banco = 0;
 static Evento *eventoAtual = 0;
 static int quantidadeEventos = 0;
+<<<<<<< HEAD
 static int origemCartas = 0; // de onde o jogador esta puxando a carta: 0 = mesas, 1 = impressora
+=======
+static int origemCartas = 0;
+>>>>>>> 18b125a (Atualiza menu de pausa e ajustes gerais)
 
 
 // ==========================================================
@@ -80,6 +84,7 @@ const char *nomeCargo()
     if (cargo == 3) return "Analista Pleno";
     if (cargo == 4) return "Analista Senior";
     if (cargo == 5) return "Supervisor";
+
     return "Gerente";
 }
 
@@ -97,47 +102,73 @@ bool cartasEstaoAbertas()
     return cartaAberta;
 }
 
+
 // ==========================================================
 // PARTIDA: DIAS, DERROTA E FINAIS
-//
-// Tudo aqui LE os medidores direto das barras do HUD. Assim
-// continua certo quando o Movimentacao.c zera as barras no
-// "jogar de novo", sem precisar chamar nada de novo.
 // ==========================================================
 static int diasSobrevividos = 0;
 static int cartasResolvidasFase = 0;
 static bool partidaTerminou = false;
 
-// Mensagem de cada final Definitiva 
+
+// ==========================================================
+// MENSAGEM DO FINAL
+// ==========================================================
 const char *obterMensagemFinal()
 {
     switch (obterFinalDerrota())
     {
-         // CONFIANCA chegou a 0 -> final "Sem Credito"
-        case 1: return  "Foram tantas respostas erradas que os clientes voltaram a fazer tudo na mao. E juraram nunca mais confiar numa IA.";
-         // CONFIANCA chegou a 100 -> final "Fe Cega"
-        case 2: return "Todo mundo confiava tanto na IA que ninguem conferiu o relatorio. Era tudo inventado.";
-         // VIES chegou a 0 -> final "Regua"
-        case 3: return  "A IA tratou todo mundo exatamente igual. Igualdade perfeita no papel; na vida real, ninguem foi atendido direito.";
-        // VIES chegou a 100 -> final "Tendencioso"
-        case 4: return  "Ninguem programou a IA pra discriminar. Ela aprendeu sozinha, com os nossos dados. Os processos chegaram.";
-        // PRIVACIDADE chegou a 0 -> final "Peneira"
-        case 5: return  "A IA conhecia muito bem os clientes. A internet inteira tambem, depois do vazamento.";
-        // PRIVACIDADE chegou a 100 -> final "Cadeado"
-        case 6: return "Os dados estavam perfeitamente protegidos. Tao protegidos que nem a IA conseguia usar.";
-         // LUCRO chegou a 0 -> final "Mao-Aberta" ATENCAO: a frase termina cortada ("fra") DE PROPOSITO.
-        case 7: return "Sem dinheiro pra pagar o servidor, a IA foi desligada no meio de uma fra";
-        // LUCRO chegou a 100 -> final "Cifrao"
-        case 8: return "Os acionistas comemoraram ate a investigacao comecar.";
+        case 1:
+            return "Foram tantas respostas erradas que os clientes voltaram a fazer tudo na mao. E juraram nunca mais confiar numa IA.";
+
+        case 2:
+            return "Todo mundo confiava tanto na IA que ninguem conferiu o relatorio. Era tudo inventado.";
+
+        case 3:
+            return "A IA tratou todo mundo exatamente igual. Igualdade perfeita no papel; na vida real, ninguem foi atendido direito.";
+
+        case 4:
+            return "Ninguem programou a IA pra discriminar. Ela aprendeu sozinha, com os nossos dados. Os processos chegaram.";
+
+        case 5:
+            return "A IA conhecia muito bem os clientes. A internet inteira tambem, depois do vazamento.";
+
+        case 6:
+            return "Os dados estavam perfeitamente protegidos. Tao protegidos que nem a IA conseguia usar.";
+
+        case 7:
+            return "Sem dinheiro pra pagar o servidor, a IA foi desligada no meio de uma fra";
+
+        case 8:
+            return "Os acionistas comemoraram ate a investigacao comecar.";
     }
+
     return "";
 }
 
-// Contador de dias: cada carta resolvida sem derrota = 1 dia sobrevivido.
-int obterDiasSobrevividos() { return diasSobrevividos; }
-int obterDiaAtual() { return diasSobrevividos + 1; }
-int obterCartasResolvidasFase() { return cartasResolvidasFase; }
 
+// ==========================================================
+// CONTADORES
+// ==========================================================
+int obterDiasSobrevividos()
+{
+    return diasSobrevividos;
+}
+
+int obterDiaAtual()
+{
+    return diasSobrevividos + 1;
+}
+
+int obterCartasResolvidasFase()
+{
+    return cartasResolvidasFase;
+}
+
+
+// ==========================================================
+// REGISTRO DE CARTA RESOLVIDA
+// ==========================================================
 static void registrarCartaResolvida()
 {
     cartasResolvidasFase++;
@@ -148,8 +179,10 @@ static void registrarCartaResolvida()
         diasSobrevividos++;
 }
 
-// Quando o jogador volta a jogar (o Movimentacao zera as barras),
-// o primeiro sorteio de carta zera dias e cartas resolvidas.
+
+// ==========================================================
+// REINÍCIO DA PARTIDA
+// ==========================================================
 static void reiniciarPartidaSeNecessario()
 {
     if (partidaTerminou && !jogadorPerdeu())
@@ -158,12 +191,10 @@ static void reiniciarPartidaSeNecessario()
         cartasResolvidasFase = 0;
         partidaTerminou = false;
 
-        // Baralho embaralhado de novo (US09): esquece as cartas ja vistas.
         for (int i = 0; i < 8; i++)
             historico[i] = -1;
     }
 }
-
 
 
 // ==========================================================
@@ -176,6 +207,7 @@ bool eventoFoiRecente(int id)
         if (historico[i] == id)
             return true;
     }
+
     return false;
 }
 
@@ -189,23 +221,8 @@ void adicionarHistorico(int id)
 
 
 // ==========================================================
-// ATRIBUTOS / PROMOÇÃO ====> Será implementado futuramente
+// PROMOÇÃO
 // ==========================================================
-// void limitarAtributos()
-// {
-//     if (reputacao < 0) reputacao = 0;
-//     if (reputacao > 100) reputacao = 100;
-
-//     if (competencia < 0) competencia = 0;
-//     if (competencia > 100) competencia = 100;
-
-//     if (energia < 0) energia = 0;
-//     if (energia > 100) energia = 100;
-
-//     if (etica < 0) etica = 0;
-//     if (etica > 100) etica = 100;
-// }
-
 void verificarPromocao()
 {
     if (experiencia >= 1700) cargo = 6;
@@ -230,7 +247,15 @@ void sortearNovaCarta()
 
     for (int i = 0; i < quantidadeEventos; i++)
     {
+<<<<<<< HEAD
         if (banco[i].cargo == cargo && banco[i].origem == origemCartas && !eventoFoiRecente(banco[i].id))
+=======
+        if (
+            banco[i].cargo == cargo &&
+            banco[i].origem == origemCartas &&
+            !eventoFoiRecente(banco[i].id)
+        )
+>>>>>>> 18b125a (Atualiza menu de pausa e ajustes gerais)
         {
             disponiveis[quantidadeDisponiveis] = i;
             quantidadeDisponiveis++;
@@ -244,7 +269,14 @@ void sortearNovaCarta()
 
         for (int i = 0; i < quantidadeEventos; i++)
         {
+<<<<<<< HEAD
             if (banco[i].cargo == cargo && banco[i].origem == origemCartas)
+=======
+            if (
+                banco[i].cargo == cargo &&
+                banco[i].origem == origemCartas
+            )
+>>>>>>> 18b125a (Atualiza menu de pausa e ajustes gerais)
             {
                 disponiveis[quantidadeDisponiveis] = i;
                 quantidadeDisponiveis++;
@@ -254,8 +286,12 @@ void sortearNovaCarta()
 
     if (quantidadeDisponiveis > 0)
     {
-        int sorteado = GetRandomValue(0, quantidadeDisponiveis - 1);
-        eventoAtual = &banco[disponiveis[sorteado]];
+        int sorteado =
+            GetRandomValue(0, quantidadeDisponiveis - 1);
+
+        eventoAtual =
+            &banco[disponiveis[sorteado]];
+
         adicionarHistorico(eventoAtual->id);
     }
 }
@@ -264,45 +300,54 @@ void sortearNovaCarta()
 // ==========================================================
 // INICIALIZAÇÃO
 // ==========================================================
-void iniciarCartas( float *confianca, float *vies, float *privacidade, float *lucro)
+void iniciarCartas(
+    float *confianca,
+    float *vies,
+    float *privacidade,
+    float *lucro
+)
 {
     banco = obterBancoPerguntas(&quantidadeEventos);
 
     confiancaApagado = confianca;
-        if (*confiancaApagado<=0.0f){
-            *confiancaApagado=0.0f;
-        }
-        if (*confiancaApagado>=0.73f){
-            *confiancaApagado=0.73f;
-        }
+
+    if (*confiancaApagado <= 0.0f)
+        *confiancaApagado = 0.0f;
+
+    if (*confiancaApagado >= 0.73f)
+        *confiancaApagado = 0.73f;
+
+
     viesApagado = vies;
-        if (*viesApagado<=0.0f){
-            *viesApagado=0.0f;
-        }
-        if (*viesApagado>=0.73){
-            *viesApagado=0.73;
-        }
+
+    if (*viesApagado <= 0.0f)
+        *viesApagado = 0.0f;
+
+    if (*viesApagado >= 0.73f)
+        *viesApagado = 0.73f;
+
 
     privacidadeApagada = privacidade;
-        if (*privacidadeApagada<=0.0f){
-            *privacidadeApagada=0.0f;
-        }
-        if (*privacidadeApagada>=0.73f){
-            *privacidadeApagada=0.73f;
-        }
+
+    if (*privacidadeApagada <= 0.0f)
+        *privacidadeApagada = 0.0f;
+
+    if (*privacidadeApagada >= 0.73f)
+        *privacidadeApagada = 0.73f;
+
+
     lucroApagado = lucro;
-        if (*lucroApagado<=0.0f){
-            *lucroApagado=0.0f;
-        }
-        if (*lucroApagado>=0.73f){
-            *lucroApagado=0.73f;
-        }
 
+    if (*lucroApagado <= 0.0f)
+        *lucroApagado = 0.0f;
 
+    if (*lucroApagado >= 0.73f)
+        *lucroApagado = 0.73f;
 
 
     eventoAtual = 0;
     cartaAberta = false;
+
     diasSobrevividos = 0;
     cartasResolvidasFase = 0;
     partidaTerminou = false;
@@ -313,7 +358,7 @@ void iniciarCartas( float *confianca, float *vies, float *privacidade, float *lu
 
 
 // ==========================================================
-// ESCOLHAS (ESQUERDA / DIREITA)
+// ESCOLHA ESQUERDA
 // ==========================================================
 void escolherEsquerda()
 {
@@ -321,41 +366,49 @@ void escolherEsquerda()
         return;
 
     *confiancaApagado += eventoAtual->confiancaEsquerda;
-        if (*confiancaApagado<=0.0f){
-            *confiancaApagado=0.0f;
-        }
-        if (*confiancaApagado>=0.73f){
-            *confiancaApagado=0.73f;
-        }
+
+    if (*confiancaApagado <= 0.0f)
+        *confiancaApagado = 0.0f;
+
+    if (*confiancaApagado >= 0.73f)
+        *confiancaApagado = 0.73f;
+
 
     *viesApagado += eventoAtual->viesEsquerda;
-        if (*viesApagado<=0.0f){
-            *viesApagado=0.0f;
-        }
-        if (*viesApagado>=0.73f){
-            *viesApagado=0.73f;
-        }
+
+    if (*viesApagado <= 0.0f)
+        *viesApagado = 0.0f;
+
+    if (*viesApagado >= 0.73f)
+        *viesApagado = 0.73f;
+
 
     *privacidadeApagada += eventoAtual->privacidadeEsquerda;
-        if (*privacidadeApagada<=0.0f){
-            *privacidadeApagada=0.0f;
-        }
-        if (*privacidadeApagada>=0.73f){
-            *privacidadeApagada=0.73f;
-        }
-    *lucroApagado += eventoAtual->lucroEsquerda;
-        if (*lucroApagado<=0.0f){
-            *lucroApagado=0.0f;
-        }
-        if (*lucroApagado>=0.73f){
-            *lucroApagado=0.73f;
-        }
 
-    // limitarAtributos();
+    if (*privacidadeApagada <= 0.0f)
+        *privacidadeApagada = 0.0f;
+
+    if (*privacidadeApagada >= 0.73f)
+        *privacidadeApagada = 0.73f;
+
+
+    *lucroApagado += eventoAtual->lucroEsquerda;
+
+    if (*lucroApagado <= 0.0f)
+        *lucroApagado = 0.0f;
+
+    if (*lucroApagado >= 0.73f)
+        *lucroApagado = 0.73f;
+
+
     verificarPromocao();
     registrarCartaResolvida();
 }
 
+
+// ==========================================================
+// ESCOLHA DIREITA
+// ==========================================================
 void escolherDireita()
 {
     if (eventoAtual == 0)
@@ -367,14 +420,41 @@ void escolherDireita()
     *lucroApagado += eventoAtual->lucroDireita;
 
 
-    // limitarAtributos();
+    if (*confiancaApagado <= 0.0f)
+        *confiancaApagado = 0.0f;
+
+    if (*confiancaApagado >= 0.73f)
+        *confiancaApagado = 0.73f;
+
+
+    if (*viesApagado <= 0.0f)
+        *viesApagado = 0.0f;
+
+    if (*viesApagado >= 0.73f)
+        *viesApagado = 0.73f;
+
+
+    if (*privacidadeApagada <= 0.0f)
+        *privacidadeApagada = 0.0f;
+
+    if (*privacidadeApagada >= 0.73f)
+        *privacidadeApagada = 0.73f;
+
+
+    if (*lucroApagado <= 0.0f)
+        *lucroApagado = 0.0f;
+
+    if (*lucroApagado >= 0.73f)
+        *lucroApagado = 0.73f;
+
+
     verificarPromocao();
     registrarCartaResolvida();
 }
 
 
 // ==========================================================
-// ATUALIZAÇÃO (ENTRADA DO JOGADOR)
+// ATUALIZAÇÃO
 // ==========================================================
 void atualizarCartas()
 {
@@ -394,28 +474,40 @@ void atualizarCartas()
     if (IsKeyPressed(KEY_A))
     {
         escolherEsquerda();
+
         cartaAberta = false;
         eventoAtual = 0;
+
         return;
     }
 
     if (IsKeyPressed(KEY_D))
     {
         escolherDireita();
+
         cartaAberta = false;
         eventoAtual = 0;
+
         return;
     }
 }
 
 
 // ==========================================================
-// DESENHO
+// TEXTO QUEBRADO
 // ==========================================================
-void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor)
+void desenharTextoQuebrado(
+    const char *texto,
+    int x,
+    int y,
+    int larguraMaxima,
+    int tamanho,
+    Color cor
+)
 {
     char palavra[128] = "";
     char linha[512] = "";
+
     int indicePalavra = 0;
     int yAtual = y;
 
@@ -423,12 +515,17 @@ void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, i
     {
         char caractere = texto[i];
 
-        if (caractere != ' ' && caractere != '\0')
+        if (
+            caractere != ' ' &&
+            caractere != '\0'
+        )
         {
             if (indicePalavra < 127)
             {
                 palavra[indicePalavra] = caractere;
+
                 indicePalavra++;
+
                 palavra[indicePalavra] = '\0';
             }
         }
@@ -449,15 +546,34 @@ void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, i
                     strcpy(teste, palavra);
                 }
 
-                if (MeasureText(teste, tamanho) > larguraMaxima)
+                if (
+                    MeasureText(
+                        teste,
+                        tamanho
+                    ) > larguraMaxima
+                )
                 {
-                    DrawText(linha, x, yAtual, tamanho, cor);
+                    DrawText(
+                        linha,
+                        x,
+                        yAtual,
+                        tamanho,
+                        cor
+                    );
+
                     yAtual += tamanho + 8;
-                    strcpy(linha, palavra);
+
+                    strcpy(
+                        linha,
+                        palavra
+                    );
                 }
                 else
                 {
-                    strcpy(linha, teste);
+                    strcpy(
+                        linha,
+                        teste
+                    );
                 }
 
                 indicePalavra = 0;
@@ -470,47 +586,95 @@ void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, i
     }
 
     if (strlen(linha) > 0)
-        DrawText(linha, x, yAtual, tamanho, cor);
+    {
+        DrawText(
+            linha,
+            x,
+            yAtual,
+            tamanho,
+            cor
+        );
+    }
 }
 
-void desenharCartas(int larguraResolucao, int alturaResolucao)
+
+// ==========================================================
+// DESENHO DAS CARTAS
+// ==========================================================
+void desenharCartas(
+    int larguraResolucao,
+    int alturaResolucao
+)
 {
-    if (!cartaAberta || eventoAtual == 0)
+    if (
+        !cartaAberta ||
+        eventoAtual == 0
+    )
         return;
 
-    // ------------------------------------------------------
-    // Fundo escurecido e moldura da carta
-    // ------------------------------------------------------
-    DrawRectangle(0,0,larguraResolucao,alturaResolucao,Fade(BLACK,0.65f));
+
+    DrawRectangle(
+        0,
+        0,
+        larguraResolucao,
+        alturaResolucao,
+        Fade(BLACK, 0.65f)
+    );
+
 
     int larguraCarta = 540;
     int alturaCarta = 500;
-    int xCarta = (larguraResolucao - larguraCarta) / 2;
-    int yCarta = (alturaResolucao - alturaCarta) / 2;
 
-    DrawRectangle(xCarta,yCarta,larguraCarta,alturaCarta,(Color){28,31,45,255});
-    DrawRectangleLines(xCarta,yCarta,larguraCarta,alturaCarta,WHITE);
+    int xCarta =
+        (larguraResolucao - larguraCarta) / 2;
 
-    // ------------------------------------------------------
-    // Cargo, título e texto
-    // ------------------------------------------------------
-    const char *cargoAtual = nomeCargo();
+    int yCarta =
+        (alturaResolucao - alturaCarta) / 2;
+
+
+    DrawRectangle(
+        xCarta,
+        yCarta,
+        larguraCarta,
+        alturaCarta,
+        (Color){28, 31, 45, 255}
+    );
+
+    DrawRectangleLines(
+        xCarta,
+        yCarta,
+        larguraCarta,
+        alturaCarta,
+        WHITE
+    );
+
+
+    const char *cargoAtual =
+        nomeCargo();
+
 
     DrawText(
         cargoAtual,
-        larguraResolucao / 2 - MeasureText(cargoAtual,22) / 2,
+        larguraResolucao / 2 -
+            MeasureText(cargoAtual, 22) / 2,
         yCarta + 20,
         22,
         SKYBLUE
     );
 
+
     DrawText(
         eventoAtual->titulo,
-        larguraResolucao / 2 - MeasureText(eventoAtual->titulo,30) / 2,
+        larguraResolucao / 2 -
+            MeasureText(
+                eventoAtual->titulo,
+                30
+            ) / 2,
         yCarta + 60,
         30,
         WHITE
     );
+
 
     desenharTextoQuebrado(
         eventoAtual->texto,
@@ -521,9 +685,7 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         WHITE
     );
 
-    // ------------------------------------------------------
-    // Opções (esquerda / direita)
-    // ------------------------------------------------------
+
     DrawText(
         "A",
         xCarta + 30,
@@ -532,15 +694,22 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         SKYBLUE
     );
 
+
     DrawText(
         eventoAtual->esquerda,
-        xCarta -350,
+        xCarta - 350,
         yCarta + alturaCarta - 70,
         20,
         LIGHTGRAY
     );
 
-    int larguraDireita = MeasureText(eventoAtual->direita,20);
+
+    int larguraDireita =
+        MeasureText(
+            eventoAtual->direita,
+            20
+        );
+
 
     DrawText(
         "D",
@@ -550,14 +719,17 @@ void desenharCartas(int larguraResolucao, int alturaResolucao)
         SKYBLUE
     );
 
+
     DrawText(
         eventoAtual->direita,
-        xCarta + larguraCarta - larguraDireita +200,
+        xCarta +
+            larguraCarta -
+            larguraDireita +
+            200,
         yCarta + alturaCarta - 70,
         20,
         LIGHTGRAY
     );
-
 }
 
 
