@@ -43,16 +43,18 @@ static float *ponteiroMedidor(int medidor)
 // ==========================================================
 static int estadoLimiteMedidor(int medidor)
 {
-    float *apagado =
-        ponteiroMedidor(medidor);
-
-    if (apagado == 0)
+    // decide pelo MESMO numero que aparece na barra (0..100),
+    // assim "mostrou 100" = "perdeu" (antes a barra chegava em 100 e nada acontecia)
+    if (ponteiroMedidor(medidor) == 0)
         return 0;
 
-    if (*apagado >= LIMITE_APAGADO_MAXIMO)
+    int valor =
+        obterValorMedidor(medidor);
+
+    if (valor <= 0)
         return -1;
 
-    if (*apagado <= 0)
+    if (valor >= 100)
         return 1;
 
     return 0;

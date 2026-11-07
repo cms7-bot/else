@@ -294,7 +294,7 @@ int main()
         ),
 
         criarObjeto(
-            ELEMENTOS "MesaCostaComNpc/MesaCostaComNpc2.png",
+            ELEMENTOS "NpcMulherDigitando/NpcMulherDigitando1.png",
             979,
             473,
             (Rectangle){10, 45, 142, 75},
@@ -337,6 +337,46 @@ int main()
 
     int frameNpc = 0;
     float tempoAnimacaoNpc = 0;
+
+    // ---- NOVOS NPCs ANIMADOS -------------------------------
+    // mulher de costas (objeto 12): digitando, mãos alternando
+    Texture2D npcMulher[3] = {
+        LoadTexture(ELEMENTOS "NpcMulherDigitando/NpcMulherDigitando1.png"),
+        LoadTexture(ELEMENTOS "NpcMulherDigitando/NpcMulherDigitando2.png"),
+        LoadTexture(ELEMENTOS "NpcMulherDigitando/NpcMulherDigitando3.png")
+    };
+    int sequenciaMulher[4] = {0, 1, 0, 2};          // normal, mão esq., normal, mão dir.
+
+    // NPC da 1ª fileira (no lugar da mesa vazia, objeto 7): pisca
+    Texture2D npcFrente[2] = {
+        LoadTexture(ELEMENTOS "NpcFrentePiscando/NpcFrentePiscando1.png"),
+        LoadTexture(ELEMENTOS "NpcFrentePiscando/NpcFrentePiscando2.png")
+    };
+    int sequenciaFrente[16] = {0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0};   // 16 passos de 0,25s = 4s (só pisca)
+
+    // o jogo desenha os objetos do cenário pela metade (igual ao criarObjeto)
+    for (int k = 0; k < 3; k++)
+    {
+        npcMulher[k].width *= 0.5;  npcMulher[k].height *= 0.5;
+    }
+    for (int k = 0; k < 2; k++)
+    {
+        npcFrente[k].width *= 0.5;  npcFrente[k].height *= 0.5;
+    }
+
+    // bebedouro (objeto 2): de tempo em tempo sobem bolhas no galão
+    Texture2D bebedouroBolhas[5];
+    for (int k = 0; k < 5; k++)
+    {
+        bebedouroBolhas[k] = LoadTexture(TextFormat(ELEMENTOS "BebedouroBolhas/BebedouroBolhas%d.png", k + 1));
+        bebedouroBolhas[k].width *= 0.5;
+        bebedouroBolhas[k].height *= 0.5;
+    }
+    float tempoBolhas = 0.0f;
+    float esperaBolhas = 3.0f;      // segundos parado até a próxima bolha (sorteado de novo a cada vez)
+
+    float tempoNovosNpcs = 0.0f;
+    int passoNovosNpcs = 0;
 
     Texture2D logoInicio =
         LoadTexture(
@@ -600,16 +640,16 @@ int main()
     // HUD
     // ==========================================================
     float porcentagemConfiancaApagado =
-        0.33f;
+        0.365f;
 
     float porcentagemViesApagado =
-        0.33f;
+        0.365f;
 
     float porcentagemPrivacidadeApagado =
-        0.33f;
+        0.365f;
 
     float porcentagemLucroApagado =
-        0.33f;
+        0.365f;
 
 
     iniciarCartas(
@@ -1254,16 +1294,16 @@ int main()
 
 
                     porcentagemConfiancaApagado =
-                        0.33f;
+                        0.365f;
 
                     porcentagemViesApagado =
-                        0.33f;
+                        0.365f;
 
                     porcentagemPrivacidadeApagado =
-                        0.33f;
+                        0.365f;
 
                     porcentagemLucroApagado =
-                        0.33f;
+                        0.365f;
 
 
                     x =
@@ -2225,16 +2265,50 @@ int main()
             }
         }
 
+        tempoNovosNpcs += GetFrameTime();
+        tempoBolhas += GetFrameTime();
+
+        if (tempoNovosNpcs >= 0.25f)
+        {
+            tempoNovosNpcs = 0.0f;
+            passoNovosNpcs = (passoNovosNpcs + 1) % 16;
+        }
+
         for (int i = 0; i < quantidadeObjetos; i++)
         {
 
-            if (i == 10 || i == 14 || i == 15)
+            if (i == 14 || i == 15)
             {
                 continue;
             }
 
-          
-            if (i == 13)
+
+            if (i == 2)   // bebedouro com bolhas
+            {
+                int quadroBolha = 0;
+                if (tempoBolhas >= esperaBolhas)
+                {
+                    quadroBolha = 1 + (int)((tempoBolhas - esperaBolhas) / 0.15f);   // cada quadro dura 0,15s
+                    if (quadroBolha > 4)
+                    {
+                        quadroBolha = 0;
+                        tempoBolhas = 0.0f;
+                        esperaBolhas = GetRandomValue(20, 50) / 10.0f;   // próxima bolha entre 2 e 5s
+                    }
+                }
+                DrawTexture(bebedouroBolhas[quadroBolha], objetos[2].x, objetos[2].y, WHITE);
+            }
+            else if (i == 12)   // mulher digitando
+            {
+                DrawTexture(npcMulher[sequenciaMulher[passoNovosNpcs % 4]],
+                            objetos[12].x, objetos[12].y, WHITE);
+            }
+            else if (i == 7)   // NPC da frente (o PNG dele é deslocado meio pixel da arte pra direita/baixo)
+            {
+                DrawTextureV(npcFrente[sequenciaFrente[passoNovosNpcs % 16]],
+                             (Vector2){objetos[7].x - 2.5f, objetos[7].y - 2.5f}, WHITE);
+            }
+            else if (i == 13)
             {
                 DrawTexture(
                     objetos[13 + frameNpc].textura,
@@ -2661,16 +2735,20 @@ int main()
             texturaAtual;
 
         DrawTexture(telaContadorDeDias,larguraResolucao-telaContadorDeDias.width,0,WHITE); //Monitor com a contagem de dias
-                    const char *textoDias =
-                TextFormat("%.2d",obterDiasSobrevividos());
-
-
-            int tamanhoDias =20 *escala;
-
-
-            DrawText(textoDias,larguraResolucao-3*tamanhoDias,25,tamanhoDias,(Color){198, 183, 255,255});
-
-            DrawText("Dia: ",larguraResolucao-15*(MeasureText("Dia",tamanhoDias))/2 /2,25,tamanhoDias,(Color){198, 183, 255,255});
+        {
+            // estamos dentro da tela virtual 1280x720: NAO multiplicar por escala
+            const char *textoDias = TextFormat("Dia: %.2d", obterDiasSobrevividos());
+            int tamanhoDias = 20;
+            // a telinha do monitor ocupa x 8..55 e y 8..39 do PNG de 64x50
+            int telaX = larguraResolucao - telaContadorDeDias.width + 8 * telaContadorDeDias.width / 64;
+            int telaL = 48 * telaContadorDeDias.width / 64;
+            int telaY = 8 * telaContadorDeDias.height / 50;
+            int telaA = 32 * telaContadorDeDias.height / 50;
+            DrawText(textoDias,
+                     telaX + (telaL - MeasureText(textoDias, tamanhoDias)) / 2,
+                     telaY + (telaA - tamanhoDias) / 2,
+                     tamanhoDias, (Color){198, 183, 255, 255});
+        }
 
         EndTextureMode();
 
@@ -3026,10 +3104,10 @@ int main()
 
     gameOver = false;
 
-    porcentagemConfiancaApagado = 0.33f;
-    porcentagemViesApagado = 0.33f;
-    porcentagemPrivacidadeApagado = 0.33f;
-    porcentagemLucroApagado = 0.33f;
+    porcentagemConfiancaApagado = 0.365f;
+    porcentagemViesApagado = 0.365f;
+    porcentagemPrivacidadeApagado = 0.365f;
+    porcentagemLucroApagado = 0.365f;
 
     x = 300;
     y = 170;
@@ -3068,10 +3146,10 @@ int main()
 
     tela = 1;
 
-    porcentagemConfiancaApagado = 0.33f;
-    porcentagemViesApagado = 0.33f;
-    porcentagemPrivacidadeApagado = 0.33f;
-    porcentagemLucroApagado = 0.33f;
+    porcentagemConfiancaApagado = 0.365f;
+    porcentagemViesApagado = 0.365f;
+    porcentagemPrivacidadeApagado = 0.365f;
+    porcentagemLucroApagado = 0.365f;
 
     x = 300;
     y = 170;
@@ -3116,6 +3194,11 @@ int main()
             objetos[i].textura
         );
     }
+
+    // novos NPCs animados e bebedouro
+    for (int k = 0; k < 3; k++) UnloadTexture(npcMulher[k]);
+    for (int k = 0; k < 2; k++) UnloadTexture(npcFrente[k]);
+    for (int k = 0; k < 5; k++) UnloadTexture(bebedouroBolhas[k]);
 
 
     UnloadTexture(costas1);
