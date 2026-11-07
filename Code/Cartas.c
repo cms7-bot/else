@@ -47,11 +47,7 @@ Evento *obterBancoPerguntas(int *quantidade);
 static Evento *banco = 0;
 static Evento *eventoAtual = 0;
 static int quantidadeEventos = 0;
-<<<<<<< HEAD
-static int origemCartas = 0; // de onde o jogador esta puxando a carta: 0 = mesas, 1 = impressora
-=======
 static int origemCartas = 0;
->>>>>>> 18b125a (Atualiza menu de pausa e ajustes gerais)
 
 
 // ==========================================================
@@ -247,15 +243,11 @@ void sortearNovaCarta()
 
     for (int i = 0; i < quantidadeEventos; i++)
     {
-<<<<<<< HEAD
-        if (banco[i].cargo == cargo && banco[i].origem == origemCartas && !eventoFoiRecente(banco[i].id))
-=======
         if (
             banco[i].cargo == cargo &&
             banco[i].origem == origemCartas &&
             !eventoFoiRecente(banco[i].id)
         )
->>>>>>> 18b125a (Atualiza menu de pausa e ajustes gerais)
         {
             disponiveis[quantidadeDisponiveis] = i;
             quantidadeDisponiveis++;
@@ -269,14 +261,10 @@ void sortearNovaCarta()
 
         for (int i = 0; i < quantidadeEventos; i++)
         {
-<<<<<<< HEAD
-            if (banco[i].cargo == cargo && banco[i].origem == origemCartas)
-=======
             if (
                 banco[i].cargo == cargo &&
                 banco[i].origem == origemCartas
             )
->>>>>>> 18b125a (Atualiza menu de pausa e ajustes gerais)
             {
                 disponiveis[quantidadeDisponiveis] = i;
                 quantidadeDisponiveis++;

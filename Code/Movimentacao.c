@@ -274,14 +274,6 @@ int main()
             0
         ),
 
-        criarObjeto(
-            ELEMENTOS "MesaCostaComNpc/MesaCostaComNpc1.png",
-            428,
-            473,
-            (Rectangle){10, 45, 142, 75},
-            true,
-            0
-        ),
 
         criarObjeto(
             ELEMENTOS "MesaCostaSemNpc.png",
@@ -308,6 +300,33 @@ int main()
             (Rectangle){10, 45, 142, 75},
             true,
             0
+        ),
+
+        criarObjeto(
+            ELEMENTOS "MesaCostaComNpc/MesaCostaComNpc1.png",
+            428,
+            473,
+            (Rectangle){10, 45, 142, 75},
+            true,
+            0
+        ),
+
+        criarObjeto(
+            ELEMENTOS "MesaCostaComNpc/MesaCostaComNpc2.png",
+            428,
+            473,
+            (Rectangle){10, 45, 142, 75},
+            true,
+            0
+        ),
+
+        criarObjeto(
+            ELEMENTOS "MesaCostaComNpc/MesaCostaComNpc3.png",
+            428,
+            473,
+            (Rectangle){10, 45, 142, 75},
+            true,
+            0
         )
     };
 
@@ -316,6 +335,8 @@ int main()
         sizeof(objetos) /
         sizeof(objetos[0]);
 
+    int frameNpc = 0;
+    float tempoAnimacaoNpc = 0;
 
     Texture2D logoInicio =
         LoadTexture(
@@ -413,6 +434,10 @@ int main()
 
     fundoHUD.width *= 0.85;
     fundoHUD.height *= 0.8;
+
+    Texture2D telaContadorDeDias = LoadTexture("HUD/DiaContador2.png");
+    telaContadorDeDias.height*=1.5;
+    telaContadorDeDias.width*=2.3;
 
 
     // ==========================================================
@@ -626,6 +651,7 @@ int main()
     // ==========================================================
     // LOOP
     // ==========================================================
+
     while (!WindowShouldClose())
     {
         float escalaX =
@@ -2152,7 +2178,7 @@ int main()
                 "Pressione E para realizar a tarefa",
                 larguraResolucao -
                 400,
-                60,
+                75,
                 20,
                 GREEN
             );
@@ -2181,20 +2207,52 @@ int main()
         // ======================================================
         // OBJETOS
         // ======================================================
-        for (
-            int i = 0;
-            i < quantidadeObjetos;
-            i++
-        )
+// ======================================================
+// OBJETOS
+// ======================================================
+
+ tempoAnimacaoNpc += GetFrameTime();
+
+        if (tempoAnimacaoNpc >= 0.25f)
         {
-            DrawTexture(
-                objetos[i].textura,
-                objetos[i].x,
-                objetos[i].y,
-                WHITE
-            );
+            tempoAnimacaoNpc = 0.0f;
+
+            frameNpc++;
+
+            if (frameNpc >= 3)
+            {
+                frameNpc = 0;
+            }
         }
 
+        for (int i = 0; i < quantidadeObjetos; i++)
+        {
+
+            if (i == 10 || i == 14 || i == 15)
+            {
+                continue;
+            }
+
+          
+            if (i == 13)
+            {
+                DrawTexture(
+                    objetos[13 + frameNpc].textura,
+                    objetos[13].x,
+                    objetos[13].y,
+                    WHITE
+                );
+            }
+            else
+            {
+                DrawTexture(
+                    objetos[i].textura,
+                    objetos[i].x,
+                    objetos[i].y,
+                    WHITE
+                );
+            }
+        }
 
         // ======================================================
         // PERSONAGEM
@@ -2507,6 +2565,7 @@ int main()
         // ======================================================
         // HUD - LUCRO
         // ======================================================
+        
         DrawTexture(
             fundoHUD,
 
@@ -2527,7 +2586,7 @@ int main()
             WHITE
         );
 
-
+        
         DrawTexture(
             lucro,
 
@@ -2573,7 +2632,7 @@ int main()
             lucroCheio.height
         );
 
-
+        
         DrawTexture(
             lucroCheio,
 
@@ -2601,8 +2660,21 @@ int main()
         texturaAtualGuardada =
             texturaAtual;
 
+        DrawTexture(telaContadorDeDias,larguraResolucao-telaContadorDeDias.width,0,WHITE); //Monitor com a contagem de dias
+                    const char *textoDias =
+                TextFormat("%.2d",obterDiasSobrevividos());
+
+
+            int tamanhoDias =20 *escala;
+
+
+            DrawText(textoDias,larguraResolucao-3*tamanhoDias,25,tamanhoDias,(Color){198, 183, 255,255});
+
+            DrawText("Dia: ",larguraResolucao-15*(MeasureText("Dia",tamanhoDias))/2 /2,25,tamanhoDias,(Color){198, 183, 255,255});
 
         EndTextureMode();
+
+        
 
 
         // ======================================================
@@ -2938,94 +3010,89 @@ int main()
 
 
                 if (
-                    CheckCollisionPointRec(
-                        mouse,
-                        retExit
-                    )
-                )
-                {
-                    PlayMusicStream(
-                        trilhaSonora1
-                    );
+    CheckCollisionPointRec(
+        mouse,
+        retExit
+    )
+)
+{
+    PlayMusicStream(
+        trilhaSonora1
+    );
 
+    k = 0;
 
-                    k =
-                        0;
+    tela = -1;
 
+    gameOver = false;
 
-                    tela =
-                        -1;
+    porcentagemConfiancaApagado = 0.33f;
+    porcentagemViesApagado = 0.33f;
+    porcentagemPrivacidadeApagado = 0.33f;
+    porcentagemLucroApagado = 0.33f;
 
+    x = 300;
+    y = 170;
 
-                    gameOver =
-                        false;
+    direcao = 0;
+    andando = 0;
+    frame = 0;
+    tempo = 0;
 
+    cartaAbertaPararDeAndar = false;
+    abrirCarta = false;
 
-                    porcentagemConfiancaApagado =
-                        0.33f;
-
-                    porcentagemViesApagado =
-                        0.33f;
-
-                    porcentagemPrivacidadeApagado =
-                        0.33f;
-
-                    porcentagemLucroApagado =
-                        0.33f;
-
-
-                    x =
-                        300;
-
-                    y =
-                        170;
-                }
+    iniciarCartas(
+        &porcentagemConfiancaApagado,
+        &porcentagemViesApagado,
+        &porcentagemPrivacidadeApagado,
+        &porcentagemLucroApagado
+    );
+}
 
 
                 if (
-                    CheckCollisionPointRec(
-                        mouse,
-                        retPlayAgain
-                    )
-                )
-                {
-                    k =
-                        0;
+    CheckCollisionPointRec(
+        mouse,
+        retPlayAgain
+    )
+)
+{
+    k = 0;
 
+    PlayMusicStream(
+        EscritorioTrilhaSonora
+    );
 
-                    PlayMusicStream(
-                        EscritorioTrilhaSonora
-                    );
+    gameOver = false;
 
+    tela = 1;
 
-                    gameOver =
-                        false;
+    porcentagemConfiancaApagado = 0.33f;
+    porcentagemViesApagado = 0.33f;
+    porcentagemPrivacidadeApagado = 0.33f;
+    porcentagemLucroApagado = 0.33f;
 
+    x = 300;
+    y = 170;
 
-                    tela =
-                        1;
+    direcao = 0;
+    andando = 0;
+    frame = 0;
+    tempo = 0;
 
+    cartaAbertaPararDeAndar = false;
+    abrirCarta = false;
 
-                    porcentagemConfiancaApagado =
-                        0.33f;
-
-                    porcentagemViesApagado =
-                        0.33f;
-
-                    porcentagemPrivacidadeApagado =
-                        0.33f;
-
-                    porcentagemLucroApagado =
-                        0.33f;
-
-
-                    x =
-                        300;
-
-                    y =
-                        170;
-                }
+    iniciarCartas(
+        &porcentagemConfiancaApagado,
+        &porcentagemViesApagado,
+        &porcentagemPrivacidadeApagado,
+        &porcentagemLucroApagado
+    );
+}
             }
+        // reiniciarPartidaSeNecessario();
         }
 
 
