@@ -1,5 +1,42 @@
 #include "raylib.h"
 
+// ==========================================================
+// SAVE DOS FINAIS (arquivo finais.sav na pasta do jogo)
+// ==========================================================
+// 1 = final ja visto (pasta aberta), 0 = ainda bloqueado
+static int finalLiberado[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+// Le o arquivo e preenche finalLiberado. Se o arquivo nao existe, fica tudo 0.
+void carregarFinais(void)
+{
+    if (!FileExists("finais.sav"))
+        return;
+
+    int tamanho = 0;
+    unsigned char *dados = LoadFileData("finais.sav", &tamanho);
+
+    for (int i = 0; i < 8 && i < tamanho; i++)
+        finalLiberado[i] = dados[i];
+
+    UnloadFileData(dados);
+}
+
+// Chamada no game over: numero vai de 1 a 8 (mesma ordem das pastas)
+void desbloquearFinal(int numero)
+{
+    if (numero < 1 || numero > 8)
+        return;
+
+    carregarFinais();
+    finalLiberado[numero - 1] = 1;
+
+    unsigned char dados[8];
+    for (int i = 0; i < 8; i++)
+        dados[i] = finalLiberado[i];
+
+    SaveFileData("finais.sav", dados, 8);
+}
+
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY, Music trilhaSonora1)
 {
     // ==========================================================
@@ -14,6 +51,10 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     static Texture2D telaInstrucoes = {0};
     static Texture2D botaoVoltar = {0};
     static Texture2D telaFinais = {0};
+    static Texture2D pastaAberta = {0};
+    static Texture2D arteFinal[8] = {0};
+    static Texture2D pastaFechada = {0};
+    static Texture2D fita = {0};
 
     static int mutado = 0;
     static int telaMenu = 0;
@@ -44,6 +85,21 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
 
     if (telaFinais.id == 0)
         telaFinais = LoadTexture("cenario/Telas/telaFinais.png");
+
+    if (pastaAberta.id == 0)
+        pastaAberta = LoadTexture("cenario/Telas/Finais/pastaAberta.png");
+
+    if (pastaFechada.id == 0)
+        pastaFechada = LoadTexture("cenario/Telas/Finais/pastaFechada.png");
+
+    if (fita.id == 0)
+        fita = LoadTexture("cenario/Telas/Finais/fita.png");
+
+    for (int i = 0; i < 8; i++)
+    {
+        if (arteFinal[i].id == 0)
+            arteFinal[i] = LoadTexture(TextFormat("cenario/Telas/Finais/final%d.png", i + 1));
+    }
 
 
     // ==========================================================
@@ -246,6 +302,29 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
             WHITE
         );
 
+        // 8 pastas em grade: 4 por linha, 2 linhas
+        for (int i = 0; i < 8; i++)
+        {
+            int coluna = i % 4;   // 0, 1, 2, 3, 0, 1, 2, 3
+            int linha  = i / 4;   // 0, 0, 0, 0, 1, 1, 1, 1
+
+            int x = 72  + coluna * 290;
+            int y = 108 + linha  * 259;
+
+            if (finalLiberado[i] == 1)
+            {
+                // ja visto: pasta aberta com a arte normal
+                DrawTexture(pastaAberta, x, y, WHITE);
+                DrawTexture(arteFinal[i], x + 37, y + 39, WHITE);
+            }
+            else
+            {
+                // bloqueado: pasta fechada com fita, sem mostrar a arte (sem spoiler)
+                DrawTexture(pastaFechada, x, y, WHITE);
+                DrawTexture(fita, x, y, WHITE);
+            }
+        }
+
         DrawTexturePro(
             botaoVoltar,
             areaUtilVoltar,
@@ -390,7 +469,10 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
         escalaFinais = 0.66f;
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            carregarFinais();   // le o save antes de mostrar as pastas
             telaMenu = 2;
+        }
     }
 
 
