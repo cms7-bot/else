@@ -329,6 +329,26 @@ int main()
             true,
             0
         )
+,
+
+        // CANTINHO DO DESCANSO (objetos 16 e 17)
+        criarObjeto(
+            ELEMENTOS "sofa.png",
+            28,
+            318,
+            (Rectangle){0, 10, 88, 190},
+            false,
+            0
+        ),
+
+        criarObjeto(
+            ELEMENTOS "AquarioPeixe/AquarioPeixe1.png",
+            30,
+            212,
+            (Rectangle){2, 45, 70, 55},
+            false,
+            0
+        )
     };
 
 
@@ -373,6 +393,20 @@ int main()
         bebedouroBolhas[k].width *= 0.5;
         bebedouroBolhas[k].height *= 0.5;
     }
+    // tapete do cantinho: fica no CHAO, sem colisao (desenhado antes dos objetos)
+    Texture2D tapete = LoadTexture(ELEMENTOS "tapete.png");
+    tapete.width *= 0.5;
+    tapete.height *= 0.5;
+
+    // aquario (objeto 17): peixe nadando, 8 quadros
+    Texture2D aquarioPeixe[8];
+    for (int k = 0; k < 8; k++)
+    {
+        aquarioPeixe[k] = LoadTexture(TextFormat(ELEMENTOS "AquarioPeixe/AquarioPeixe%d.png", k + 1));
+        aquarioPeixe[k].width *= 0.5;
+        aquarioPeixe[k].height *= 0.5;
+    }
+
     float tempoBolhas = 0.0f;
     float esperaBolhas = 3.0f;      // segundos parado até a próxima bolha (sorteado de novo a cada vez)
 
@@ -2275,8 +2309,17 @@ int main()
             passoNovosNpcs = (passoNovosNpcs + 1) % 16;
         }
 
+        DrawTexture(tapete, 112, 300, WHITE);   // tapete no chao, antes dos moveis
+
         for (int i = 0; i < quantidadeObjetos; i++)
         {
+
+            if (i == 17)   // aquario com peixe
+            {
+                int quadroAquario = (int)(GetTime() / 0.2) % 8;
+                DrawTexture(aquarioPeixe[quadroAquario], objetos[17].x, objetos[17].y, WHITE);
+                continue;
+            }
 
             if (i == 14 || i == 15)
             {
@@ -3205,6 +3248,8 @@ int main()
     for (int k = 0; k < 3; k++) UnloadTexture(npcMulher[k]);
     for (int k = 0; k < 2; k++) UnloadTexture(npcFrente[k]);
     for (int k = 0; k < 5; k++) UnloadTexture(bebedouroBolhas[k]);
+    for (int k = 0; k < 8; k++) UnloadTexture(aquarioPeixe[k]);
+    UnloadTexture(tapete);
 
 
     UnloadTexture(costas1);
