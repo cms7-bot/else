@@ -335,7 +335,7 @@ int main()
         criarObjeto(
             ELEMENTOS "sofa.png",
             28,
-            318,
+            348,
             (Rectangle){0, 10, 88, 190},
             false,
             0
@@ -344,7 +344,7 @@ int main()
         criarObjeto(
             ELEMENTOS "AquarioPeixe/AquarioPeixe1.png",
             30,
-            212,
+            242,
             (Rectangle){2, 45, 70, 55},
             false,
             0
@@ -2309,7 +2309,7 @@ int main()
             passoNovosNpcs = (passoNovosNpcs + 1) % 16;
         }
 
-        DrawTexture(tapete, 112, 300, WHITE);   // tapete no chao, antes dos moveis
+        DrawTexture(tapete, 112, 330, WHITE);   // tapete no chao, antes dos moveis
 
         for (int i = 0; i < quantidadeObjetos; i++)
         {
