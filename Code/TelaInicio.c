@@ -13,6 +13,7 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     static Texture2D botaoExit = {0};
     static Texture2D telaInstrucoes = {0};
     static Texture2D botaoVoltar = {0};
+    static Texture2D telaFinais = {0};
 
     static int mutado = 0;
     static int telaMenu = 0;
@@ -38,8 +39,11 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     if (telaInstrucoes.id == 0)
         telaInstrucoes = LoadTexture("cenario/Telas/telaInstrucoes.png");
 
-    if (botaoVoltar.id == 0)
-        botaoVoltar = LoadTexture("Botoes/botaoVoltar.png");
+   if (botaoVoltar.id == 0)
+    botaoVoltar = LoadTexture("Botoes/botaoVoltar.png");
+
+    if (telaFinais.id == 0)
+        telaFinais = LoadTexture("cenario/Telas/telaFinais.png");
 
 
     // ==========================================================
@@ -173,6 +177,121 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
         return 0;
     }
 
+ // ======================================================
+  // TELA FINAIS
+// ======================================================
+
+      if (telaMenu == 2)
+    {
+        Rectangle areaUtilVoltar = {
+            30,
+            207,
+            447,
+            112
+        };
+
+        Rectangle botaoVoltarArea = {
+            995,
+            625,
+            205,
+            51
+        };
+
+        Rectangle botaoVoltarDesenho = botaoVoltarArea;
+
+        if (CheckCollisionPointRec(mouse, botaoVoltarArea))
+        {
+            botaoVoltarDesenho.width *= 1.10f;
+            botaoVoltarDesenho.height *= 1.10f;
+
+            botaoVoltarDesenho.x =
+                botaoVoltarArea.x +
+                (botaoVoltarArea.width - botaoVoltarDesenho.width) / 2;
+
+            botaoVoltarDesenho.y =
+                botaoVoltarArea.y +
+                (botaoVoltarArea.height - botaoVoltarDesenho.height) / 2;
+
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+                telaMenu = 0;
+        }
+
+        if (IsKeyPressed(KEY_ESCAPE))
+            telaMenu = 0;
+
+
+        // ======================================================
+        // DESENHO DA TELA DE INSTRUÇÕES
+        // ======================================================
+        BeginTextureMode(telaVirtual);
+
+        ClearBackground(BLACK);
+
+        DrawTexturePro(
+            telaFinais,
+            (Rectangle){
+                0,
+                0,
+                 telaFinais.width,
+                 telaFinais.height
+            },
+            (Rectangle){
+                0,
+                0,
+                larguraResolucao,
+                alturaResolucao
+            },
+            (Vector2){0, 0},
+            0,
+            WHITE
+        );
+
+        DrawTexturePro(
+            botaoVoltar,
+            areaUtilVoltar,
+            botaoVoltarDesenho,
+            (Vector2){0, 0},
+            0,
+            WHITE
+        );
+
+        EndTextureMode();
+
+
+        // ======================================================
+        // TELA VIRTUAL -> JANELA
+        // ======================================================
+        BeginDrawing();
+
+        ClearBackground(BLACK);
+
+        Rectangle origemInstrucoes = {
+            0,
+            0,
+            (float)telaVirtual.texture.width,
+            -(float)telaVirtual.texture.height
+        };
+
+        Rectangle destinoInstrucoes = {
+            offsetX,
+            offsetY,
+            larguraResolucao * escalaTela,
+            alturaResolucao * escalaTela
+        };
+
+        DrawTexturePro(
+            telaVirtual.texture,
+            origemInstrucoes,
+            destinoInstrucoes,
+            (Vector2){0, 0},
+            0,
+            WHITE
+        );
+
+        EndDrawing();
+
+        return 0;
+    }
 
     // ==========================================================
     // BOTÕES (escala e áreas de clique)
@@ -269,6 +388,9 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     if (CheckCollisionPointRec(mouse, botaoFinaisArea))
     {
         escalaFinais = 0.66f;
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            telaMenu = 2;
     }
 
 
