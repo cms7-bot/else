@@ -5,6 +5,7 @@
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
 int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
+void desbloquearFinal(int numero);
 
 void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro);
 void atualizarCartas(void);
@@ -2809,6 +2810,11 @@ int main()
             {
                 PlayMusicStream(
                     gameOverSom
+                );
+
+                // FINAIS: grava o final que aconteceu (1 a 8) no save
+                desbloquearFinal(
+                    obterFinalDerrota()
                 );
 
                 k =
