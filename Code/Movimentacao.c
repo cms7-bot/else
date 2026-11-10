@@ -639,6 +639,17 @@ int main()
             "cenario/Telas/painelFimExpediente.png"
         );
 
+    // memorandos da auditoria (entrada e saida)
+    Texture2D telaAuditoria =
+        LoadTexture(
+            "cenario/Telas/telaAuditoria.png"
+        );
+
+    Texture2D telaAuditoriaFim =
+        LoadTexture(
+            "cenario/Telas/telaAuditoriaFim.png"
+        );
+
 
     // ==========================================================
     // ESTADO
@@ -719,6 +730,10 @@ int main()
 
     bool gameOver =
         false;
+
+    // memorando da auditoria na tela: 0 = nenhum, 1 = entrada, 2 = saida
+    int memorando =
+        0;
 
     int k = 0;
 
@@ -1363,6 +1378,9 @@ int main()
 
                     cartaAbertaPararDeAndar =
                         false;
+
+                    memorando =
+                        0;
 
                     abrirCarta =
                         false;
@@ -2263,7 +2281,7 @@ int main()
                 cartasEstaoAbertas();
 
 
-            if (!gameOver)
+            if (!gameOver && memorando == 0)
             {
                 atualizarCartas();
             }
@@ -2276,6 +2294,37 @@ int main()
             cartaAbertaPararDeAndar =
                 cartaEstavaAberta ||
                 cartaAgoraAberta;
+
+
+            // AUDITORIA: se a carta que acabou de ser resolvida disparou
+            // ou encerrou a auditoria, mostra o memorando
+            int eventoAuditoria =
+                consumirEventoAuditoria();
+
+            if (eventoAuditoria != 0)
+                memorando =
+                    eventoAuditoria;
+        }
+
+
+        // Com o memorando na tela o jogador nao anda nem abre cartas.
+        // ENTER ou ESPACO fecham (o E abriria outra carta).
+        if (memorando != 0)
+        {
+            cartaAbertaPararDeAndar =
+                true;
+
+            if (
+                IsKeyPressed(KEY_ENTER) ||
+                IsKeyPressed(KEY_SPACE)
+            )
+            {
+                memorando =
+                    0;
+
+                cartaAbertaPararDeAndar =
+                    false;
+            }
         }
 
 
@@ -2794,6 +2843,46 @@ int main()
                      tamanhoDias, (Color){198, 183, 255, 255});
         }
 
+        // ======================================================
+        // MEMORANDO DA AUDITORIA
+        // ======================================================
+        if (memorando != 0)
+        {
+            Texture2D memo =
+                (memorando == 1) ?
+                telaAuditoria :
+                telaAuditoriaFim;
+
+            DrawRectangle(
+                0,
+                0,
+                larguraResolucao,
+                alturaResolucao,
+                Fade(
+                    BLACK,
+                    0.65f
+                )
+            );
+
+            DrawTexture(
+                memo,
+                (larguraResolucao - memo.width) / 2,
+                (alturaResolucao - memo.height) / 2,
+                WHITE
+            );
+
+            const char *dicaMemorando =
+                "Pressione ENTER para continuar";
+
+            DrawText(
+                dicaMemorando,
+                (larguraResolucao - MeasureText(dicaMemorando, 20)) / 2,
+                alturaResolucao - 30,
+                20,
+                WHITE
+            );
+        }
+
         EndTextureMode();
 
         
@@ -3167,6 +3256,7 @@ int main()
     tempo = 0;
 
     cartaAbertaPararDeAndar = false;
+    memorando = 0;
     abrirCarta = false;
 
     iniciarCartas(
@@ -3209,6 +3299,7 @@ int main()
     tempo = 0;
 
     cartaAbertaPararDeAndar = false;
+    memorando = 0;
     abrirCarta = false;
 
     iniciarCartas(
@@ -3282,6 +3373,8 @@ int main()
     UnloadTexture(telaInstrucoesPausa);
 
     UnloadTexture(painelFimExpediente);
+    UnloadTexture(telaAuditoria);
+    UnloadTexture(telaAuditoriaFim);
 
     UnloadTexture(logoInicio);
     UnloadTexture(fundoCarta);

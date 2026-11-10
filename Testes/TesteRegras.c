@@ -127,6 +127,134 @@ int main(void)
     viesApagado = &bVies; lucroApagado = &bLuc;
     confere("inicio da partida: sem game over", regraGameOver(), 0);
 
+    // ==================================================================
+    // AUDITORIA (relatorio, secoes 5.3 e 6.2)
+    // ==================================================================
+    // r <-> (p ^ v ^ ~a): tabela-verdade completa
+    for (int pp = 0; pp <= 1; pp++)
+    {
+        for (int vv = 0; vv <= 1; vv++)
+        {
+            for (int aa = 0; aa <= 1; aa++)
+            {
+                medidores(50, pp ? 25 : 50, 50, vv ? 75 : 50);
+                definirAuditoriaEmAndamento(aa);
+                confere("r <-> (p ^ v ^ ~a)", auditoriaDisparada(), pp && vv && !aa);
+            }
+        }
+    }
+
+    // saida ~(p v v) equivale a ~p ^ ~v (De Morgan)
+    for (int pp = 0; pp <= 1; pp++)
+    {
+        for (int vv = 0; vv <= 1; vv++)
+        {
+            medidores(50, pp ? 25 : 50, 50, vv ? 75 : 50);
+            confere("saida = ~(p v v)", auditoriaPodeEncerrar(), !(pp || vv));
+            confere("De Morgan: ~(p v v) == ~p ^ ~v", auditoriaPodeEncerrar(),
+                    !privacidadeEmRisco() && !viesEmRisco());
+        }
+    }
+
+    // disparo: Privacidade < 30 E Vies > 70
+    reiniciarAuditoria();
+    medidores(50, 25, 50, 75); avaliarAuditoria();
+    confere("dispara com p e v", auditoriaEmAndamento(), 1);
+    confere("aviso 1 = auditoria comecou", consumirEventoAuditoria(), 1);
+    confere("aviso e consumido uma vez so", consumirEventoAuditoria(), 0);
+
+    // so um dos dois NAO dispara
+    reiniciarAuditoria();
+    medidores(50, 25, 50, 50); avaliarAuditoria();
+    confere("so p nao dispara", auditoriaEmAndamento(), 0);
+    medidores(50, 50, 50, 75); avaliarAuditoria();
+    confere("so v nao dispara", auditoriaEmAndamento(), 0);
+    confere("sem aviso quando nao dispara", consumirEventoAuditoria(), 0);
+
+    // limites exatos: Privacidade 30 e Vies 70 ainda sao seguros
+    medidores(50, 30, 50, 70); avaliarAuditoria();
+    confere("Privacidade 30 e Vies 70 nao disparam", auditoriaEmAndamento(), 0);
+    medidores(50, 29, 50, 71); avaliarAuditoria();
+    confere("Privacidade 29 e Vies 71 disparam", auditoriaEmAndamento(), 1);
+    consumirEventoAuditoria();
+
+    // I4: a -> ~r (nao dispara auditoria sobre auditoria)
+    medidores(50, 25, 50, 75);
+    confere("I4: com auditoria ativa, r e falso", auditoriaDisparada(), 0);
+    avaliarAuditoria();
+    confere("I4: sem segundo aviso", consumirEventoAuditoria(), 0);
+    confere("I4: auditoria continua ativa", auditoriaEmAndamento(), 1);
+
+    // penalidade: a -> C- (5 pontos por carta, so na Confianca)
+    reiniciarAuditoria();
+    medidores(50, 50, 50, 50);
+    aplicarPenalidadeAuditoria();
+    confere("sem auditoria nao tira Confianca", obterConfianca(), 50);
+    definirAuditoriaEmAndamento(true);
+    aplicarPenalidadeAuditoria();
+    confere("1a carta na auditoria: Confianca 45", obterConfianca(), 45);
+    aplicarPenalidadeAuditoria();
+    confere("2a carta na auditoria: Confianca 40", obterConfianca(), 40);
+    confere("penalidade nao mexe na Privacidade", obterPrivacidade(), 50);
+    confere("penalidade nao mexe no Lucro", obterLucro(), 50);
+    confere("penalidade nao mexe no Vies", obterVies(), 50);
+
+    // a Confianca nunca passa de 0 e a auditoria pode levar ao game over
+    medidores(3, 50, 50, 50);
+    aplicarPenalidadeAuditoria();
+    confere("Confianca trava em 0", obterConfianca(), 0);
+    confere("Confianca 0 = game over", regraGameOver(), 1);
+
+    // so recuperar UM dos dois nao encerra
+    reiniciarAuditoria();
+    definirAuditoriaEmAndamento(true);
+    medidores(50, 40, 50, 80); avaliarAuditoria();
+    confere("so Privacidade recuperada: continua", auditoriaEmAndamento(), 1);
+    medidores(50, 25, 50, 60); avaliarAuditoria();
+    confere("so Vies recuperado: continua", auditoriaEmAndamento(), 1);
+    confere("sem aviso enquanto continua", consumirEventoAuditoria(), 0);
+
+    // os DOIS recuperados encerram
+    medidores(50, 40, 50, 60); avaliarAuditoria();
+    confere("os dois recuperados: encerra", auditoriaEmAndamento(), 0);
+    confere("aviso 2 = auditoria terminou", consumirEventoAuditoria(), 2);
+    confere("sai sem disparar outra na mesma avaliacao", auditoriaEmAndamento(), 0);
+
+    // limites exatos da saida: Privacidade 30 e Vies 70 ja contam como seguros
+    definirAuditoriaEmAndamento(true);
+    medidores(50, 30, 50, 70); avaliarAuditoria();
+    confere("Privacidade 30 e Vies 70 encerram", auditoriaEmAndamento(), 0);
+    consumirEventoAuditoria();
+
+    // I3: game over tem prioridade (nada de auditoria quando o jogo acabou)
+    reiniciarAuditoria();
+    medidores(0, 25, 50, 75); avaliarAuditoria();
+    confere("game over: nao dispara auditoria", auditoriaEmAndamento(), 0);
+    confere("game over: sem aviso", consumirEventoAuditoria(), 0);
+    definirAuditoriaEmAndamento(true);
+    medidores(0, 40, 50, 60); avaliarAuditoria();
+    confere("game over: nao encerra auditoria", auditoriaEmAndamento(), 1);
+    confere("game over: sem aviso de saida", consumirEventoAuditoria(), 0);
+
+    // nova partida limpa tudo
+    definirAuditoriaEmAndamento(true);
+    medidores(50, 25, 50, 75); avaliarAuditoria();
+    reiniciarAuditoria();
+    confere("reiniciar: sem auditoria", auditoriaEmAndamento(), 0);
+    confere("reiniciar: sem aviso pendente", consumirEventoAuditoria(), 0);
+
+    // ciclo completo: dispara -> cartas custam Confianca -> sai
+    reiniciarAuditoria();
+    medidores(50, 25, 50, 75); avaliarAuditoria();
+    confere("ciclo: disparou", consumirEventoAuditoria(), 1);
+    aplicarPenalidadeAuditoria(); aplicarPenalidadeAuditoria(); aplicarPenalidadeAuditoria();
+    confere("ciclo: 3 cartas = Confianca 35", obterConfianca(), 35);
+    bPriv = apagada(40); bVies = apagada(60); avaliarAuditoria();
+    confere("ciclo: encerrou", consumirEventoAuditoria(), 2);
+    aplicarPenalidadeAuditoria();
+    confere("ciclo: depois de encerrar, Confianca nao cai mais", obterConfianca(), 35);
+    reiniciarAuditoria();
+
     printf("%d testes, %d falhas\n", total, falhas);
     return falhas == 0 ? 0 : 1;
 }
