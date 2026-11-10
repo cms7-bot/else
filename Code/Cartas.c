@@ -169,10 +169,16 @@ static void registrarCartaResolvida()
 {
     cartasResolvidasFase++;
 
+    // auditoria em andamento: a carta tira Confianca (a -> C-)
+    aplicarPenalidadeAuditoria();
+
     if (jogadorPerdeu())
         partidaTerminou = true;
     else
         diasSobrevividos++;
+
+    // disparo e saida da auditoria (so vale se o jogo nao acabou)
+    avaliarAuditoria();
 }
 
 
@@ -186,6 +192,7 @@ static void reiniciarPartidaSeNecessario()
         diasSobrevividos = 0;
         cartasResolvidasFase = 0;
         partidaTerminou = false;
+        reiniciarAuditoria();
 
         for (int i = 0; i < 8; i++)
             historico[i] = -1;
@@ -339,6 +346,7 @@ void iniciarCartas(
     diasSobrevividos = 0;
     cartasResolvidasFase = 0;
     partidaTerminou = false;
+    reiniciarAuditoria();
 
     for (int i = 0; i < 8; i++)
         historico[i] = -1;

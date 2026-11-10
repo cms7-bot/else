@@ -59,6 +59,18 @@ bool algumMedidorNoMaximo(void);
 // ==========================================================
 void definirAuditoriaEmAndamento(bool ativa);
 
+bool auditoriaDisparada(void);           // r <-> (p ^ v ^ ~a)
+
+bool auditoriaPodeEncerrar(void);        // ~(p v v)
+
+void aplicarPenalidadeAuditoria(void);   // a -> C- (Confianca cai a cada carta)
+
+void avaliarAuditoria(void);             // chamar depois de cada carta
+
+int consumirEventoAuditoria(void);       // 0 nada, 1 comecou, 2 terminou
+
+void reiniciarAuditoria(void);           // nova partida
+
 
 // ==========================================================
 // GAME OVER
