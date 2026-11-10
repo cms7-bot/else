@@ -2174,11 +2174,48 @@ int main()
         // ======================================================
         Rectangle colisaoMesaBoneco_Boneco =
         {
-            x,
-            y,
-            frente1.width,
-            frente1.height
+            x + frente1.width * 0.25f,
+            y + frente1.height * 0.80f,
+            frente1.width * 0.50f,
+            frente1.height * 0.18f
         };
+
+        Rectangle colisaoCadeiras[8] =
+        {
+   
+            {480, 283, 42, 21},
+            {619, 283, 42, 21},
+            {879, 283, 42, 21},
+            {1025, 283, 42, 21},
+
+          
+            {481, 581, 47, 55},
+            {627, 580, 51, 55},
+            {886, 582, 63, 54},
+            {1046, 584, 48, 57}
+        };
+
+
+
+// POSIÇÃO DOS PÉS DO PERSONAGM
+float posicaoPes = colisaoMesaBoneco_Boneco.y +
+                   colisaoMesaBoneco_Boneco.height;
+
+// QUATRO CONDIÇÕES DE PROFUNIDADE
+
+// Mesas superiores
+bool mesaSuperiorAntesPersonagem =
+    posicaoPes >= objetos[6].colisao.y;
+
+bool mesaSuperiorDepoisPersonagem =
+    posicaoPes < objetos[6].colisao.y;
+
+// Mesas inferiores
+bool mesaInferiorAntesPersonagem =
+    posicaoPes >= objetos[10].colisao.y;
+
+bool mesaInferiorDepoisPersonagem =
+    posicaoPes < objetos[10].colisao.y;
 
 
         for (
@@ -2187,6 +2224,18 @@ int main()
             i++
         )
         {
+
+// VERIFICA SE A MESA DEVE SER DESENHADA DEPOIS DO PERSONAGEM
+
+if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
+{
+    continue;
+}
+
+if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
+{
+    continue;
+}
             if (
                 CheckCollisionRecs(
                     colisaoMesaBoneco_Boneco,
@@ -2205,6 +2254,21 @@ int main()
                 y =
                     yGuardado;
 
+
+                break;
+            }
+        }
+        for (int i = 0; i < 8; i++)
+        {
+            if (CheckCollisionRecs(
+                colisaoMesaBoneco_Boneco,
+                colisaoCadeiras[i]
+            ))
+            {
+                mensagem = true;
+
+                x = xGuardado;
+                y = yGuardado;
 
                 break;
             }
@@ -2328,9 +2392,6 @@ int main()
         }
 
 
-        // ======================================================
-        // OBJETOS
-        // ======================================================
 // ======================================================
 // OBJETOS
 // ======================================================
@@ -2430,6 +2491,55 @@ int main()
             y,
             WHITE
         );
+    // ======================================================
+// MESAS QUE FICAM NA FRENTE DO PERSONAGEM
+// ======================================================
+
+for (int i = 6; i <= 13; i++)
+{
+    // MESAS SUPERIORES
+    if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
+    {
+        DrawTexture(
+            objetos[i].textura,
+            objetos[i].x,
+            objetos[i].y,
+            WHITE
+        );
+    }
+
+    // MESAS INFERIORES
+    else if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
+    {
+        if (i == 12)
+        {
+            DrawTexture(
+                npcMulher[sequenciaMulher[passoNovosNpcs % 4]],
+                objetos[12].x,
+                objetos[12].y,
+                WHITE
+            );
+        }
+        else if (i == 13)
+        {
+            DrawTexture(
+                objetos[13 + frameNpc].textura,
+                objetos[13].x,
+                objetos[13].y,
+                WHITE
+            );
+        }
+        else
+        {
+            DrawTexture(
+                objetos[i].textura,
+                objetos[i].x,
+                objetos[i].y,
+                WHITE
+            );
+        }
+    }
+}
 
 
         // ======================================================
