@@ -53,8 +53,10 @@ static int origemCartas = 0;
 // ==========================================================
 // CARGO / EXPERIÊNCIA
 // ==========================================================
+#define CARGO_MAXIMO 4
+
 static int cargo = 0;
-static int experiencia = 0;
+static bool promocaoDisponivel = false;
 
 
 // ==========================================================
@@ -75,13 +77,22 @@ static int historico[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 const char *nomeCargo()
 {
     if (cargo == 0) return "Estagiario";
-    if (cargo == 1) return "Assistente";
-    if (cargo == 2) return "Analista Junior";
-    if (cargo == 3) return "Analista Pleno";
-    if (cargo == 4) return "Analista Senior";
-    if (cargo == 5) return "Supervisor";
+    if (cargo == 1) return "Junior";
+    if (cargo == 2) return "Pleno";
+    if (cargo == 3) return "Senior";
+    if (cargo == 4) return "Tech Leader";
 
-    return "Gerente";
+    return "Tech Leader";
+}
+
+int obterCargo()
+{
+    return cargo;
+}
+
+bool promocaoPendente()
+{
+    return promocaoDisponivel;
 }
 
 
@@ -228,13 +239,29 @@ void adicionarHistorico(int id)
 // ==========================================================
 void verificarPromocao()
 {
-    if (experiencia >= 1700) cargo = 6;
-    else if (experiencia >= 1200) cargo = 5;
-    else if (experiencia >= 800) cargo = 4;
-    else if (experiencia >= 500) cargo = 3;
-    else if (experiencia >= 250) cargo = 2;
-    else if (experiencia >= 100) cargo = 1;
-    else cargo = 0;
+    if (promocaoDisponivel || cargo >= CARGO_MAXIMO)
+        return;
+
+    if (regraGameOver() || auditoriaEmAndamento())
+        return;
+
+    if (!experienciaSuficiente() || !empresaEquilibrada())
+        return;
+
+    promocaoDisponivel = true;
+}
+
+void confirmarPromocao()
+{
+    if (!promocaoDisponivel)
+        return;
+
+    if (cargo < CARGO_MAXIMO)
+        cargo++;
+
+    // A contagem de cartas é por fase: recomeça no novo cargo.
+    cartasResolvidasFase = 0;
+    promocaoDisponivel = false;
 }
 
 
@@ -245,13 +272,31 @@ void sortearNovaCarta()
 {
     reiniciarPartidaSeNecessario();
 
+    // Os cargos acima de Estagiário ainda não têm cartas próprias.
+    // Nesse caso o banco do Estagiário continua sendo usado.
+    int cargoDasCartas = cargo;
+
+    bool temCartasDoCargo = false;
+
+    for (int i = 0; i < quantidadeEventos; i++)
+    {
+        if (banco[i].cargo == cargo)
+        {
+            temCartasDoCargo = true;
+            break;
+        }
+    }
+
+    if (!temCartasDoCargo)
+        cargoDasCartas = 0;
+
     int disponiveis[100];
     int quantidadeDisponiveis = 0;
 
     for (int i = 0; i < quantidadeEventos; i++)
     {
         if (
-            banco[i].cargo == cargo &&
+            banco[i].cargo == cargoDasCartas &&
             banco[i].origem == origemCartas &&
             !eventoFoiRecente(banco[i].id)
         )
@@ -269,7 +314,7 @@ void sortearNovaCarta()
         for (int i = 0; i < quantidadeEventos; i++)
         {
             if (
-                banco[i].cargo == cargo &&
+                banco[i].cargo == cargoDasCartas &&
                 banco[i].origem == origemCartas
             )
             {
@@ -343,6 +388,9 @@ void iniciarCartas(
     eventoAtual = 0;
     cartaAberta = false;
 
+    cargo = 0;
+    promocaoDisponivel = false;
+
     diasSobrevividos = 0;
     cartasResolvidasFase = 0;
     partidaTerminou = false;
@@ -397,8 +445,8 @@ void escolherEsquerda()
         *lucroApagado = 0.73f;
 
 
-    verificarPromocao();
     registrarCartaResolvida();
+    verificarPromocao();
 }
 
 
@@ -444,15 +492,15 @@ void escolherDireita()
         *lucroApagado = 0.73f;
 
 
-    verificarPromocao();
     registrarCartaResolvida();
+    verificarPromocao();
 }
 
 
 // ==========================================================
 // ATUALIZAÇÃO
 // ==========================================================
-void atualizarCartas()
+bool atualizarCartas()
 {
     if (!cartaAberta)
     {
@@ -461,10 +509,15 @@ void atualizarCartas()
             sortearNovaCarta();
 
             if (eventoAtual != 0)
+            {
                 cartaAberta = true;
+
+                // Sinaliza que uma nova carta foi efetivamente apresentada.
+                return true;
+            }
         }
 
-        return;
+        return false;
     }
 
     if (IsKeyPressed(KEY_A))
@@ -474,7 +527,7 @@ void atualizarCartas()
         cartaAberta = false;
         eventoAtual = 0;
 
-        return;
+        return false;
     }
 
     if (IsKeyPressed(KEY_D))
@@ -484,8 +537,10 @@ void atualizarCartas()
         cartaAberta = false;
         eventoAtual = 0;
 
-        return;
+        return false;
     }
+
+    return false;
 }
 
 

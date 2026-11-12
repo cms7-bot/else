@@ -8,7 +8,7 @@ int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float of
 void desbloquearFinal(int numero);
 
 void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro);
-void atualizarCartas(void);
+bool atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 bool cartasEstaoAbertas(void);
 void definirOrigemCartas(int origem);
@@ -17,7 +17,19 @@ void descarregarCartas(void);
 const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
 const char *nomeCargo(void);
+int obterCargo(void);
+bool promocaoPendente(void);
+void confirmarPromocao(void);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
+
+
+// ==========================================================
+// PERÍODOS DO DIA
+// ==========================================================
+#define PERIODO_MANHA 0
+#define PERIODO_TARDE 1
+#define PERIODO_NOITE 2
+#define TOTAL_PERIODOS 3
 
 
 // ==========================================================
@@ -174,10 +186,51 @@ int main()
     // ==========================================================
     // TEXTURAS - CENÁRIO
     // ==========================================================
-    Texture2D fundoCeramica =
-        LoadTexture(
-            "cenario/Cenario.png"
-        );
+    // Ordem dos períodos: Manhã, Tarde, Noite.
+    // No Estagiário o cenário original (Cenario.png) é o período da noite.
+    Texture2D fundosEstagiario[TOTAL_PERIODOS] =
+    {
+        LoadTexture("cenario/CenarioManha.png"),
+        LoadTexture("cenario/CenarioTarde.png"),
+        LoadTexture("cenario/Cenario.png")
+    };
+
+    Texture2D fundosJunior[TOTAL_PERIODOS] =
+    {
+        LoadTexture("cenario/Cenarios/Junior/CenarioJuniorDia.png"),
+        LoadTexture("cenario/Cenarios/Junior/CenarioJuniorTarde.png"),
+        LoadTexture("cenario/Cenarios/Junior/CenarioJuniorNoite.png")
+    };
+
+    Texture2D fundosPleno[TOTAL_PERIODOS] =
+    {
+        LoadTexture("cenario/Cenarios/Pleno/CenarioPlenoDia.png"),
+        LoadTexture("cenario/Cenarios/Pleno/CenarioPlenoTarde.png"),
+        LoadTexture("cenario/Cenarios/Pleno/CenarioPlenoNoite.png")
+    };
+
+    Texture2D fundosSenior[TOTAL_PERIODOS] =
+    {
+        LoadTexture("cenario/Cenarios/Senior/CenarioSeniorDia.png"),
+        LoadTexture("cenario/Cenarios/Senior/CenarioSeniorTarde.png"),
+        LoadTexture("cenario/Cenarios/Senior/CenarioSeniorNoite.png")
+    };
+
+    Texture2D fundosTechLeader[TOTAL_PERIODOS] =
+    {
+        LoadTexture("cenario/Cenarios/TechLider/CenarioTechDia.png"),
+        LoadTexture("cenario/Cenarios/TechLider/CenarioTechTarde.png"),
+        LoadTexture("cenario/Cenarios/TechLider/CenarioTechNoite.png")
+    };
+
+    Texture2D *fundosCargos[5] =
+    {
+        fundosEstagiario,
+        fundosJunior,
+        fundosPleno,
+        fundosSenior,
+        fundosTechLeader
+    };
 
 
     #define ELEMENTOS "cenario/elementos_estagiario/"
@@ -355,6 +408,17 @@ int main()
     int quantidadeObjetos =
         sizeof(objetos) /
         sizeof(objetos[0]);
+
+    // Unica mesa do cenario Junior: ponto de acesso a selecao de cargos.
+    ObjetoCenario mesaJunior =
+        criarObjeto(
+            ELEMENTOS "MesaFrenteSemNpc.png",
+            560,
+            400,
+            (Rectangle){10, 64, 142, 68},
+            true,
+            0
+        );
 
     int frameNpc = 0;
     float tempoAnimacaoNpc = 0;
@@ -650,11 +714,24 @@ int main()
             "cenario/Telas/telaAuditoriaFim.png"
         );
 
+    Texture2D telaPromocao =
+        LoadTexture(
+            "cenario/Telas/telapromocao.png"
+        );
+
 
     // ==========================================================
     // ESTADO
     // ==========================================================
     int tela = -1;
+
+    int periodo = PERIODO_NOITE;
+    Texture2D fundoAtual = fundosCargos[0][periodo];
+
+    // Cena de carreira (apos a promocao):
+    // 0 = Junior, 1 = Pleno, 2 = Senior, 3 = Tech Leader
+    int cenarioVisual = 0;
+    bool selecaoCenarios = false;
 
     float tempoIntro = 0.0f;
     float tempoLogo = 2.0f;
@@ -798,6 +875,7 @@ int main()
         // ======================================================
         if (
             tela == 2 &&
+            obterCargo() == 0 &&
             IsKeyPressed(KEY_ESCAPE)
         )
         {
@@ -1392,6 +1470,14 @@ int main()
                         &porcentagemPrivacidadeApagado,
                         &porcentagemLucroApagado
                     );
+
+                    periodo = PERIODO_NOITE;
+
+                    fundoAtual =
+                        fundosCargos[0][periodo];
+
+                    cenarioVisual = 0;
+                    selecaoCenarios = false;
                 }
             }
 
@@ -1687,6 +1773,60 @@ int main()
 
 
         // ======================================================
+        // PROMOÇÃO
+        // ======================================================
+        bool promocao = promocaoPendente();
+
+        if (promocao)
+        {
+            if (
+                IsKeyPressed(KEY_ENTER) ||
+                IsKeyPressed(KEY_SPACE) ||
+                IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
+            )
+            {
+                confirmarPromocao();
+
+                // A promocao sempre entrega o cenario Junior, a noite.
+                cenarioVisual = 0;
+                selecaoCenarios = false;
+                periodo = PERIODO_NOITE;
+
+                fundoAtual =
+                    fundosCargos[1][PERIODO_NOITE];
+
+                x = 600;
+                y = 560;
+
+                direcao = 0;
+                andando = 0;
+                frame = 0;
+                tempo = 0;
+
+                texturaAtualGuardada = frente1;
+                cartaAbertaPararDeAndar = false;
+                abrirCarta = false;
+
+                promocao = false;
+            }
+        }
+
+
+        bool modoCarreira =
+            obterCargo() > 0;
+
+        bool cenarioJunior =
+            modoCarreira && cenarioVisual == 0;
+
+        bool movimentoAtivo =
+            !modoCarreira ||
+            (
+                cenarioJunior &&
+                !selecaoCenarios
+            );
+
+
+        // ======================================================
         // MOVIMENTAÇÃO
         // ======================================================
         andando =
@@ -1709,7 +1849,9 @@ int main()
 
         if (
             !cartaAbertaPararDeAndar &&
-            !gameOver
+            !gameOver &&
+            !promocao &&
+            movimentoAtivo
         )
         {
             if (
@@ -2162,7 +2304,7 @@ int main()
 
 
         DrawTexture(
-            fundoCeramica,
+            fundoAtual,
             0,
             0,
             WHITE
@@ -2218,66 +2360,89 @@ bool mesaInferiorDepoisPersonagem =
     posicaoPes < objetos[10].colisao.y;
 
 
-        for (
-            int i = 0;
-            i < quantidadeObjetos;
-            i++
-        )
+        // Os cargos acima de Estagiário ainda não têm mobília.
+        if (obterCargo() == 0)
         {
-
-// VERIFICA SE A MESA DEVE SER DESENHADA DEPOIS DO PERSONAGEM
-
-if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
-{
-    continue;
-}
-
-if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
-{
-    continue;
-}
-            if (
-                CheckCollisionRecs(
-                    colisaoMesaBoneco_Boneco,
-                    objetos[i].colisao
-                )
+            for (
+                int i = 0;
+                i < quantidadeObjetos;
+                i++
             )
             {
-                mensagem =
-                    true;
+
+    // VERIFICA SE A MESA DEVE SER DESENHADA DEPOIS DO PERSONAGEM
+
+    if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
+    {
+        continue;
+    }
+
+    if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
+    {
+        continue;
+    }
+                if (
+                    CheckCollisionRecs(
+                        colisaoMesaBoneco_Boneco,
+                        objetos[i].colisao
+                    )
+                )
+                {
+                    mensagem =
+                        true;
 
 
-                x =
-                    xGuardado;
+                    x =
+                        xGuardado;
 
 
-                y =
-                    yGuardado;
+                    y =
+                        yGuardado;
 
 
-                break;
+                    break;
+                }
             }
-        }
-        for (int i = 0; i < 8; i++)
-        {
-            if (CheckCollisionRecs(
-                colisaoMesaBoneco_Boneco,
-                colisaoCadeiras[i]
-            ))
+            for (int i = 0; i < 8; i++)
             {
-                mensagem = true;
+                if (CheckCollisionRecs(
+                    colisaoMesaBoneco_Boneco,
+                    colisaoCadeiras[i]
+                ))
+                {
+                    mensagem = true;
 
-                x = xGuardado;
-                y = yGuardado;
+                    x = xGuardado;
+                    y = yGuardado;
 
-                break;
+                    break;
+                }
             }
         }
 
 
+        // Colisao da mesa unica do cenario Junior.
+        if (
+            cenarioJunior &&
+            !selecaoCenarios &&
+            CheckCollisionRecs(
+                colisaoMesaBoneco_Boneco,
+                mesaJunior.colisao
+            )
+        )
+        {
+            mensagem = true;
+
+            x = xGuardado;
+            y = yGuardado;
+        }
+
+
         // ======================================================
-        // INTERAÇÃO
+        // INTERAÇÃO (somente Estagiario)
         // ======================================================
+        if (!modoCarreira)
+        {
         int objetoPerto =
             -1;
 
@@ -2345,9 +2510,16 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 cartasEstaoAbertas();
 
 
-            if (!gameOver && memorando == 0)
+            if (!gameOver && memorando == 0 && !promocao)
             {
-                atualizarCartas();
+                if (atualizarCartas())
+                {
+                    periodo =
+                        (periodo + 1) % TOTAL_PERIODOS;
+
+                    fundoAtual =
+                        fundosCargos[obterCargo()][periodo];
+                }
             }
 
 
@@ -2390,6 +2562,95 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                     false;
             }
         }
+        }
+
+
+        // ======================================================
+        // INTERAÇÃO COM A MESA (cenario Junior)
+        // ======================================================
+        if (cenarioJunior && !selecaoCenarios)
+        {
+            Rectangle areaMesaJunior =
+            {
+                mesaJunior.colisao.x - 60,
+                mesaJunior.colisao.y - 40,
+                mesaJunior.colisao.width + 120,
+                mesaJunior.colisao.height + 120
+            };
+
+
+            if (
+                CheckCollisionRecs(
+                    colisaoMesaBoneco_Boneco,
+                    areaMesaJunior
+                )
+            )
+            {
+                const char *textoMesa =
+                    "Pressione E para acessar os outros cargos";
+
+
+                int larguraTextoMesa =
+                    MeasureText(textoMesa, 20);
+
+
+                DrawRectangle(
+                    (larguraResolucao - larguraTextoMesa) / 2 - 15,
+                    205,
+                    larguraTextoMesa + 30,
+                    36,
+                    Fade(BLACK, 0.65f)
+                );
+
+
+                DrawText(
+                    textoMesa,
+                    (larguraResolucao - larguraTextoMesa) / 2,
+                    214,
+                    20,
+                    GREEN
+                );
+
+
+                if (IsKeyPressed(KEY_E))
+                {
+                    selecaoCenarios = true;
+                }
+            }
+        }
+        else if (modoCarreira && !cenarioJunior && !selecaoCenarios)
+        {
+            const char *textoVoltar =
+                "Pressione E para voltar a selecao de cargos";
+
+
+            int larguraTextoVoltar =
+                MeasureText(textoVoltar, 18);
+
+
+            DrawRectangle(
+                (larguraResolucao - larguraTextoVoltar) / 2 - 12,
+                670,
+                larguraTextoVoltar + 24,
+                30,
+                Fade(BLACK, 0.55f)
+            );
+
+
+            DrawText(
+                textoVoltar,
+                (larguraResolucao - larguraTextoVoltar) / 2,
+                676,
+                18,
+                LIGHTGRAY
+            );
+
+
+            if (IsKeyPressed(KEY_E))
+            {
+                selecaoCenarios = true;
+            }
+        }
 
 
 // ======================================================
@@ -2419,48 +2680,157 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             passoNovosNpcs = (passoNovosNpcs + 1) % 16;
         }
 
-        DrawTexture(tapete, 112, 330, WHITE);   // tapete no chao, antes dos moveis
-
-        for (int i = 0; i < quantidadeObjetos; i++)
+        // A mobília e os NPCs pertencem ao escritório do Estagiário.
+        if (obterCargo() == 0)
         {
+            DrawTexture(tapete, 112, 330, WHITE);   // tapete no chao, antes dos moveis
 
-            if (i == 17)   // aquario com peixe
+            for (int i = 0; i < quantidadeObjetos; i++)
             {
-                int quadroAquario = (int)(GetTime() / 0.2) % 8;
-                DrawTexture(aquarioPeixe[quadroAquario], objetos[17].x, objetos[17].y, WHITE);
-                continue;
-            }
 
-            if (i == 14 || i == 15)
-            {
-                continue;
-            }
-
-
-            if (i == 2)   // bebedouro com bolhas
-            {
-                int quadroBolha = 0;
-                if (tempoBolhas >= esperaBolhas)
+                if (i == 17)   // aquario com peixe
                 {
-                    quadroBolha = 1 + (int)((tempoBolhas - esperaBolhas) / 0.15f);   // cada quadro dura 0,15s
-                    if (quadroBolha > 4)
-                    {
-                        quadroBolha = 0;
-                        tempoBolhas = 0.0f;
-                        esperaBolhas = GetRandomValue(20, 50) / 10.0f;   // próxima bolha entre 2 e 5s
-                    }
+                    int quadroAquario = (int)(GetTime() / 0.2) % 8;
+                    DrawTexture(aquarioPeixe[quadroAquario], objetos[17].x, objetos[17].y, WHITE);
+                    continue;
                 }
-                DrawTexture(bebedouroBolhas[quadroBolha], objetos[2].x, objetos[2].y, WHITE);
+
+                if (i == 14 || i == 15)
+                {
+                    continue;
+                }
+
+
+                if (i == 2)   // bebedouro com bolhas
+                {
+                    int quadroBolha = 0;
+                    if (tempoBolhas >= esperaBolhas)
+                    {
+                        quadroBolha = 1 + (int)((tempoBolhas - esperaBolhas) / 0.15f);   // cada quadro dura 0,15s
+                        if (quadroBolha > 4)
+                        {
+                            quadroBolha = 0;
+                            tempoBolhas = 0.0f;
+                            esperaBolhas = GetRandomValue(20, 50) / 10.0f;   // próxima bolha entre 2 e 5s
+                        }
+                    }
+                    DrawTexture(bebedouroBolhas[quadroBolha], objetos[2].x, objetos[2].y, WHITE);
+                }
+                else if (i == 12)   // mulher digitando
+                {
+                    DrawTexture(npcMulher[sequenciaMulher[passoNovosNpcs % 4]],
+                                objetos[12].x, objetos[12].y, WHITE);
+                }
+                else if (i == 7)   // NPC da frente (o PNG dele é deslocado meio pixel da arte pra direita/baixo)
+                {
+                    DrawTextureV(npcFrente[sequenciaFrente[passoNovosNpcs % 16]],
+                                 (Vector2){objetos[7].x - 2.5f, objetos[7].y - 2.5f}, WHITE);
+                }
+                else if (i == 13)
+                {
+                    DrawTexture(
+                        objetos[13 + frameNpc].textura,
+                        objetos[13].x,
+                        objetos[13].y,
+                        WHITE
+                    );
+                }
+                else
+                {
+                    DrawTexture(
+                        objetos[i].textura,
+                        objetos[i].x,
+                        objetos[i].y,
+                        WHITE
+                    );
+                }
             }
-            else if (i == 12)   // mulher digitando
+        }
+
+        // ======================================================
+        // PERSONAGEM / MESA DO CENARIO JUNIOR
+        // ======================================================
+        bool mesaAtrasDoJogador =
+            false;
+
+        if (modoCarreira && cenarioJunior)
+        {
+            float posicaoPesJogador =
+                colisaoMesaBoneco_Boneco.y +
+                colisaoMesaBoneco_Boneco.height;
+
+            mesaAtrasDoJogador =
+                posicaoPesJogador <
+                (
+                    mesaJunior.colisao.y +
+                    mesaJunior.colisao.height
+                );
+
+            if (!mesaAtrasDoJogador)
             {
-                DrawTexture(npcMulher[sequenciaMulher[passoNovosNpcs % 4]],
-                            objetos[12].x, objetos[12].y, WHITE);
+                DrawTexture(
+                    mesaJunior.textura,
+                    mesaJunior.x,
+                    mesaJunior.y,
+                    WHITE
+                );
             }
-            else if (i == 7)   // NPC da frente (o PNG dele é deslocado meio pixel da arte pra direita/baixo)
+        }
+
+
+        if (!modoCarreira || cenarioJunior)
+        {
+            DrawTexture(
+                texturaAtual,
+                x,
+                y,
+                WHITE
+            );
+        }
+
+
+        if (modoCarreira && cenarioJunior && mesaAtrasDoJogador)
+        {
+            DrawTexture(
+                mesaJunior.textura,
+                mesaJunior.x,
+                mesaJunior.y,
+                WHITE
+            );
+        }
+
+        texturaAtualGuardada =
+            texturaAtual;
+    // ======================================================
+// MESAS QUE FICAM NA FRENTE DO PERSONAGEM
+// ======================================================
+
+if (obterCargo() == 0)
+{
+    for (int i = 6; i <= 13; i++)
+    {
+        // MESAS SUPERIORES
+        if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
+        {
+            DrawTexture(
+                objetos[i].textura,
+                objetos[i].x,
+                objetos[i].y,
+                WHITE
+            );
+        }
+
+        // MESAS INFERIORES
+        else if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
+        {
+            if (i == 12)
             {
-                DrawTextureV(npcFrente[sequenciaFrente[passoNovosNpcs % 16]],
-                             (Vector2){objetos[7].x - 2.5f, objetos[7].y - 2.5f}, WHITE);
+                DrawTexture(
+                    npcMulher[sequenciaMulher[passoNovosNpcs % 4]],
+                    objetos[12].x,
+                    objetos[12].y,
+                    WHITE
+                );
             }
             else if (i == 13)
             {
@@ -2481,70 +2851,15 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 );
             }
         }
-
-        // ======================================================
-        // PERSONAGEM
-        // ======================================================
-        DrawTexture(
-            texturaAtual,
-            x,
-            y,
-            WHITE
-        );
-    // ======================================================
-// MESAS QUE FICAM NA FRENTE DO PERSONAGEM
-// ======================================================
-
-for (int i = 6; i <= 13; i++)
-{
-    // MESAS SUPERIORES
-    if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
-    {
-        DrawTexture(
-            objetos[i].textura,
-            objetos[i].x,
-            objetos[i].y,
-            WHITE
-        );
-    }
-
-    // MESAS INFERIORES
-    else if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
-    {
-        if (i == 12)
-        {
-            DrawTexture(
-                npcMulher[sequenciaMulher[passoNovosNpcs % 4]],
-                objetos[12].x,
-                objetos[12].y,
-                WHITE
-            );
-        }
-        else if (i == 13)
-        {
-            DrawTexture(
-                objetos[13 + frameNpc].textura,
-                objetos[13].x,
-                objetos[13].y,
-                WHITE
-            );
-        }
-        else
-        {
-            DrawTexture(
-                objetos[i].textura,
-                objetos[i].x,
-                objetos[i].y,
-                WHITE
-            );
-        }
     }
 }
 
 
         // ======================================================
-        // CARTAS
+        // CARTAS / HUD / CONTADOR (somente Estagiario)
         // ======================================================
+        if (!modoCarreira)
+        {
         desenharCartas(
             larguraResolucao,
             alturaResolucao
@@ -2992,6 +3307,253 @@ for (int i = 6; i <= 13; i++)
                 WHITE
             );
         }
+        } // fim do bloco somente Estagiario
+
+
+        // ======================================================
+        // SELECAO DE CENARIOS (pos-promocao)
+        // ======================================================
+        if (modoCarreira && selecaoCenarios)
+        {
+            DrawRectangle(
+                0,
+                0,
+                larguraResolucao,
+                alturaResolucao,
+                Fade(BLACK, 0.65f)
+            );
+
+
+            Rectangle painelSelecao =
+            {
+                340,
+                145,
+                600,
+                440
+            };
+
+
+            DrawRectangleRec(
+                painelSelecao,
+                (Color){24, 26, 40, 245}
+            );
+
+
+            DrawRectangleLinesEx(
+                painelSelecao,
+                2,
+                (Color){120, 200, 170, 255}
+            );
+
+
+            const char *tituloSelecao =
+                "Selecionar cenario";
+
+
+            DrawText(
+                tituloSelecao,
+                (
+                    larguraResolucao -
+                    MeasureText(tituloSelecao, 28)
+                ) / 2,
+                168,
+                28,
+                WHITE
+            );
+
+
+            const char *nomesCenarios[4] =
+            {
+                "Junior (voltar)",
+                "Pleno",
+                "Senior",
+                "Tech Leader"
+            };
+
+
+            Rectangle botoesCenario[4];
+
+
+            for (int i = 0; i < 4; i++)
+            {
+                botoesCenario[i] = (Rectangle){
+                    390,
+                    240 + i * 68,
+                    500,
+                    52
+                };
+            }
+
+
+            Vector2 mouseTela =
+                GetMousePosition();
+
+
+            Vector2 mouseVirtual =
+            {
+                (mouseTela.x - offsetX) / escala,
+                (mouseTela.y - offsetY) / escala
+            };
+
+
+            bool cliqueSelecao =
+                IsMouseButtonPressed(
+                    MOUSE_LEFT_BUTTON
+                );
+
+
+            int escolhaCenario =
+                -1;
+
+
+            for (int i = 0; i < 4; i++)
+            {
+                bool mouseSobre =
+                    CheckCollisionPointRec(
+                        mouseVirtual,
+                        botoesCenario[i]
+                    );
+
+
+                bool selecionado =
+                    cenarioVisual == i;
+
+
+                Color corBotao =
+                    selecionado ?
+                    (Color){52, 110, 92, 255} :
+                    (Color){44, 48, 66, 255};
+
+
+                if (mouseSobre)
+                {
+                    corBotao =
+                        (Color){64, 76, 98, 255};
+                }
+
+
+                DrawRectangleRec(
+                    botoesCenario[i],
+                    corBotao
+                );
+
+
+                DrawRectangleLinesEx(
+                    botoesCenario[i],
+                    1,
+                    selecionado ?
+                    (Color){120, 220, 170, 255} :
+                    (Color){95, 102, 125, 255}
+                );
+
+
+                const char *textoBotao =
+                    TextFormat(
+                        "%d - %s",
+                        i + 1,
+                        nomesCenarios[i]
+                    );
+
+
+                DrawText(
+                    textoBotao,
+                    botoesCenario[i].x + 20,
+                    botoesCenario[i].y +
+                    (
+                        botoesCenario[i].height -
+                        22
+                    ) / 2,
+                    22,
+                    WHITE
+                );
+
+
+                if (
+                    cliqueSelecao &&
+                    mouseSobre
+                )
+                {
+                    escolhaCenario =
+                        i;
+                }
+            }
+
+
+            const char *dicaSelecao =
+                "Use 1 a 4 ou o mouse. ESC fecha.";
+
+
+            DrawText(
+                dicaSelecao,
+                (
+                    larguraResolucao -
+                    MeasureText(dicaSelecao, 18)
+                ) / 2,
+                548,
+                18,
+                LIGHTGRAY
+            );
+
+
+            if (IsKeyPressed(KEY_ONE))
+                escolhaCenario = 0;
+
+            if (IsKeyPressed(KEY_TWO))
+                escolhaCenario = 1;
+
+            if (IsKeyPressed(KEY_THREE))
+                escolhaCenario = 2;
+
+            if (IsKeyPressed(KEY_FOUR))
+                escolhaCenario = 3;
+
+
+            if (IsKeyPressed(KEY_ESCAPE))
+                selecaoCenarios = false;
+
+
+            if (escolhaCenario >= 0)
+            {
+                cenarioVisual =
+                    escolhaCenario;
+
+                selecaoCenarios =
+                    false;
+
+                periodo =
+                    PERIODO_NOITE;
+
+                fundoAtual =
+                    fundosCargos[
+                        cenarioVisual + 1
+                    ][PERIODO_NOITE];
+            }
+        }
+
+
+        // ======================================================
+        // TELA DE PROMOÇÃO
+        // ======================================================
+        if (promocaoPendente())
+        {
+            DrawTexture(
+                telaPromocao,
+                0,
+                0,
+                WHITE
+            );
+
+            const char *dicaPromocao =
+                "Pressione ENTER para continuar";
+
+            DrawText(
+                dicaPromocao,
+                (larguraResolucao - MeasureText(dicaPromocao, 20)) / 2,
+                alturaResolucao - 30,
+                20,
+                WHITE
+            );
+        }
 
         EndTextureMode();
 
@@ -3375,6 +3937,14 @@ for (int i = 6; i <= 13; i++)
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+
+    periodo = PERIODO_NOITE;
+
+    fundoAtual =
+        fundosCargos[0][periodo];
+
+    cenarioVisual = 0;
+    selecaoCenarios = false;
 }
 
 
@@ -3418,6 +3988,14 @@ for (int i = 6; i <= 13; i++)
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+
+    periodo = PERIODO_NOITE;
+
+    fundoAtual =
+        fundosCargos[0][periodo];
+
+    cenarioVisual = 0;
+    selecaoCenarios = false;
 }
             }
         // reiniciarPartidaSeNecessario();
@@ -3444,6 +4022,10 @@ for (int i = 6; i <= 13; i++)
             objetos[i].textura
         );
     }
+
+    UnloadTexture(
+        mesaJunior.textura
+    );
 
     // novos NPCs animados e bebedouro
     for (int k = 0; k < 3; k++) UnloadTexture(npcMulher[k]);
@@ -3485,10 +4067,16 @@ for (int i = 6; i <= 13; i++)
     UnloadTexture(painelFimExpediente);
     UnloadTexture(telaAuditoria);
     UnloadTexture(telaAuditoriaFim);
+    UnloadTexture(telaPromocao);
 
     UnloadTexture(logoInicio);
     UnloadTexture(fundoCarta);
-    UnloadTexture(fundoCeramica);
+
+    for (int i = 0; i < 5; i++)
+    {
+        for (int p = 0; p < TOTAL_PERIODOS; p++)
+            UnloadTexture(fundosCargos[i][p]);
+    }
 
     UnloadTexture(confianca);
     UnloadTexture(lucro);
