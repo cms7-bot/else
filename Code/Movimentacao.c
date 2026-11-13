@@ -14,10 +14,16 @@ bool cartasEstaoAbertas(void);
 void definirOrigemCartas(int origem);
 void descarregarCartas(void);
 
+   void InicializarBancoPerguntas(void);   // protótipos no topo
+   void CarregarTexturasCartas(void);
+
+
 const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
 const char *nomeCargo(void);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
+
+
 
 
 // ==========================================================
@@ -84,6 +90,9 @@ int main()
         alturaResolucao,
         "else"
     );
+InicializarBancoPerguntas();
+   CarregarTexturasCartas();
+
 
     SetExitKey(KEY_NULL);
 
@@ -2494,7 +2503,7 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
     // ======================================================
 // MESAS QUE FICAM NA FRENTE DO PERSONAGEM
 // ======================================================
-
+ 
 for (int i = 6; i <= 13; i++)
 {
     // MESAS SUPERIORES

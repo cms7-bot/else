@@ -24,6 +24,11 @@ typedef struct Evento
     const char *texto;
     const char *esquerda;
     const char *direita;
+
+    Texture2D situacao;
+    Texture2D opcaoEsquerda;
+    Texture2D opcaoDireita;  
+
     float confiancaEsquerda;
     float confiancaDireita;
     float viesEsquerda;
@@ -295,6 +300,9 @@ void sortearNovaCarta()
 // ==========================================================
 // INICIALIZAÇÃO
 // ==========================================================
+static Texture2D teclaAapagada, teclaSapagada, teclaDapagada;
+static Texture2D teclaAacesa,   teclaSacesa,   teclaDacesa;
+static Sound somPapel;
 void iniciarCartas(
     float *confianca,
     float *vies,
@@ -302,6 +310,20 @@ void iniciarCartas(
     float *lucro
 )
 {
+    static bool texturasCarregadas = false;
+    if(!texturasCarregadas){
+    teclaAapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaAapagada.png");
+    teclaSapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaSapagada.png");
+    teclaDapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaDapagada.png");
+
+    teclaAacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaAacesa.png");
+    teclaSacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaSacesa.png");
+    teclaDacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaDacesa.png");
+    somPapel = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroPapel.wav");
+    SetSoundVolume(somPapel, 0.03f);
+    texturasCarregadas = true;
+    }
+
     banco = obterBancoPerguntas(&quantidadeEventos);
 
     confiancaApagado = confianca;
@@ -452,22 +474,61 @@ void escolherDireita()
 // ==========================================================
 // ATUALIZAÇÃO
 // ==========================================================
+
+
+static int cliqueNoS = 1;
+static int cliqueNoD = 0;
+static int cliqueNoA =0;
+
 void atualizarCartas()
 {
+
     if (!cartaAberta)
     {
+        
+
+        
+        
         if (IsKeyPressed(KEY_E))
         {
             sortearNovaCarta();
 
             if (eventoAtual != 0)
                 cartaAberta = true;
+
+            cliqueNoS = 1;
+            cliqueNoD = 0;
+            cliqueNoA = 0;
         }
+
 
         return;
     }
+    else{
+    if(IsKeyPressed(KEY_A)){
+        if (cliqueNoA == 0) PlaySound(somPapel);
 
-    if (IsKeyPressed(KEY_A))
+            cliqueNoA += 1;
+            cliqueNoS = 0;
+            cliqueNoD = 0;
+    }
+    if(IsKeyPressed(KEY_D)){
+        if (cliqueNoD == 0) PlaySound(somPapel);
+            cliqueNoA = 0;
+            cliqueNoS = 0;
+            cliqueNoD += 1;
+    }
+    if(IsKeyPressed(KEY_S)){
+
+            cliqueNoA = 0;
+            cliqueNoS = 1;
+            cliqueNoD = 0;
+    }
+
+
+
+
+    if (cliqueNoA==2)
     {
         escolherEsquerda();
 
@@ -477,7 +538,7 @@ void atualizarCartas()
         return;
     }
 
-    if (IsKeyPressed(KEY_D))
+    if (cliqueNoD==2)
     {
         escolherDireita();
 
@@ -485,7 +546,7 @@ void atualizarCartas()
         eventoAtual = 0;
 
         return;
-    }
+    }}
 }
 
 
@@ -597,6 +658,11 @@ void desenharTextoQuebrado(
 // ==========================================================
 // DESENHO DAS CARTAS
 // ==========================================================
+
+
+
+
+
 void desenharCartas(
     int larguraResolucao,
     int alturaResolucao
@@ -609,126 +675,31 @@ void desenharCartas(
         return;
 
 
-    DrawRectangle(
-        0,
-        0,
-        larguraResolucao,
-        alturaResolucao,
-        Fade(BLACK, 0.65f)
-    );
+    DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f));
+
+    DrawTexture(teclaSapagada,(larguraResolucao - teclaSapagada.width) / 2,(+290) + (alturaResolucao - teclaSapagada.height)/2, WHITE);
+    DrawTexture(teclaAapagada,(-100) + (larguraResolucao - teclaAapagada.width) / 2,(+290) + (alturaResolucao - teclaAapagada.height)/2, WHITE);
+    DrawTexture(teclaDapagada,(+100) + (larguraResolucao - teclaDapagada.width) / 2,(+290) + (alturaResolucao - teclaDapagada.height)/2, WHITE);
+
+    if (cliqueNoS == 1){
+    DrawTexture(eventoAtual ->situacao, (larguraResolucao - eventoAtual ->situacao.width) / 2,(-20) + (alturaResolucao - eventoAtual ->situacao.height)/2, WHITE);
+    DrawTexture(teclaSacesa,(larguraResolucao - teclaSacesa.width) / 2,(+290) + (alturaResolucao - teclaSacesa.height)/2, WHITE);
+    }
 
 
-    int larguraCarta = 540;
-    int alturaCarta = 500;
 
-    int xCarta =
-        (larguraResolucao - larguraCarta) / 2;
+    if (cliqueNoA == 1){
+    DrawTexture(eventoAtual ->opcaoEsquerda, (-100) + (larguraResolucao - eventoAtual ->opcaoEsquerda.width) / 2,(-20) + (alturaResolucao - eventoAtual ->opcaoEsquerda.height)/2, WHITE);
+    DrawTexture(teclaAacesa,(-100) + (larguraResolucao - teclaAacesa.width) / 2,(+290) + (alturaResolucao - teclaAacesa.height)/2, WHITE);
 
-    int yCarta =
-        (alturaResolucao - alturaCarta) / 2;
+    }
 
+    if (cliqueNoD == 1){
+    DrawTexture(eventoAtual ->opcaoDireita, (+100) + (larguraResolucao - eventoAtual ->opcaoDireita.width) / 2,(-20) + (alturaResolucao - eventoAtual ->opcaoDireita.height)/2, WHITE);
+    DrawTexture(teclaDacesa,(+100) + (larguraResolucao - teclaDacesa.width) / 2,(+290) + (alturaResolucao - teclaDacesa.height)/2, WHITE);
+    }
 
-    DrawRectangle(
-        xCarta,
-        yCarta,
-        larguraCarta,
-        alturaCarta,
-        (Color){28, 31, 45, 255}
-    );
-
-    DrawRectangleLines(
-        xCarta,
-        yCarta,
-        larguraCarta,
-        alturaCarta,
-        WHITE
-    );
-
-
-    const char *cargoAtual =
-        nomeCargo();
-
-
-    DrawText(
-        cargoAtual,
-        larguraResolucao / 2 -
-            MeasureText(cargoAtual, 22) / 2,
-        yCarta + 20,
-        22,
-        SKYBLUE
-    );
-
-
-    DrawText(
-        eventoAtual->titulo,
-        larguraResolucao / 2 -
-            MeasureText(
-                eventoAtual->titulo,
-                30
-            ) / 2,
-        yCarta + 60,
-        30,
-        WHITE
-    );
-
-
-    desenharTextoQuebrado(
-        eventoAtual->texto,
-        xCarta + 40,
-        yCarta + 125,
-        larguraCarta - 80,
-        22,
-        WHITE
-    );
-
-
-    DrawText(
-        "A",
-        xCarta + 30,
-        yCarta + alturaCarta - 105,
-        28,
-        SKYBLUE
-    );
-
-
-    DrawText(
-        eventoAtual->esquerda,
-        xCarta - 350,
-        yCarta + alturaCarta - 70,
-        20,
-        LIGHTGRAY
-    );
-
-
-    int larguraDireita =
-        MeasureText(
-            eventoAtual->direita,
-            20
-        );
-
-
-    DrawText(
-        "D",
-        xCarta + larguraCarta - 50,
-        yCarta + alturaCarta - 105,
-        28,
-        SKYBLUE
-    );
-
-
-    DrawText(
-        eventoAtual->direita,
-        xCarta +
-            larguraCarta -
-            larguraDireita +
-            200,
-        yCarta + alturaCarta - 70,
-        20,
-        LIGHTGRAY
-    );
 }
-
-
 // ==========================================================
 // FINALIZAÇÃO
 // ==========================================================
