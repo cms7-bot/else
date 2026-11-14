@@ -11,6 +11,7 @@
                 "Code/BancoPerguntas.c",
                 "Code/Cartas.c",
                 "Code/Regras.c",
+                "Code/MaquinaCafe.c",
                 "-o",
                 "jogo.exe",
                 "-IC:\\msys64\\ucrt64\\include",

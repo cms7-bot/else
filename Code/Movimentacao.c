@@ -21,6 +21,16 @@ const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
 const char *nomeCargo(void);
 int obterCargo(void);
+
+// MAQUINA DE CAFE (MaquinaCafe.c)
+void iniciarMaquinaCafe(void);
+void descarregarMaquinaCafe(void);
+void reiniciarMaquinaCafe(void);
+bool maquinaCafeAberta(void);
+void fecharMaquinaCafe(void);
+void interagirBalcaoCafe(int larguraResolucao);
+void desenharAvisoBalcaoCafe(void);
+void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
 
 
@@ -198,6 +208,10 @@ InicializarBancoPerguntas();
         LoadTexture("cenario/Cenarios/TechLider/CenarioTechDia.png")
     };
 
+    // MAQUINA DE CAFE: carrega as pecas e comeca disponivel
+    iniciarMaquinaCafe();
+    reiniciarMaquinaCafe();
+
 
     #define ELEMENTOS "cenario/elementos_estagiario/"
 
@@ -218,7 +232,7 @@ InicializarBancoPerguntas();
             67,
             91,
             (Rectangle){0, 45, 155, 70},
-            false,
+            true,   // MAQUINA DE CAFE: o balcao agora e interativo
             0
         ),
 
@@ -723,6 +737,7 @@ InicializarBancoPerguntas();
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
 
 
     // ==========================================================
@@ -820,7 +835,11 @@ InicializarBancoPerguntas();
             IsKeyPressed(KEY_ESCAPE)
         )
         {
-            if (instrucoesPausa)
+            if (maquinaCafeAberta())   // MAQUINA DE CAFE: ESC so fecha a maquina
+            {
+                fecharMaquinaCafe();
+            }
+            else if (instrucoesPausa)
             {
                 instrucoesPausa =
                     false;
@@ -1411,6 +1430,7 @@ InicializarBancoPerguntas();
                         &porcentagemPrivacidadeApagado,
                         &porcentagemLucroApagado
                     );
+                    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
                 }
             }
 
@@ -1727,7 +1747,7 @@ InicializarBancoPerguntas();
 
 
         if (
-            !cartaAbertaPararDeAndar &&
+            !cartaAbertaPararDeAndar && !maquinaCafeAberta() &&
             !gameOver
         )
         {
@@ -2026,7 +2046,7 @@ InicializarBancoPerguntas();
 
 
         if (
-            !cartaAbertaPararDeAndar &&
+            !cartaAbertaPararDeAndar && !maquinaCafeAberta() &&
             !botaoAeDapertados &&
             !botaoWeSapertados
         )
@@ -2343,7 +2363,12 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
         }
 
 
-        if (
+        if (objetoPerto == 1)   // MAQUINA DE CAFE: balcao do cafe
+        {
+            if (!gameOver && memorando == 0 && !maquinaCafeAberta())
+                interagirBalcaoCafe(larguraResolucao);
+        }
+        else if (
             objetoPerto >=
             0
         )
@@ -2503,6 +2528,8 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 );
             }
         }
+
+        desenharAvisoBalcaoCafe();   // MAQUINA DE CAFE: "!" em cima do balcao
 
         // ======================================================
         // PERSONAGEM
@@ -3032,6 +3059,9 @@ for (int i = 6; i <= 13; i++)
             );
         }
 
+        // MAQUINA DE CAFE: se estiver aberta, desenha por cima de tudo
+        atualizarDesenharMaquinaCafe(escala, offsetX, offsetY);
+
         EndTextureMode();
 
         
@@ -3414,6 +3444,7 @@ for (int i = 6; i <= 13; i++)
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
 }
 
 
@@ -3457,6 +3488,7 @@ for (int i = 6; i <= 13; i++)
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
 }
             }
         // reiniciarPartidaSeNecessario();
@@ -3531,6 +3563,8 @@ for (int i = 6; i <= 13; i++)
 
     for (int i = 1; i < 5; i++)
         UnloadTexture(fundosCargo[i]);
+
+    descarregarMaquinaCafe();   // MAQUINA DE CAFE
 
     UnloadTexture(confianca);
     UnloadTexture(lucro);
