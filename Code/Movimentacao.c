@@ -20,6 +20,7 @@ void descarregarCartas(void);
 const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
 const char *nomeCargo(void);
+int obterCargo(void);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
 
 
@@ -186,6 +187,16 @@ InicializarBancoPerguntas();
         LoadTexture(
             "cenario/Cenario.png"
         );
+
+    // fundo de cada cargo: 0 Estagiario, 1 Junior, 2 Pleno, 3 Senior, 4 Tech Lider
+    Texture2D fundosCargo[5] =
+    {
+        fundoCeramica,
+        LoadTexture("cenario/Cenarios/Junior/CenarioJuniorDia.png"),
+        LoadTexture("cenario/Cenarios/Pleno/CenarioPlenoDia.png"),
+        LoadTexture("cenario/Cenarios/Senior/CenarioSeniorDia.png"),
+        LoadTexture("cenario/Cenarios/TechLider/CenarioTechDia.png")
+    };
 
 
     #define ELEMENTOS "cenario/elementos_estagiario/"
@@ -2169,8 +2180,13 @@ InicializarBancoPerguntas();
         );
 
 
+        int cargoFundo = obterCargo();
+
+        if (cargoFundo < 0 || cargoFundo > 4 || fundosCargo[cargoFundo].id == 0)
+            cargoFundo = 0;
+
         DrawTexture(
-            fundoCeramica,
+            fundosCargo[cargoFundo],
             0,
             0,
             WHITE
@@ -3512,6 +3528,9 @@ for (int i = 6; i <= 13; i++)
     UnloadTexture(logoInicio);
     UnloadTexture(fundoCarta);
     UnloadTexture(fundoCeramica);
+
+    for (int i = 1; i < 5; i++)
+        UnloadTexture(fundosCargo[i]);
 
     UnloadTexture(confianca);
     UnloadTexture(lucro);
