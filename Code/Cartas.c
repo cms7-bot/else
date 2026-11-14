@@ -66,6 +66,9 @@ static int experiencia = 0;
 // ESTADO DA CARTA
 // ==========================================================
 static bool cartaAberta = false;
+static Sound somConquista,somAplausos;
+static bool mostrarPromocao = false;
+#define CARTAS_PARA_PROMOCAO 7
 
 
 // ==========================================================
@@ -100,7 +103,7 @@ void definirOrigemCartas(int origem)
 
 bool cartasEstaoAbertas()
 {
-    return cartaAberta;
+    return cartaAberta || mostrarPromocao;
 }
 
 
@@ -184,6 +187,16 @@ static void registrarCartaResolvida()
 
     // disparo e saida da auditoria (so vale se o jogo nao acabou)
     avaliarAuditoria();
+
+    if (!partidaTerminou && cartasResolvidasFase == CARTAS_PARA_PROMOCAO){
+        mostrarPromocao = true;
+        PlaySound(somConquista);
+        PlaySound(somAplausos);
+        *confiancaApagado = 0.365f;
+        *viesApagado = 0.365f;
+        *privacidadeApagada = 0.365f;
+        *lucroApagado = 0.365f;
+        }
 }
 
 
@@ -197,6 +210,7 @@ static void reiniciarPartidaSeNecessario()
         diasSobrevividos = 0;
         cartasResolvidasFase = 0;
         partidaTerminou = false;
+        mostrarPromocao = false;
         reiniciarAuditoria();
 
         for (int i = 0; i < 8; i++)
@@ -303,6 +317,14 @@ void sortearNovaCarta()
 static Texture2D teclaAapagada, teclaSapagada, teclaDapagada;
 static Texture2D teclaAacesa,   teclaSacesa,   teclaDacesa;
 static Sound somPapel;
+static Texture2D texPromocao;
+static Texture2D texBotaoContinue;
+static Rectangle areaBotaoContinue = {0, 0, 0, 0};
+static float escalaBotaoContinue = 1.0f;
+#define ESCALA_HOVER_BOTAO 1.1f
+#define PROMOCAO_BOTAO_OFFSET_Y 250
+#define ESCALA_BASE_BOTAO 0.5f
+#define PROMOCAO_BOTAO_OFFSET_Y 270
 void iniciarCartas(
     float *confianca,
     float *vies,
@@ -321,6 +343,10 @@ void iniciarCartas(
     teclaDacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaDacesa.png");
     somPapel = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroPapel.wav");
     SetSoundVolume(somPapel, 0.03f);
+    somConquista = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroConquista.wav");
+    somAplausos = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroAplausos.wav");
+    texPromocao = LoadTexture("C:/Users/Pierre/Documents/else-main/HUD/Promocao.png");
+    texBotaoContinue = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/BotaoContinue.png");
     texturasCarregadas = true;
     }
 
@@ -368,6 +394,8 @@ void iniciarCartas(
     diasSobrevividos = 0;
     cartasResolvidasFase = 0;
     partidaTerminou = false;
+    mostrarPromocao = false;
+    escalaBotaoContinue = 1.0f;
     reiniciarAuditoria();
 
     for (int i = 0; i < 8; i++)
@@ -482,6 +510,23 @@ static int cliqueNoA =0;
 
 void atualizarCartas()
 {
+    if (mostrarPromocao)
+    {
+        Vector2 mouse = GetMousePosition();
+        bool sobreBotao = CheckCollisionPointRec(mouse, areaBotaoContinue);
+
+        // animação suave: o botão cresce ao passar o mouse e volta ao tamanho normal ao sair
+        float alvo = sobreBotao ? ESCALA_HOVER_BOTAO : 1.0f;
+        escalaBotaoContinue += (alvo - escalaBotaoContinue) * 0.2f;
+
+        if (sobreBotao && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            mostrarPromocao = false;
+            escalaBotaoContinue = 1.0f;
+        }
+
+        return;   // trava o resto enquanto a imagem está na tela
+    }
 
     if (!cartaAberta)
     {
@@ -668,6 +713,45 @@ void desenharCartas(
     int alturaResolucao
 )
 {
+    if (mostrarPromocao)
+    {
+        DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f));
+        DrawTexture(
+            texPromocao,
+            (larguraResolucao - texPromocao.width) / 2,
+            (alturaResolucao - texPromocao.height) / 2,
+            WHITE
+        );
+
+        // área clicável do botão (tamanho base reduzido, centralizado, abaixo da promoção)
+        float larguraBotao = texBotaoContinue.width * ESCALA_BASE_BOTAO;
+        float alturaBotao = texBotaoContinue.height * ESCALA_BASE_BOTAO;
+        float centroX = larguraResolucao / 2.0f;
+        float centroY = alturaResolucao / 2.0f + PROMOCAO_BOTAO_OFFSET_Y;
+
+        areaBotaoContinue.x = centroX - larguraBotao / 2.0f;
+        areaBotaoContinue.y = centroY - alturaBotao / 2.0f;
+        areaBotaoContinue.width = larguraBotao;
+        areaBotaoContinue.height = alturaBotao;
+
+        // desenho com escala (cresce a partir do centro ao passar o mouse)
+        Rectangle origem = {0, 0, (float)texBotaoContinue.width, (float)texBotaoContinue.height};
+        Rectangle destino = {
+            centroX,
+            centroY,
+            larguraBotao * escalaBotaoContinue,
+            alturaBotao * escalaBotaoContinue
+        };
+        Vector2 pivo = {
+            destino.width / 2.0f,
+            destino.height / 2.0f
+        };
+
+        DrawTexturePro(texBotaoContinue, origem, destino, pivo, 0.0f, WHITE);
+
+        return;
+    }
+
     if (
         !cartaAberta ||
         eventoAtual == 0

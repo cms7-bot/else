@@ -13,7 +13,6 @@ void desenharCartas(int larguraResolucao, int alturaResolucao);
 bool cartasEstaoAbertas(void);
 void definirOrigemCartas(int origem);
 void descarregarCartas(void);
-
    void InicializarBancoPerguntas(void);   // protótipos no topo
    void CarregarTexturasCartas(void);
 
@@ -2433,10 +2432,8 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
         for (int i = 0; i < quantidadeObjetos; i++)
         {
 
-            if (i == 17)   // aquario com peixe
+            if (i == 17)   // aquario com peixe: desenhado depois do personagem (fica por cima dele)
             {
-                int quadroAquario = (int)(GetTime() / 0.2) % 8;
-                DrawTexture(aquarioPeixe[quadroAquario], objetos[17].x, objetos[17].y, WHITE);
                 continue;
             }
 
@@ -2500,6 +2497,12 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             y,
             WHITE
         );
+
+        // aquario com peixe: camada por cima do personagem
+        {
+            int quadroAquario = (int)(GetTime() / 0.2) % 8;
+            DrawTexture(aquarioPeixe[quadroAquario], objetos[17].x, objetos[17].y, WHITE);
+        }
     // ======================================================
 // MESAS QUE FICAM NA FRENTE DO PERSONAGEM
 // ======================================================
@@ -2509,12 +2512,23 @@ for (int i = 6; i <= 13; i++)
     // MESAS SUPERIORES
     if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
     {
-        DrawTexture(
-            objetos[i].textura,
-            objetos[i].x,
-            objetos[i].y,
-            WHITE
-        );
+        if (i == 7)   // mesa com o NPC que pisca: mesmo desenho e deslocamento do primeiro laco
+        {
+            DrawTextureV(
+                npcFrente[sequenciaFrente[passoNovosNpcs % 16]],
+                (Vector2){objetos[7].x - 2.5f, objetos[7].y - 2.5f},
+                WHITE
+            );
+        }
+        else
+        {
+            DrawTexture(
+                objetos[i].textura,
+                objetos[i].x,
+                objetos[i].y,
+                WHITE
+            );
+        }
     }
 
     // MESAS INFERIORES
