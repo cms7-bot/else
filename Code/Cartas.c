@@ -334,19 +334,19 @@ void iniciarCartas(
 {
     static bool texturasCarregadas = false;
     if(!texturasCarregadas){
-    teclaAapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaAapagada.png");
-    teclaSapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaSapagada.png");
-    teclaDapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaDapagada.png");
+    teclaAapagada = LoadTexture("Botoes/teclaAapagada.png");
+    teclaSapagada = LoadTexture("Botoes/teclaSapagada.png");
+    teclaDapagada = LoadTexture("Botoes/teclaDapagada.png");
 
-    teclaAacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaAacesa.png");
-    teclaSacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaSacesa.png");
-    teclaDacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaDacesa.png");
-    somPapel = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroPapel.wav");
+    teclaAacesa = LoadTexture("Botoes/teclaAacesa.png");
+    teclaSacesa = LoadTexture("Botoes/teclaSacesa.png");
+    teclaDacesa = LoadTexture("Botoes/teclaDacesa.png");
+    somPapel = LoadSound("EfeitosSonoros/EfeitoSonoroPapel.wav");
     SetSoundVolume(somPapel, 0.03f);
-    somConquista = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroConquista.wav");
-    somAplausos = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroAplausos.wav");
-    texPromocao = LoadTexture("C:/Users/Pierre/Documents/else-main/HUD/Promocao.png");
-    texBotaoContinue = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/BotaoContinue.png");
+    somConquista = LoadSound("EfeitosSonoros/EfeitoSonoroConquista.wav");
+    somAplausos = LoadSound("EfeitosSonoros/EfeitoSonoroAplausos.wav");
+    texPromocao = LoadTexture("HUD/Promocao.png");
+    texBotaoContinue = LoadTexture("Botoes/BotaoContinue.png");
     texturasCarregadas = true;
     }
 
