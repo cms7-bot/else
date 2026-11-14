@@ -58,8 +58,9 @@ static int origemCartas = 0;
 // ==========================================================
 // CARGO / EXPERIÊNCIA
 // ==========================================================
+// 0 Estagiario, 1 Junior, 2 Pleno, 3 Senior, 4 Tech Lider
 static int cargo = 0;
-static int experiencia = 0;
+#define CARGO_MAXIMO 4
 
 
 // ==========================================================
@@ -83,13 +84,16 @@ static int historico[8] = {-1,-1,-1,-1,-1,-1,-1,-1};
 const char *nomeCargo()
 {
     if (cargo == 0) return "Estagiario";
-    if (cargo == 1) return "Assistente";
-    if (cargo == 2) return "Analista Junior";
-    if (cargo == 3) return "Analista Pleno";
-    if (cargo == 4) return "Analista Senior";
-    if (cargo == 5) return "Supervisor";
+    if (cargo == 1) return "Junior";
+    if (cargo == 2) return "Pleno";
+    if (cargo == 3) return "Senior";
 
-    return "Gerente";
+    return "Tech Lider";
+}
+
+int obterCargo()
+{
+    return cargo;
 }
 
 
@@ -188,7 +192,7 @@ static void registrarCartaResolvida()
     // disparo e saida da auditoria (so vale se o jogo nao acabou)
     avaliarAuditoria();
 
-    if (!partidaTerminou && cartasResolvidasFase == CARTAS_PARA_PROMOCAO){
+    if (!partidaTerminou && cargo < CARGO_MAXIMO && cartasResolvidasFase == CARTAS_PARA_PROMOCAO){
         mostrarPromocao = true;
         PlaySound(somConquista);
         PlaySound(somAplausos);
@@ -209,6 +213,7 @@ static void reiniciarPartidaSeNecessario()
     {
         diasSobrevividos = 0;
         cartasResolvidasFase = 0;
+        cargo = 0;
         partidaTerminou = false;
         mostrarPromocao = false;
         reiniciarAuditoria();
@@ -245,32 +250,45 @@ void adicionarHistorico(int id)
 // ==========================================================
 // PROMOÇÃO
 // ==========================================================
-void verificarPromocao()
+// chamada quando o jogador clica em Continue na tela de promocao
+static void promoverCargo()
 {
-    if (experiencia >= 1700) cargo = 6;
-    else if (experiencia >= 1200) cargo = 5;
-    else if (experiencia >= 800) cargo = 4;
-    else if (experiencia >= 500) cargo = 3;
-    else if (experiencia >= 250) cargo = 2;
-    else if (experiencia >= 100) cargo = 1;
-    else cargo = 0;
+    if (cargo < CARGO_MAXIMO)
+        cargo++;
+
+    cartasResolvidasFase = 0;
 }
 
 
 // ==========================================================
 // SORTEIO DE CARTAS
 // ==========================================================
+
+// Se o cargo atual ainda nao tem cartas para esse lugar (mesa ou
+// impressora), usa as cartas do Estagiario para o jogo nao ficar sem carta.
+static int cargoDasCartas()
+{
+    for (int i = 0; i < quantidadeEventos; i++)
+    {
+        if (banco[i].cargo == cargo && banco[i].origem == origemCartas)
+            return cargo;
+    }
+
+    return 0;
+}
+
 void sortearNovaCarta()
 {
     reiniciarPartidaSeNecessario();
 
+    int cargoBusca = cargoDasCartas();
     int disponiveis[100];
     int quantidadeDisponiveis = 0;
 
     for (int i = 0; i < quantidadeEventos; i++)
     {
         if (
-            banco[i].cargo == cargo &&
+            banco[i].cargo == cargoBusca &&
             banco[i].origem == origemCartas &&
             !eventoFoiRecente(banco[i].id)
         )
@@ -288,7 +306,7 @@ void sortearNovaCarta()
         for (int i = 0; i < quantidadeEventos; i++)
         {
             if (
-                banco[i].cargo == cargo &&
+                banco[i].cargo == cargoBusca &&
                 banco[i].origem == origemCartas
             )
             {
@@ -334,19 +352,19 @@ void iniciarCartas(
 {
     static bool texturasCarregadas = false;
     if(!texturasCarregadas){
-    teclaAapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaAapagada.png");
-    teclaSapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaSapagada.png");
-    teclaDapagada = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaDapagada.png");
+    teclaAapagada = LoadTexture("Botoes/teclaAapagada.png");
+    teclaSapagada = LoadTexture("Botoes/teclaSapagada.png");
+    teclaDapagada = LoadTexture("Botoes/teclaDapagada.png");
 
-    teclaAacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaAacesa.png");
-    teclaSacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaSacesa.png");
-    teclaDacesa = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/teclaDacesa.png");
-    somPapel = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroPapel.wav");
+    teclaAacesa = LoadTexture("Botoes/teclaAacesa.png");
+    teclaSacesa = LoadTexture("Botoes/teclaSacesa.png");
+    teclaDacesa = LoadTexture("Botoes/teclaDacesa.png");
+    somPapel = LoadSound("EfeitosSonoros/EfeitoSonoroPapel.wav");
     SetSoundVolume(somPapel, 0.03f);
-    somConquista = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroConquista.wav");
-    somAplausos = LoadSound("C:/Users/Pierre/Documents/else-main/EfeitosSonoros/EfeitoSonoroAplausos.wav");
-    texPromocao = LoadTexture("C:/Users/Pierre/Documents/else-main/HUD/Promocao.png");
-    texBotaoContinue = LoadTexture("C:/Users/Pierre/Documents/else-main/Botoes/BotaoContinue.png");
+    somConquista = LoadSound("EfeitosSonoros/EfeitoSonoroConquista.wav");
+    somAplausos = LoadSound("EfeitosSonoros/EfeitoSonoroAplausos.wav");
+    texPromocao = LoadTexture("HUD/Promocao.png");
+    texBotaoContinue = LoadTexture("Botoes/BotaoContinue.png");
     texturasCarregadas = true;
     }
 
@@ -393,6 +411,7 @@ void iniciarCartas(
 
     diasSobrevividos = 0;
     cartasResolvidasFase = 0;
+    cargo = 0;
     partidaTerminou = false;
     mostrarPromocao = false;
     escalaBotaoContinue = 1.0f;
@@ -447,7 +466,6 @@ void escolherEsquerda()
         *lucroApagado = 0.73f;
 
 
-    verificarPromocao();
     registrarCartaResolvida();
 }
 
@@ -494,7 +512,6 @@ void escolherDireita()
         *lucroApagado = 0.73f;
 
 
-    verificarPromocao();
     registrarCartaResolvida();
 }
 
@@ -523,6 +540,7 @@ void atualizarCartas()
         {
             mostrarPromocao = false;
             escalaBotaoContinue = 1.0f;
+            promoverCargo();
         }
 
         return;   // trava o resto enquanto a imagem está na tela
