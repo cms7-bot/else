@@ -5,6 +5,7 @@
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
 int telaAviso(RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY);
+void desbloquearFinal(int numero);
 
 void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro);
 void atualizarCartas(void);
@@ -12,6 +13,9 @@ void desenharCartas(int larguraResolucao, int alturaResolucao);
 bool cartasEstaoAbertas(void);
 void definirOrigemCartas(int origem);
 void descarregarCartas(void);
+   void InicializarBancoPerguntas(void);   // protótipos no topo
+   void CarregarTexturasCartas(void);
+
 
 const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
@@ -27,6 +31,8 @@ void interagirBalcaoCafe(int larguraResolucao);
 void desenharAvisoBalcaoCafe(void);
 void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
+
+
 
 
 // ==========================================================
@@ -93,6 +99,9 @@ int main()
         alturaResolucao,
         "else"
     );
+InicializarBancoPerguntas();
+   CarregarTexturasCartas();
+
 
     SetExitKey(KEY_NULL);
 
@@ -338,6 +347,26 @@ int main()
             true,
             0
         )
+,
+
+        // CANTINHO DO DESCANSO (objetos 16 e 17)
+        criarObjeto(
+            ELEMENTOS "sofa.png",
+            28,
+            348,
+            (Rectangle){0, 10, 88, 190},
+            false,
+            0
+        ),
+
+        criarObjeto(
+            ELEMENTOS "AquarioPeixe/AquarioPeixe1.png",
+            30,
+            242,
+            (Rectangle){2, 45, 70, 55},
+            false,
+            0
+        )
     };
 
 
@@ -382,6 +411,20 @@ int main()
         bebedouroBolhas[k].width *= 0.5;
         bebedouroBolhas[k].height *= 0.5;
     }
+    // tapete do cantinho: fica no CHAO, sem colisao (desenhado antes dos objetos)
+    Texture2D tapete = LoadTexture(ELEMENTOS "tapete.png");
+    tapete.width *= 0.5;
+    tapete.height *= 0.5;
+
+    // aquario (objeto 17): peixe nadando, 8 quadros
+    Texture2D aquarioPeixe[8];
+    for (int k = 0; k < 8; k++)
+    {
+        aquarioPeixe[k] = LoadTexture(TextFormat(ELEMENTOS "AquarioPeixe/AquarioPeixe%d.png", k + 1));
+        aquarioPeixe[k].width *= 0.5;
+        aquarioPeixe[k].height *= 0.5;
+    }
+
     float tempoBolhas = 0.0f;
     float esperaBolhas = 3.0f;      // segundos parado até a próxima bolha (sorteado de novo a cada vez)
 
@@ -618,6 +661,17 @@ int main()
             "cenario/Telas/painelFimExpediente.png"
         );
 
+    // memorandos da auditoria (entrada e saida)
+    Texture2D telaAuditoria =
+        LoadTexture(
+            "cenario/Telas/telaAuditoria.png"
+        );
+
+    Texture2D telaAuditoriaFim =
+        LoadTexture(
+            "cenario/Telas/telaAuditoriaFim.png"
+        );
+
 
     // ==========================================================
     // ESTADO
@@ -699,6 +753,10 @@ int main()
 
     bool gameOver =
         false;
+
+    // memorando da auditoria na tela: 0 = nenhum, 1 = entrada, 2 = saida
+    int memorando =
+        0;
 
     int k = 0;
 
@@ -1347,6 +1405,9 @@ int main()
 
                     cartaAbertaPararDeAndar =
                         false;
+
+                    memorando =
+                        0;
 
                     abrirCarta =
                         false;
@@ -2141,11 +2202,48 @@ int main()
         // ======================================================
         Rectangle colisaoMesaBoneco_Boneco =
         {
-            x,
-            y,
-            frente1.width,
-            frente1.height
+            x + frente1.width * 0.25f,
+            y + frente1.height * 0.80f,
+            frente1.width * 0.50f,
+            frente1.height * 0.18f
         };
+
+        Rectangle colisaoCadeiras[8] =
+        {
+   
+            {480, 283, 42, 21},
+            {619, 283, 42, 21},
+            {879, 283, 42, 21},
+            {1025, 283, 42, 21},
+
+          
+            {481, 581, 47, 55},
+            {627, 580, 51, 55},
+            {886, 582, 63, 54},
+            {1046, 584, 48, 57}
+        };
+
+
+
+// POSIÇÃO DOS PÉS DO PERSONAGM
+float posicaoPes = colisaoMesaBoneco_Boneco.y +
+                   colisaoMesaBoneco_Boneco.height;
+
+// QUATRO CONDIÇÕES DE PROFUNIDADE
+
+// Mesas superiores
+bool mesaSuperiorAntesPersonagem =
+    posicaoPes >= objetos[6].colisao.y;
+
+bool mesaSuperiorDepoisPersonagem =
+    posicaoPes < objetos[6].colisao.y;
+
+// Mesas inferiores
+bool mesaInferiorAntesPersonagem =
+    posicaoPes >= objetos[10].colisao.y;
+
+bool mesaInferiorDepoisPersonagem =
+    posicaoPes < objetos[10].colisao.y;
 
 
         for (
@@ -2154,6 +2252,18 @@ int main()
             i++
         )
         {
+
+// VERIFICA SE A MESA DEVE SER DESENHADA DEPOIS DO PERSONAGEM
+
+if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
+{
+    continue;
+}
+
+if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
+{
+    continue;
+}
             if (
                 CheckCollisionRecs(
                     colisaoMesaBoneco_Boneco,
@@ -2172,6 +2282,21 @@ int main()
                 y =
                     yGuardado;
 
+
+                break;
+            }
+        }
+        for (int i = 0; i < 8; i++)
+        {
+            if (CheckCollisionRecs(
+                colisaoMesaBoneco_Boneco,
+                colisaoCadeiras[i]
+            ))
+            {
+                mensagem = true;
+
+                x = xGuardado;
+                y = yGuardado;
 
                 break;
             }
@@ -2253,7 +2378,7 @@ int main()
                 cartasEstaoAbertas();
 
 
-            if (!gameOver)
+            if (!gameOver && memorando == 0)
             {
                 atualizarCartas();
             }
@@ -2266,12 +2391,40 @@ int main()
             cartaAbertaPararDeAndar =
                 cartaEstavaAberta ||
                 cartaAgoraAberta;
+
+
+            // AUDITORIA: se a carta que acabou de ser resolvida disparou
+            // ou encerrou a auditoria, mostra o memorando
+            int eventoAuditoria =
+                consumirEventoAuditoria();
+
+            if (eventoAuditoria != 0)
+                memorando =
+                    eventoAuditoria;
         }
 
 
-        // ======================================================
-        // OBJETOS
-        // ======================================================
+        // Com o memorando na tela o jogador nao anda nem abre cartas.
+        // ENTER ou ESPACO fecham (o E abriria outra carta).
+        if (memorando != 0)
+        {
+            cartaAbertaPararDeAndar =
+                true;
+
+            if (
+                IsKeyPressed(KEY_ENTER) ||
+                IsKeyPressed(KEY_SPACE)
+            )
+            {
+                memorando =
+                    0;
+
+                cartaAbertaPararDeAndar =
+                    false;
+            }
+        }
+
+
 // ======================================================
 // OBJETOS
 // ======================================================
@@ -2299,8 +2452,15 @@ int main()
             passoNovosNpcs = (passoNovosNpcs + 1) % 16;
         }
 
+        DrawTexture(tapete, 112, 330, WHITE);   // tapete no chao, antes dos moveis
+
         for (int i = 0; i < quantidadeObjetos; i++)
         {
+
+            if (i == 17)   // aquario com peixe: desenhado depois do personagem (fica por cima dele)
+            {
+                continue;
+            }
 
             if (i == 14 || i == 15)
             {
@@ -2364,6 +2524,72 @@ int main()
             y,
             WHITE
         );
+
+        // aquario com peixe: camada por cima do personagem
+        {
+            int quadroAquario = (int)(GetTime() / 0.2) % 8;
+            DrawTexture(aquarioPeixe[quadroAquario], objetos[17].x, objetos[17].y, WHITE);
+        }
+    // ======================================================
+// MESAS QUE FICAM NA FRENTE DO PERSONAGEM
+// ======================================================
+ 
+for (int i = 6; i <= 13; i++)
+{
+    // MESAS SUPERIORES
+    if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
+    {
+        if (i == 7)   // mesa com o NPC que pisca: mesmo desenho e deslocamento do primeiro laco
+        {
+            DrawTextureV(
+                npcFrente[sequenciaFrente[passoNovosNpcs % 16]],
+                (Vector2){objetos[7].x - 2.5f, objetos[7].y - 2.5f},
+                WHITE
+            );
+        }
+        else
+        {
+            DrawTexture(
+                objetos[i].textura,
+                objetos[i].x,
+                objetos[i].y,
+                WHITE
+            );
+        }
+    }
+
+    // MESAS INFERIORES
+    else if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
+    {
+        if (i == 12)
+        {
+            DrawTexture(
+                npcMulher[sequenciaMulher[passoNovosNpcs % 4]],
+                objetos[12].x,
+                objetos[12].y,
+                WHITE
+            );
+        }
+        else if (i == 13)
+        {
+            DrawTexture(
+                objetos[13 + frameNpc].textura,
+                objetos[13].x,
+                objetos[13].y,
+                WHITE
+            );
+        }
+        else
+        {
+            DrawTexture(
+                objetos[i].textura,
+                objetos[i].x,
+                objetos[i].y,
+                WHITE
+            );
+        }
+    }
+}
 
 
         // ======================================================
@@ -2777,6 +3003,46 @@ int main()
                      tamanhoDias, (Color){198, 183, 255, 255});
         }
 
+        // ======================================================
+        // MEMORANDO DA AUDITORIA
+        // ======================================================
+        if (memorando != 0)
+        {
+            Texture2D memo =
+                (memorando == 1) ?
+                telaAuditoria :
+                telaAuditoriaFim;
+
+            DrawRectangle(
+                0,
+                0,
+                larguraResolucao,
+                alturaResolucao,
+                Fade(
+                    BLACK,
+                    0.65f
+                )
+            );
+
+            DrawTexture(
+                memo,
+                (larguraResolucao - memo.width) / 2,
+                (alturaResolucao - memo.height) / 2,
+                WHITE
+            );
+
+            const char *dicaMemorando =
+                "Pressione ENTER para continuar";
+
+            DrawText(
+                dicaMemorando,
+                (larguraResolucao - MeasureText(dicaMemorando, 20)) / 2,
+                alturaResolucao - 30,
+                20,
+                WHITE
+            );
+        }
+
         // MAQUINA DE CAFE: se estiver aberta, desenha por cima de tudo
         atualizarDesenharMaquinaCafe(escala, offsetX, offsetY);
 
@@ -2839,6 +3105,11 @@ int main()
             {
                 PlayMusicStream(
                     gameOverSom
+                );
+
+                // FINAIS: grava o final que aconteceu (1 a 8) no save
+                desbloquearFinal(
+                    obterFinalDerrota()
                 );
 
                 k =
@@ -3148,6 +3419,7 @@ int main()
     tempo = 0;
 
     cartaAbertaPararDeAndar = false;
+    memorando = 0;
     abrirCarta = false;
 
     iniciarCartas(
@@ -3191,6 +3463,7 @@ int main()
     tempo = 0;
 
     cartaAbertaPararDeAndar = false;
+    memorando = 0;
     abrirCarta = false;
 
     iniciarCartas(
@@ -3232,6 +3505,8 @@ int main()
     for (int k = 0; k < 2; k++) UnloadTexture(npcFrente[k]);
     for (int k = 0; k < 5; k++) UnloadTexture(bebedouroBolhas[k]);
     descarregarMaquinaCafe();   // MAQUINA DE CAFE
+    for (int k = 0; k < 8; k++) UnloadTexture(aquarioPeixe[k]);
+    UnloadTexture(tapete);
 
 
     UnloadTexture(costas1);
@@ -3264,6 +3539,8 @@ int main()
     UnloadTexture(telaInstrucoesPausa);
 
     UnloadTexture(painelFimExpediente);
+    UnloadTexture(telaAuditoria);
+    UnloadTexture(telaAuditoriaFim);
 
     UnloadTexture(logoInicio);
     UnloadTexture(fundoCarta);

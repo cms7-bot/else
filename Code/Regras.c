@@ -16,6 +16,12 @@ int obterCartasResolvidasFase(void);
 #define FAIXA_SEGURA_MAXIMA 70
 #define CARTAS_PARA_EXPERIENCIA 8
 
+// Auditoria: quanto cada carta tira de Confianca enquanto ela durar (em pontos, 0 a 100)
+#define PENALIDADE_AUDITORIA 5
+
+// 1 ponto do medidor = 0.0073 na barra apagada (0.73 / 100)
+#define PONTO_NA_BARRA 0.0073f
+
 
 // ==========================================================
 // PONTEIRO DO MEDIDOR
@@ -234,9 +240,19 @@ bool experienciaSuficiente()
 
 
 // ==========================================================
-// AUDITORIA
+// AUDITORIA (relatorio de LMC, secoes 5.3 e 6.2)
+//
+//   r <-> (p ^ v ^ ~a)   a auditoria dispara quando Privacidade < 30
+//                        E Vies > 70 e nao ha outra em andamento
+//   a -> C-              enquanto durar, cada carta tira Confianca
+//   ~(p v v)             sai quando os DOIS voltam a faixa segura
+//                        (De Morgan: ~(p v v) == ~p ^ ~v)
 // ==========================================================
 static bool auditoriaAtiva = false;
+
+// Aviso para a tela mostrar o memorando:
+// 0 = nada, 1 = a auditoria comecou, 2 = a auditoria terminou
+static int eventoAuditoria = 0;
 
 
 void definirAuditoriaEmAndamento(bool ativa)
@@ -248,6 +264,82 @@ void definirAuditoriaEmAndamento(bool ativa)
 bool auditoriaEmAndamento()
 {
     return auditoriaAtiva;
+}
+
+
+// Nova partida: sem auditoria e sem memorando pendente
+void reiniciarAuditoria()
+{
+    auditoriaAtiva = false;
+    eventoAuditoria = 0;
+}
+
+
+// r <-> (p ^ v ^ ~a)
+bool auditoriaDisparada()
+{
+    return
+        privacidadeEmRisco() &&
+        viesEmRisco() &&
+        !auditoriaEmAndamento();
+}
+
+
+// condicao de saida: ~(p v v)
+bool auditoriaPodeEncerrar()
+{
+    return
+        !(
+            privacidadeEmRisco() ||
+            viesEmRisco()
+        );
+}
+
+
+// a -> C-  (somada ao efeito da carta, nunca passa de 0 pontos)
+void aplicarPenalidadeAuditoria()
+{
+    if (!auditoriaEmAndamento() || confiancaApagado == 0)
+        return;
+
+    *confiancaApagado +=
+        PENALIDADE_AUDITORIA * PONTO_NA_BARRA;
+
+    if (*confiancaApagado >= (float)LIMITE_APAGADO_MAXIMO)
+        *confiancaApagado = (float)LIMITE_APAGADO_MAXIMO;
+}
+
+
+// Chamada depois de cada carta (ordem do relatorio, secao 6.2):
+// 1) se o jogo acabou (g), a auditoria nao muda mais nada;
+// 2) avalia a saida ~(p v v); 3) avalia o disparo r.
+void avaliarAuditoria()
+{
+    if (regraGameOver())
+        return;
+
+    if (auditoriaEmAndamento() && auditoriaPodeEncerrar())
+    {
+        auditoriaAtiva = false;
+        eventoAuditoria = 2;
+    }
+
+    if (auditoriaDisparada())
+    {
+        auditoriaAtiva = true;
+        eventoAuditoria = 1;
+    }
+}
+
+
+// Devolve o aviso pendente (1 = comecou, 2 = terminou) e limpa
+int consumirEventoAuditoria()
+{
+    int evento = eventoAuditoria;
+
+    eventoAuditoria = 0;
+
+    return evento;
 }
 
 
