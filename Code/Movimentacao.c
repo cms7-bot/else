@@ -20,6 +20,16 @@ void descarregarCartas(void);
 const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
 const char *nomeCargo(void);
+
+// MAQUINA DE CAFE (MaquinaCafe.c)
+void iniciarMaquinaCafe(void);
+void descarregarMaquinaCafe(void);
+void reiniciarMaquinaCafe(void);
+bool maquinaCafeAberta(void);
+void fecharMaquinaCafe(void);
+void interagirBalcaoCafe(int larguraResolucao);
+void desenharAvisoBalcaoCafe(void);
+void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
 
 
@@ -207,7 +217,7 @@ InicializarBancoPerguntas();
             67,
             91,
             (Rectangle){0, 45, 155, 70},
-            false,
+            true,   // MAQUINA DE CAFE: o balcão agora é interativo
             0
         ),
 
@@ -420,6 +430,10 @@ InicializarBancoPerguntas();
 
     float tempoNovosNpcs = 0.0f;
     int passoNovosNpcs = 0;
+
+    // MAQUINA DE CAFE: carrega as peças e começa disponível
+    iniciarMaquinaCafe();
+    reiniciarMaquinaCafe();
 
     Texture2D logoInicio =
         LoadTexture(
@@ -712,6 +726,7 @@ InicializarBancoPerguntas();
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
 
 
     // ==========================================================
@@ -809,7 +824,11 @@ InicializarBancoPerguntas();
             IsKeyPressed(KEY_ESCAPE)
         )
         {
-            if (instrucoesPausa)
+            if (maquinaCafeAberta())   // MAQUINA DE CAFE: ESC só fecha a máquina
+            {
+                fecharMaquinaCafe();
+            }
+            else if (instrucoesPausa)
             {
                 instrucoesPausa =
                     false;
@@ -1400,6 +1419,7 @@ InicializarBancoPerguntas();
                         &porcentagemPrivacidadeApagado,
                         &porcentagemLucroApagado
                     );
+                    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
                 }
             }
 
@@ -1716,7 +1736,7 @@ InicializarBancoPerguntas();
 
 
         if (
-            !cartaAbertaPararDeAndar &&
+            !cartaAbertaPararDeAndar && !maquinaCafeAberta() &&
             !gameOver
         )
         {
@@ -2015,7 +2035,7 @@ InicializarBancoPerguntas();
 
 
         if (
-            !cartaAbertaPararDeAndar &&
+            !cartaAbertaPararDeAndar && !maquinaCafeAberta() &&
             !botaoAeDapertados &&
             !botaoWeSapertados
         )
@@ -2327,7 +2347,12 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
         }
 
 
-        if (
+        if (objetoPerto == 1)   // MAQUINA DE CAFE: balcão do café
+        {
+            if (!gameOver && !maquinaCafeAberta())
+                interagirBalcaoCafe(larguraResolucao);
+        }
+        else if (
             objetoPerto >=
             0
         )
@@ -2487,6 +2512,8 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 );
             }
         }
+
+        desenharAvisoBalcaoCafe();   // MAQUINA DE CAFE: "!" em cima do balcão
 
         // ======================================================
         // PERSONAGEM
@@ -3016,6 +3043,9 @@ for (int i = 6; i <= 13; i++)
             );
         }
 
+        // MAQUINA DE CAFE: se estiver aberta, desenha por cima de tudo
+        atualizarDesenharMaquinaCafe(escala, offsetX, offsetY);
+
         EndTextureMode();
 
         
@@ -3398,6 +3428,7 @@ for (int i = 6; i <= 13; i++)
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
 }
 
 
@@ -3441,6 +3472,7 @@ for (int i = 6; i <= 13; i++)
         &porcentagemPrivacidadeApagado,
         &porcentagemLucroApagado
     );
+    reiniciarMaquinaCafe();   // MAQUINA DE CAFE
 }
             }
         // reiniciarPartidaSeNecessario();
@@ -3472,6 +3504,7 @@ for (int i = 6; i <= 13; i++)
     for (int k = 0; k < 3; k++) UnloadTexture(npcMulher[k]);
     for (int k = 0; k < 2; k++) UnloadTexture(npcFrente[k]);
     for (int k = 0; k < 5; k++) UnloadTexture(bebedouroBolhas[k]);
+    descarregarMaquinaCafe();   // MAQUINA DE CAFE
     for (int k = 0; k < 8; k++) UnloadTexture(aquarioPeixe[k]);
     UnloadTexture(tapete);
 
