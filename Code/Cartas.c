@@ -654,6 +654,14 @@ static void desenharCartaAnimada(Texture2D tex, float cx, float cy, float escala
     cartasPendentes[totalCartasPendentes++] = (CartaPendente){tex, cx, cy, escalaX, escalaY, rotacao, alpha};
 }
 
+// descarta o que estava para ser desenhado (ex.: memorando da auditoria na
+// tela: a carta que saia nao pode aparecer por cima dele)
+void cancelarAnimacoesCartas(void)
+{
+    totalCartasPendentes = 0;
+    animSaida = 1.0f;
+}
+
 void desenharCartasNaJanela(float escala, float offsetX, float offsetY)
 {
     for (int i = 0; i < totalCartasPendentes; i++)

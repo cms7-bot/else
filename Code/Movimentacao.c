@@ -12,6 +12,7 @@ void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro
 void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 void desenharCartasNaJanela(float escala, float offsetX, float offsetY);
+void cancelarAnimacoesCartas(void);
 
 // FONTE DA INTERFACE (Cartas.c)
 float medirTextoUI(const char *texto, float tamanho);
@@ -3204,7 +3205,10 @@ for (int i = 6; i <= 13; i++)
 
         // CARTAS: desenhadas na resolucao real da janela (nitidas),
         // e nao na tela virtual 1280x720 que e esticada
-        desenharCartasNaJanela(escala, offsetX, offsetY);
+        if (memorando == 0)
+            desenharCartasNaJanela(escala, offsetX, offsetY);
+        else
+            cancelarAnimacoesCartas();   // memorando da auditoria fica por cima de tudo
         desenharTextosNaJanela(escala, offsetX, offsetY);
 
 
