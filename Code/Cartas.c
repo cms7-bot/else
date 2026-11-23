@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "Regras.h"
 
 
@@ -525,8 +526,63 @@ static int cliqueNoS = 1;
 static int cliqueNoD = 0;
 static int cliqueNoA =0;
 
+// ==========================================================
+// ANIMACOES DA CARTA (0.0 = comecando, 1.0 = terminada)
+// ==========================================================
+#define DURACAO_ENTRADA 0.40f
+#define DURACAO_TROCA   0.22f
+#define DURACAO_SAIDA   0.32f
+
+static float animEntrada = 1.0f;   // carta entra deslizando de baixo
+static float animTroca = 1.0f;     // "virar" ao trocar entre situacao/A/D
+static float animSaida = 1.0f;     // carta confirmada voa para o lado
+static Texture2D texSaida = {0};
+static int dirSaida = 0;           // -1 esquerda, +1 direita
+
+static float limitar01(float t)
+{
+    if (t < 0.0f) return 0.0f;
+    if (t > 1.0f) return 1.0f;
+    return t;
+}
+
+static float easeOutBack(float t)
+{
+    const float c1 = 1.70158f;
+    const float c3 = c1 + 1.0f;
+    float x = t - 1.0f;
+    return 1.0f + c3 * x * x * x + c1 * x * x;
+}
+
+static float easeOutCubic(float t)
+{
+    float x = 1.0f - t;
+    return 1.0f - x * x * x;
+}
+
+static void avancarAnimacao(float *anim, float duracao, float dt)
+{
+    if (*anim < 1.0f)
+        *anim = limitar01(*anim + dt / duracao);
+}
+
+// desenha a textura centrada em (cx, cy) com escala, rotacao e transparencia
+static void desenharCartaAnimada(Texture2D tex, float cx, float cy, float escalaX, float escalaY, float rotacao, float alpha)
+{
+    Rectangle origem = {0, 0, (float)tex.width, (float)tex.height};
+    Rectangle destino = {cx, cy, tex.width * escalaX, tex.height * escalaY};
+    Vector2 pivo = {destino.width / 2.0f, destino.height / 2.0f};
+
+    DrawTexturePro(tex, origem, destino, pivo, rotacao, Fade(WHITE, limitar01(alpha)));
+}
+
 void atualizarCartas()
 {
+    float dt = GetFrameTime();
+    avancarAnimacao(&animEntrada, DURACAO_ENTRADA, dt);
+    avancarAnimacao(&animTroca, DURACAO_TROCA, dt);
+    avancarAnimacao(&animSaida, DURACAO_SAIDA, dt);
+
     if (mostrarPromocao)
     {
         Vector2 mouse = GetMousePosition();
@@ -557,7 +613,11 @@ void atualizarCartas()
             sortearNovaCarta();
 
             if (eventoAtual != 0)
+            {
                 cartaAberta = true;
+                animEntrada = 0.0f;
+                animTroca = 1.0f;
+            }
 
             cliqueNoS = 1;
             cliqueNoD = 0;
@@ -569,20 +629,20 @@ void atualizarCartas()
     }
     else{
     if(IsKeyPressed(KEY_A)){
-        if (cliqueNoA == 0) PlaySound(somPapel);
+        if (cliqueNoA == 0) { PlaySound(somPapel); animTroca = 0.0f; }
 
             cliqueNoA += 1;
             cliqueNoS = 0;
             cliqueNoD = 0;
     }
     if(IsKeyPressed(KEY_D)){
-        if (cliqueNoD == 0) PlaySound(somPapel);
+        if (cliqueNoD == 0) { PlaySound(somPapel); animTroca = 0.0f; }
             cliqueNoA = 0;
             cliqueNoS = 0;
             cliqueNoD += 1;
     }
     if(IsKeyPressed(KEY_S)){
-
+            if (cliqueNoS == 0) animTroca = 0.0f;
             cliqueNoA = 0;
             cliqueNoS = 1;
             cliqueNoD = 0;
@@ -593,6 +653,10 @@ void atualizarCartas()
 
     if (cliqueNoA==2)
     {
+        texSaida = eventoAtual->opcaoEsquerda;
+        dirSaida = -1;
+        animSaida = 0.0f;
+
         escolherEsquerda();
 
         cartaAberta = false;
@@ -603,6 +667,10 @@ void atualizarCartas()
 
     if (cliqueNoD==2)
     {
+        texSaida = eventoAtual->opcaoDireita;
+        dirSaida = 1;
+        animSaida = 0.0f;
+
         escolherDireita();
 
         cartaAberta = false;
@@ -731,6 +799,24 @@ void desenharCartas(
     int alturaResolucao
 )
 {
+    // carta confirmada: voa para o lado girando e some
+    if (animSaida < 1.0f && dirSaida != 0 && texSaida.id != 0)
+    {
+        float e = animSaida * animSaida;
+
+        DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f * (1.0f - animSaida)));
+
+        desenharCartaAnimada(
+            texSaida,
+            larguraResolucao / 2.0f + dirSaida * 100 + dirSaida * e * 520.0f,
+            alturaResolucao / 2.0f - 20 - e * 70.0f,
+            1.0f - 0.2f * e,
+            1.0f - 0.2f * e,
+            dirSaida * e * 28.0f,
+            1.0f - animSaida
+        );
+    }
+
     if (mostrarPromocao)
     {
         DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f));
@@ -777,30 +863,60 @@ void desenharCartas(
         return;
 
 
-    DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f));
+    float alphaEntrada = limitar01(animEntrada * 2.5f);
+    float easeEntrada = easeOutBack(animEntrada);
+    Color corTecla = Fade(WHITE, alphaEntrada);
 
-    DrawTexture(teclaSapagada,(larguraResolucao - teclaSapagada.width) / 2,(+290) + (alturaResolucao - teclaSapagada.height)/2, WHITE);
-    DrawTexture(teclaAapagada,(-100) + (larguraResolucao - teclaAapagada.width) / 2,(+290) + (alturaResolucao - teclaAapagada.height)/2, WHITE);
-    DrawTexture(teclaDapagada,(+100) + (larguraResolucao - teclaDapagada.width) / 2,(+290) + (alturaResolucao - teclaDapagada.height)/2, WHITE);
+    DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f * alphaEntrada));
 
-    if (cliqueNoS == 1){
-    DrawTexture(eventoAtual ->situacao, (larguraResolucao - eventoAtual ->situacao.width) / 2,(-20) + (alturaResolucao - eventoAtual ->situacao.height)/2, WHITE);
-    DrawTexture(teclaSacesa,(larguraResolucao - teclaSacesa.width) / 2,(+290) + (alturaResolucao - teclaSacesa.height)/2, WHITE);
+    // teclas (sobem junto com a carta)
+    float subida = (1.0f - easeEntrada) * 160.0f;
+
+    DrawTexture(teclaSapagada,(larguraResolucao - teclaSapagada.width) / 2,(+290) + (alturaResolucao - teclaSapagada.height)/2 + subida, corTecla);
+    DrawTexture(teclaAapagada,(-100) + (larguraResolucao - teclaAapagada.width) / 2,(+290) + (alturaResolucao - teclaAapagada.height)/2 + subida, corTecla);
+    DrawTexture(teclaDapagada,(+100) + (larguraResolucao - teclaDapagada.width) / 2,(+290) + (alturaResolucao - teclaDapagada.height)/2 + subida, corTecla);
+
+    // carta: entra deslizando de baixo (com leve "quique") e flutua depois
+    float flutuar = (animEntrada >= 1.0f) ? sinf((float)GetTime() * 2.0f) * 3.0f : 0.0f;
+    float escalaEntrada = 0.85f + 0.15f * easeEntrada;
+
+    // troca de carta: "vira" (achata e abre) com um pequeno salto
+    float t = easeOutCubic(animTroca);
+    float escalaX = escalaEntrada * (0.05f + 0.95f * t);
+    float saltoTroca = (1.0f - t) * -14.0f;
+
+    Texture2D cartaAtual;
+    float deslocX = 0;
+    Texture2D teclaAcesa;
+    float tecX = 0;
+
+    if (cliqueNoA == 1)
+    {
+        cartaAtual = eventoAtual->opcaoEsquerda; deslocX = -100;
+        teclaAcesa = teclaAacesa; tecX = -100;
+    }
+    else if (cliqueNoD == 1)
+    {
+        cartaAtual = eventoAtual->opcaoDireita; deslocX = 100;
+        teclaAcesa = teclaDacesa; tecX = 100;
+    }
+    else
+    {
+        cartaAtual = eventoAtual->situacao;
+        teclaAcesa = teclaSacesa;
     }
 
+    desenharCartaAnimada(
+        cartaAtual,
+        larguraResolucao / 2.0f + deslocX,
+        alturaResolucao / 2.0f - 20 + subida + flutuar + saltoTroca,
+        escalaX,
+        escalaEntrada,
+        0.0f,
+        alphaEntrada
+    );
 
-
-    if (cliqueNoA == 1){
-    DrawTexture(eventoAtual ->opcaoEsquerda, (-100) + (larguraResolucao - eventoAtual ->opcaoEsquerda.width) / 2,(-20) + (alturaResolucao - eventoAtual ->opcaoEsquerda.height)/2, WHITE);
-    DrawTexture(teclaAacesa,(-100) + (larguraResolucao - teclaAacesa.width) / 2,(+290) + (alturaResolucao - teclaAacesa.height)/2, WHITE);
-
-    }
-
-    if (cliqueNoD == 1){
-    DrawTexture(eventoAtual ->opcaoDireita, (+100) + (larguraResolucao - eventoAtual ->opcaoDireita.width) / 2,(-20) + (alturaResolucao - eventoAtual ->opcaoDireita.height)/2, WHITE);
-    DrawTexture(teclaDacesa,(+100) + (larguraResolucao - teclaDacesa.width) / 2,(+290) + (alturaResolucao - teclaDacesa.height)/2, WHITE);
-    }
-
+    DrawTexture(teclaAcesa,(int)tecX + (larguraResolucao - teclaAcesa.width) / 2,(+290) + (alturaResolucao - teclaAcesa.height)/2 + subida, corTecla);
 }
 // ==========================================================
 // FINALIZAÇÃO
@@ -810,4 +926,6 @@ void descarregarCartas()
     cartaAberta = false;
     eventoAtual = 0;
     banco = 0;
+    animSaida = 1.0f;
+    texSaida.id = 0;
 }
