@@ -344,6 +344,11 @@ static float escalaBotaoContinue = 1.0f;
 #define PROMOCAO_BOTAO_OFFSET_Y 250
 #define ESCALA_BASE_BOTAO 0.5f
 #define PROMOCAO_BOTAO_OFFSET_Y 270
+// estado das animacoes (valores iniciais definidos mais abaixo)
+static float animEntrada, animTroca, animSaida;
+static Texture2D texSaida;
+static int dirSaida;
+
 void iniciarCartas(
     float *confianca,
     float *vies,
@@ -351,6 +356,13 @@ void iniciarCartas(
     float *lucro
 )
 {
+    // zera as animacoes: nada de carta (ou sobra de saida) aparecendo ao reiniciar
+    animEntrada = 1.0f;
+    animTroca = 1.0f;
+    animSaida = 1.0f;
+    dirSaida = 0;
+    texSaida.id = 0;
+
     static bool texturasCarregadas = false;
     if(!texturasCarregadas){
     teclaAapagada = LoadTexture("Botoes/teclaAapagada.png");
