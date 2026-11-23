@@ -20,6 +20,9 @@ void descarregarCartas(void);
 const char *obterMensagemFinal(void);
 int obterDiasSobrevividos(void);
 const char *nomeCargo(void);
+
+// SOM GLOBAL: 1 = mudo (compartilhado com o menu inicial, em TelaInicio.c)
+int somMutadoGlobal = 0;
 int obterCargo(void);
 
 // MAQUINA DE CAFE (MaquinaCafe.c)
@@ -765,6 +768,13 @@ InicializarBancoPerguntas();
     bool gameOver =
         false;
 
+    // botoes da tela de jogo (retangulos na tela virtual 1280x720)
+    Texture2D texBotaoMenu = LoadTexture("Botoes/BotaoPausa.png");
+    Texture2D texBotaoSom = LoadTexture("Botoes/Som.png");
+    Texture2D texBotaoMute = LoadTexture("Botoes/Mute.png");
+    Rectangle retBotaoMenu = { 16, 16, 56, 56 };          // canto superior esquerdo
+    Rectangle retBotaoSom = { larguraResolucao - 72, 88, 56, 56 };  // canto superior direito, abaixo do contador de dias
+
     // memorando da auditoria na tela: 0 = nenhum, 1 = entrada, 2 = saida
     int memorando =
         0;
@@ -830,9 +840,35 @@ InicializarBancoPerguntas();
         // ======================================================
         // ESC / PAUSE
         // ======================================================
+        // clique nos botoes da tela de jogo (mouse convertido para a tela virtual)
+        bool cliqueBotaoMenu = false;
+
         if (
             tela == 2 &&
-            IsKeyPressed(KEY_ESCAPE)
+            !pausado &&
+            !gameOver &&
+            !maquinaCafeAberta() &&
+            IsMouseButtonPressed(MOUSE_BUTTON_LEFT)
+        )
+        {
+            Vector2 mouseJogo = GetMousePosition();
+            mouseJogo.x = (mouseJogo.x - offsetX) / escala;
+            mouseJogo.y = (mouseJogo.y - offsetY) / escala;
+
+            if (CheckCollisionPointRec(mouseJogo, retBotaoMenu))
+            {
+                cliqueBotaoMenu = true;
+            }
+            else if (CheckCollisionPointRec(mouseJogo, retBotaoSom))
+            {
+                somMutadoGlobal = !somMutadoGlobal;
+                SetMasterVolume(somMutadoGlobal ? 0.0f : 1.0f);
+            }
+        }
+
+        if (
+            tela == 2 &&
+            (IsKeyPressed(KEY_ESCAPE) || cliqueBotaoMenu)
         )
         {
             if (maquinaCafeAberta())   // MAQUINA DE CAFE: ESC so fecha a maquina
@@ -3019,6 +3055,17 @@ for (int i = 6; i <= 13; i++)
                      tamanhoDias, (Color){198, 183, 255, 255});
         }
 
+        // botao de menu (abre a pausa) e botao de som (liga/desliga a musica)
+        DrawTexturePro(texBotaoMenu,
+                       (Rectangle){0, 0, texBotaoMenu.width, texBotaoMenu.height},
+                       retBotaoMenu, (Vector2){0, 0}, 0, WHITE);
+        {
+            Texture2D texSom = somMutadoGlobal ? texBotaoMute : texBotaoSom;
+            DrawTexturePro(texSom,
+                           (Rectangle){0, 0, texSom.width, texSom.height},
+                           retBotaoSom, (Vector2){0, 0}, 0, WHITE);
+        }
+
         // ======================================================
         // MEMORANDO DA AUDITORIA
         // ======================================================
@@ -3565,6 +3612,9 @@ for (int i = 6; i <= 13; i++)
         UnloadTexture(fundosCargo[i]);
 
     descarregarMaquinaCafe();   // MAQUINA DE CAFE
+    UnloadTexture(texBotaoMenu);
+    UnloadTexture(texBotaoSom);
+    UnloadTexture(texBotaoMute);
 
     UnloadTexture(confianca);
     UnloadTexture(lucro);

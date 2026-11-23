@@ -56,7 +56,7 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     static Texture2D pastaFechada = {0};
     static Texture2D fita = {0};
 
-    static int mutado = 0;
+    extern int somMutadoGlobal;   // definido em Movimentacao.c
     static int telaMenu = 0;
 
     if (fundoInicio.id == 0)
@@ -423,16 +423,8 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            if (mutado == 0)
-            {
-                mutado = 1;
-                SetMusicVolume(trilhaSonora1, 0.0f);
-            }
-            else
-            {
-                mutado = 0;
-                SetMusicVolume(trilhaSonora1, 0.10f);
-            }
+            somMutadoGlobal = !somMutadoGlobal;
+            SetMasterVolume(somMutadoGlobal ? 0.0f : 1.0f);
         }
     }
 
@@ -560,7 +552,7 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     // ==========================================================
     Texture2D texturaAudio;
 
-    if (mutado == 0)
+    if (somMutadoGlobal == 0)
         texturaAudio = botaoSom;
     else
         texturaAudio = botaoMute;
