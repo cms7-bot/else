@@ -50,15 +50,13 @@ typedef struct Evento
         .cargo = 0,
         .origem = 1,
 
-        .titulo = "Triagem de curriculos",
+        .titulo = "Triagem de currículos",
 
         .texto =
-            "Seu chefe pede pra usar um modelo de triagem de curriculos "
-            "que ja existe no sistema. Voce percebe que ele filtra quase "
-            "so candidatos de universidades caras.",
+            "Seu chefe pede pra usar um modelo de triagem de currículos que já existe no sistema. Você percebe que ele filtra quase só candidatos de universidades caras.",
 
         .esquerda =
-            "Usar assim mesmo, e rapido",
+            "Usar assim mesmo, é rápido",
 
         .direita =
             "Sinalizar o problema antes de rodar",
@@ -80,11 +78,10 @@ typedef struct Evento
         .titulo = "Chatbot inventou um dado",
 
         .texto =
-            "O chatbot de suporte gerou uma resposta tecnica para um cliente, "
-            "mas o dado que ele citou nao existe em nenhuma documentacao.",
+            "O chatbot de suporte gerou uma resposta técnica para um cliente, mas o dado que ele citou não existe em nenhuma documentação.",
 
         .esquerda =
-            "Deixar passar, o cliente nao vai notar",
+            "Deixar passar, o cliente não vai notar",
 
         .direita =
             "Corrigir e avisar o cliente do erro",
@@ -101,12 +98,10 @@ typedef struct Evento
         .cargo = 0,
         .origem = 0,
 
-        .titulo = "Historico de navegacao",
+        .titulo = "Histórico de navegação",
 
         .texto =
-            "Voce tem acesso ao historico de navegacao dos usuarios dentro "
-            "da empresa pra melhorar recomendacoes. Ninguem pediu autorizacao "
-            "explicita pra isso.",
+            "A empresa coleta o histórico de navegação dos usuários para melhorar as recomendações. Porém, ninguém autorizou explicitamente o uso desses dados.",
 
         .esquerda =
             "Usar os dados, todo mundo faz",
@@ -129,9 +124,7 @@ typedef struct Evento
         .titulo = "Reconhecimento facial",
 
         .texto =
-            "Um sistema de reconhecimento facial da empresa erra bem mais "
-            "em rostos de pele escura. Alguem pede pra ajustar o threshold "
-            "so pra esconder o problema nas metricas do relatorio.",
+            "O sistema de reconhecimento facial da empresa erra muito mais ao identificar pessoas de pele escura. Alguém sugere “ajustar o threshold” apenas para esconder o problema nas métricas do relatório.",
 
         .esquerda =
             "Ajustar o threshold como pedido",
@@ -151,12 +144,10 @@ typedef struct Evento
         .cargo = 0,
         .origem = 0,
 
-        .titulo = "Estatistica suspeita",
+        .titulo = "Estatística suspeita",
 
         .texto =
-            "Um relatorio automatico de vendas cita uma estatistica que "
-            "parece forte demais pra ser real. Voce esta sob pressao pra "
-            "entregar o relatorio hoje.",
+            "Um relatório automático de vendas cita uma estatística que parece forte demais pra ser real. Você está sob pressão pra entregar o relatório hoje.",
 
         .esquerda =
             "Entregar assim, sem checar",
@@ -179,8 +170,7 @@ typedef struct Evento
         .titulo = "Dados do marketing",
 
         .texto =
-            "Marketing pede pra usar dados de usuarios, como nome, e-mail "
-            "e comportamento, pra treinar um novo modelo sem anonimizar.",
+            "A equipe de marketing quer usar dados dos usuários, como nome, e-mail e comportamento, para treinar um novo modelo de IA, sem anonimizar essas informações.",
 
         .esquerda =
             "Liberar os dados como pedido",
@@ -200,17 +190,16 @@ typedef struct Evento
         .cargo = 0,
         .origem = 0,
 
-        .titulo = "Precificacao por bairro",
+        .titulo = "Precificação por bairro",
 
         .texto =
-            "A IA de precificacao esta cobrando mais de usuarios de certos "
-            "bairros, com base em risco de inadimplencia.",
+            "A IA de precificação está cobrando preços mais altos de usuários de determinados bairros, com base no suposto “risco de inadimplência”.",
 
         .esquerda =
-            "Manter, os numeros fecham",
+            "Manter, os números fecham",
 
         .direita =
-            "Revisar o criterio de precificacao",
+            "Revisar o critério de precificação",
 
         .lucroEsquerda = PT(+26),
         .viesEsquerda = PT(+26),
@@ -224,12 +213,10 @@ typedef struct Evento
         .cargo = 0,
         .origem = 1,
 
-        .titulo = "Numero inventado",
+        .titulo = "Número inventado",
 
         .texto =
-            "Um colega vai apresentar pro cliente um numero que a IA gerou, "
-            "mas parece inventado. Ele ja confia cegamente no sistema e nao "
-            "quer perder tempo checando.",
+            "Um colega vai apresentar pro cliente um número que a IA gerou, mas parece inventado. Ele já confia cegamente no sistema e não quer perder tempo checando.",
 
         .esquerda =
             "Deixar ele apresentar assim",
@@ -248,18 +235,16 @@ Evento carta9 = {
         .cargo = 0,
         .origem = 0,
 
-        .titulo = "Automacao de funcionarios",
+        .titulo = "Automação de funcionários",
 
         .texto =
-            "A diretoria pretende substituir parte da equipe de atendimento "
-            "por uma IA. O sistema ainda comete erros frequentes, mas a "
-            "mudanca reduziria bastante os custos.",
+            "A diretoria pretende substituir parte da equipe de atendimento por uma IA. O sistema ainda comete erros frequentes, mas a mudança reduziria bastante os custos.",
 
         .esquerda =
-            "Aprovar a substituicao imediatamente",
+            "Aprovar a substituição imediatamente",
 
         .direita =
-            "Manter a equipe ate a IA ser confiavel",
+            "Manter a equipe até a IA ser confiável",
 
         .lucroEsquerda = PT(+26),
         .confiancaEsquerda = PT(-26),
@@ -273,18 +258,16 @@ Evento carta9 = {
         .cargo = 0,
         .origem = 0,
 
-        .titulo = "Decisao automatizada",
+        .titulo = "Decisão automatizada",
 
         .texto =
-            "Uma IA responsavel por aprovar emprestimos rejeitou a solicitacao "
-            "de um cliente. Ele pede explicacoes, mas ninguem na equipe "
-            "consegue entender como o sistema chegou a essa conclusao.",
+            "Uma IA responsável por aprovar empréstimos rejeitou a solicitação de um cliente. Ele pede explicações, mas ninguém na equipe consegue entender como o sistema chegou a essa conclusão.",
 
         .esquerda =
-            "Manter a decisao da IA sem questionar",
+            "Manter a decisão da IA sem questionar",
 
         .direita =
-            "Solicitar uma revisao humana da decisao",
+            "Solicitar uma revisão humana da decisão",
 
         .lucroEsquerda = PT(+26),
         .confiancaEsquerda = PT(-26),
@@ -303,12 +286,10 @@ Evento carta9 = {
         .titulo = "Imagem falsa",
 
         .texto =
-            "A equipe de marketing utiliza uma imagem gerada por IA que "
-            "simula uma pessoa real recomendando o produto. A campanha "
-            "esta pronta e tem grande potencial de alcance.",
+            "A equipe de marketing utiliza uma imagem gerada por IA que simula uma pessoa real recomendando o produto. A campanha está pronta e tem grande potencial de alcance.",
 
         .esquerda =
-            "Publicar a campanha sem revelar a manipulacao",
+            "Publicar a campanha sem revelar a manipulação",
 
         .direita =
             "Informar que a imagem foi gerada por IA",
@@ -328,12 +309,10 @@ Evento carta9 = {
         .titulo = "Treinamento sem limite",
 
         .texto =
-            "Um novo modelo de IA precisa de mais dados para melhorar. "
-            "A equipe sugere coletar automaticamente todas as conversas "
-            "dos usuarios, inclusive as que contem informacoes pessoais.",
+            "Um novo modelo de IA precisa de mais dados para melhorar. A equipe sugere coletar automaticamente todas as conversas dos usuários, inclusive as que contêm informações pessoais.",
 
         .esquerda =
-            "Coletar todas as conversas disponiveis",
+            "Coletar todas as conversas disponíveis",
 
         .direita =
             "Limitar a coleta aos dados autorizados",
@@ -353,16 +332,13 @@ Evento carta9 = {
         .titulo = "O trabalho perfeito",
 
         .texto =
-            "Voce pede para uma IA fazer um trabalho academico. "
-            "O resultado esta muito bem escrito, organizado e parece "
-            "conter todas as informacoes necessarias. O prazo esta "
-            "acabando e voce ainda nao leu o material por completo.",
+            "Você pede para uma IA fazer um trabalho acadêmico. O resultado está muito bem escrito, organizado e parece conter todas as informações necessárias. O prazo está acabando e você ainda não leu o material por completo.",
 
         .esquerda =
             "Entregar o trabalho como a IA produziu",
 
         .direita =
-            "Revisar o conteudo e conferir as informacoes",
+            "Revisar o conteúdo e conferir as informações",
 
         .lucroEsquerda = PT(+26),
         .confiancaEsquerda = PT(-26),
@@ -379,16 +355,13 @@ Evento carta9 = {
         .titulo = "O e-mail pronto",
 
         .texto =
-            "Voce precisa responder um e-mail importante de um cliente. "
-            "Para ganhar tempo, pede que uma IA escreva a resposta. "
-            "O texto fica otimo, mas a IA promete um prazo de entrega "
-            "que voce nao tem certeza se a empresa consegue cumprir.",
+            "Você precisa responder um e-mail importante de um cliente. Para ganhar tempo, pede que uma IA escreva a resposta. O texto fica ótimo, mas a IA promete um prazo de entrega que você não tem certeza se a empresa consegue cumprir.",
 
         .esquerda =
-            "Enviar, o texto esta bem escrito",
+            "Enviar, o texto está bem escrito",
 
         .direita =
-            "Conferir as informacoes antes de enviar",
+            "Conferir as informações antes de enviar",
 
         .lucroEsquerda = PT(+26),
         .confiancaEsquerda = PT(-26),
@@ -402,19 +375,16 @@ Evento carta9 = {
         .cargo = 0,
         .origem = 0,
 
-        .titulo = "O codigo misterioso",
+        .titulo = "O código misterioso",
 
         .texto =
-            "Voce utiliza uma IA para resolver um problema no codigo "
-            "de um projeto da Else. Ela fornece uma solucao que funciona "
-            "nos testes iniciais, mas voce nao entende completamente "
-            "o que aquele codigo executa.",
+            "Você utiliza uma IA para resolver um problema no código de um projeto da Else. Ela fornece uma solução que funciona nos testes iniciais, mas você não entende completamente o que aquele código executa.",
 
         .esquerda =
-            "Implementar e seguir para a proxima tarefa",
+            "Implementar e seguir para a próxima tarefa",
 
         .direita =
-            "Estudar o codigo e testar outros cenarios",
+            "Estudar o código e testar outros cenários",
 
         .lucroEsquerda = PT(+26),
         .confiancaEsquerda = PT(-26),
@@ -431,10 +401,7 @@ Evento carta9 = {
         .titulo = "O documento interno",
 
         .texto =
-            "Voce precisa resumir um documento extenso da Else. "
-            "Uma ferramenta externa de IA consegue fazer isso em "
-            "segundos, mas o arquivo contem informacoes internas "
-            "que nao deveriam sair do ambiente da empresa.",
+            "Você precisa resumir um documento extenso da Else. Uma ferramenta externa de IA consegue fazer isso em segundos, mas o arquivo contém informações internas que não deveriam sair do ambiente da empresa.",
 
         .esquerda =
             "Enviar o documento para a ferramenta externa",
@@ -454,19 +421,16 @@ Evento carta9 = {
         .cargo = 0,
         .origem = 0,
 
-        .titulo = "O atendimento automatico",
+        .titulo = "O atendimento automático",
 
         .texto =
-            "Voce utiliza uma IA para responder perguntas frequentes "
-            "dos clientes da Else. O sistema responde rapidamente, "
-            "mas comeca a dar respostas genericas para problemas "
-            "que exigem uma analise individual.",
+            "Você utiliza uma IA para responder perguntas frequentes dos clientes da Else. O sistema responde rapidamente, mas começa a dar respostas genéricas para problemas que exigem uma análise individual.",
 
         .esquerda =
-            "Manter a automacao para reduzir o tempo de atendimento",
+            "Manter a automação para reduzir o tempo de atendimento",
 
         .direita =
-            "Intervir nos casos que exigem atencao individual",
+            "Intervir nos casos que exigem atenção individual",
 
         .lucroEsquerda = PT(+26),
         .confiancaEsquerda = PT(-26),
@@ -527,188 +491,188 @@ void CarregarTexturasCartas()
     bancoPerguntas[0].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Triagem _D_.png");
     bancoPerguntas[0].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Triagem _A_.png");
 
-    bancoPerguntas[0].situacao.width*=1.2;
-    bancoPerguntas[0].opcaoDireita.width*=1.2;
-    bancoPerguntas[0].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[0].situacao.height*=1.2;
-    bancoPerguntas[0].opcaoDireita.height*=1.2;
-    bancoPerguntas[0].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[0].situacao.width*=0.4;
+    bancoPerguntas[0].opcaoDireita.width*=0.4;
+    bancoPerguntas[0].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[0].situacao.height*=0.4;
+    bancoPerguntas[0].opcaoDireita.height*=0.4;
+    bancoPerguntas[0].opcaoEsquerda.height*=0.4;
 
     bancoPerguntas[1].situacao = LoadTexture("HUD/cartasEstagiario/Carta Chatbot _S_.png");
     bancoPerguntas[1].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Chatbot _D_.png");
     bancoPerguntas[1].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Chatbot _A_.png");
 
-    bancoPerguntas[1].situacao.width*=1.2;
-    bancoPerguntas[1].opcaoDireita.width*=1.2;
-    bancoPerguntas[1].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[1].situacao.height*=1.2;
-    bancoPerguntas[1].opcaoDireita.height*=1.2;
-    bancoPerguntas[1].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[1].situacao.width*=0.4;
+    bancoPerguntas[1].opcaoDireita.width*=0.4;
+    bancoPerguntas[1].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[1].situacao.height*=0.4;
+    bancoPerguntas[1].opcaoDireita.height*=0.4;
+    bancoPerguntas[1].opcaoEsquerda.height*=0.4;
 
     bancoPerguntas[2].situacao = LoadTexture("HUD/cartasEstagiario/Carta Historico 2 _S_.png");
     bancoPerguntas[2].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Historico 2 _D_.png");
     bancoPerguntas[2].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Historico 2 _A_.png");
 
-    bancoPerguntas[2].situacao.width*=1.2;
-    bancoPerguntas[2].opcaoDireita.width*=1.2;
-    bancoPerguntas[2].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[2].situacao.height*=1.2;
-    bancoPerguntas[2].opcaoDireita.height*=1.2;
-    bancoPerguntas[2].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[2].situacao.width*=0.4;
+    bancoPerguntas[2].opcaoDireita.width*=0.4;
+    bancoPerguntas[2].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[2].situacao.height*=0.4;
+    bancoPerguntas[2].opcaoDireita.height*=0.4;
+    bancoPerguntas[2].opcaoEsquerda.height*=0.4;
 
     bancoPerguntas[3].situacao = LoadTexture("HUD/cartasEstagiario/Carta Facial _S_.png");
     bancoPerguntas[3].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Facial _D_.png");
     bancoPerguntas[3].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Facial _A_.png");
 
-    bancoPerguntas[3].situacao.width*=1.2;
-    bancoPerguntas[3].opcaoDireita.width*=1.2;
-    bancoPerguntas[3].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[3].situacao.height*=1.2;
-    bancoPerguntas[3].opcaoDireita.height*=1.2;
-    bancoPerguntas[3].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[3].situacao.width*=0.4;
+    bancoPerguntas[3].opcaoDireita.width*=0.4;
+    bancoPerguntas[3].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[3].situacao.height*=0.4;
+    bancoPerguntas[3].opcaoDireita.height*=0.4;
+    bancoPerguntas[3].opcaoEsquerda.height*=0.4;
 
     bancoPerguntas[4].situacao = LoadTexture("HUD/cartasEstagiario/Carta Estatistica _S_.png");
     bancoPerguntas[4].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Estatistica _D_.png");
     bancoPerguntas[4].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Estatistica _A_.png");
 
-    bancoPerguntas[4].situacao.width*=1.2;
-    bancoPerguntas[4].opcaoDireita.width*=1.2;
-    bancoPerguntas[4].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[4].situacao.height*=1.2;
-    bancoPerguntas[4].opcaoDireita.height*=1.2;
-    bancoPerguntas[4].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[4].situacao.width*=0.4;
+    bancoPerguntas[4].opcaoDireita.width*=0.4;
+    bancoPerguntas[4].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[4].situacao.height*=0.4;
+    bancoPerguntas[4].opcaoDireita.height*=0.4;
+    bancoPerguntas[4].opcaoEsquerda.height*=0.4;
 
     bancoPerguntas[5].situacao = LoadTexture("HUD/cartasEstagiario/Carta Marketing 2 _S_.png");
     bancoPerguntas[5].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Marketing 2 _D_.png");
     bancoPerguntas[5].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Marketing 2 _A_.png");
 
-    bancoPerguntas[5].situacao.width*=1.2;
-    bancoPerguntas[5].opcaoDireita.width*=1.2;
-    bancoPerguntas[5].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[5].situacao.height*=1.2;
-    bancoPerguntas[5].opcaoDireita.height*=1.2;
-    bancoPerguntas[5].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[5].situacao.width*=0.4;
+    bancoPerguntas[5].opcaoDireita.width*=0.4;
+    bancoPerguntas[5].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[5].situacao.height*=0.4;
+    bancoPerguntas[5].opcaoDireita.height*=0.4;
+    bancoPerguntas[5].opcaoEsquerda.height*=0.4;
 
     bancoPerguntas[6].situacao = LoadTexture("HUD/cartasEstagiario/Carta Precificacao _S_.png");
     bancoPerguntas[6].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Precificacao _D_.png");
     bancoPerguntas[6].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Precificacao _A_.png");
 
-    bancoPerguntas[6].situacao.width*=1.2;
-    bancoPerguntas[6].opcaoDireita.width*=1.2;
-    bancoPerguntas[6].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[6].situacao.height*=1.2;
-    bancoPerguntas[6].opcaoDireita.height*=1.2;
-    bancoPerguntas[6].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[6].situacao.width*=0.4;
+    bancoPerguntas[6].opcaoDireita.width*=0.4;
+    bancoPerguntas[6].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[6].situacao.height*=0.4;
+    bancoPerguntas[6].opcaoDireita.height*=0.4;
+    bancoPerguntas[6].opcaoEsquerda.height*=0.4;
 
     bancoPerguntas[7].situacao = LoadTexture("HUD/cartasEstagiario/Carta Numero inventado _S_.png");
     bancoPerguntas[7].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Numero inventado _D_.png");
     bancoPerguntas[7].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Numero inventado _A_.png");
 
-    bancoPerguntas[7].situacao.width*=1.2;
-    bancoPerguntas[7].opcaoDireita.width*=1.2;
-    bancoPerguntas[7].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[7].situacao.height*=1.2;
-    bancoPerguntas[7].opcaoDireita.height*=1.2;
-    bancoPerguntas[7].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[7].situacao.width*=0.4;
+    bancoPerguntas[7].opcaoDireita.width*=0.4;
+    bancoPerguntas[7].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[7].situacao.height*=0.4;
+    bancoPerguntas[7].opcaoDireita.height*=0.4;
+    bancoPerguntas[7].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[8].situacao = LoadTexture("HUD/cartasEstagiario/Carta Automacao _S_.png");
     bancoPerguntas[8].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Automacao _D_.png");
     bancoPerguntas[8].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Automacao _A_.png");
 
-    bancoPerguntas[8].situacao.width*=1.2;
-    bancoPerguntas[8].opcaoDireita.width*=1.2;
-    bancoPerguntas[8].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[8].situacao.height*=1.2;
-    bancoPerguntas[8].opcaoDireita.height*=1.2;
-    bancoPerguntas[8].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[8].situacao.width*=0.4;
+    bancoPerguntas[8].opcaoDireita.width*=0.4;
+    bancoPerguntas[8].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[8].situacao.height*=0.4;
+    bancoPerguntas[8].opcaoDireita.height*=0.4;
+    bancoPerguntas[8].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[9].situacao = LoadTexture("HUD/cartasEstagiario/Carta Decisao _S_.png");
     bancoPerguntas[9].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Decisao _D_.png");
     bancoPerguntas[9].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Decisao _A_.png");
 
-    bancoPerguntas[9].situacao.width*=1.2;
-    bancoPerguntas[9].opcaoDireita.width*=1.2;
-    bancoPerguntas[9].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[9].situacao.height*=1.2;
-    bancoPerguntas[9].opcaoDireita.height*=1.2;
-    bancoPerguntas[9].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[9].situacao.width*=0.4;
+    bancoPerguntas[9].opcaoDireita.width*=0.4;
+    bancoPerguntas[9].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[9].situacao.height*=0.4;
+    bancoPerguntas[9].opcaoDireita.height*=0.4;
+    bancoPerguntas[9].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[10].situacao = LoadTexture("HUD/cartasEstagiario/Carta Imagem _S_.png");
     bancoPerguntas[10].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Imagem _D_.png");
     bancoPerguntas[10].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Imagem _A_.png");
 
-    bancoPerguntas[10].situacao.width*=1.2;
-    bancoPerguntas[10].opcaoDireita.width*=1.2;
-    bancoPerguntas[10].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[10].situacao.height*=1.2;
-    bancoPerguntas[10].opcaoDireita.height*=1.2;
-    bancoPerguntas[10].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[10].situacao.width*=0.4;
+    bancoPerguntas[10].opcaoDireita.width*=0.4;
+    bancoPerguntas[10].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[10].situacao.height*=0.4;
+    bancoPerguntas[10].opcaoDireita.height*=0.4;
+    bancoPerguntas[10].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[11].situacao = LoadTexture("HUD/cartasEstagiario/Carta Treinamento _S_.png");
     bancoPerguntas[11].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Treinamento _D_.png");
     bancoPerguntas[11].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Treinamento _A_.png");
 
-    bancoPerguntas[11].situacao.width*=1.2;
-    bancoPerguntas[11].opcaoDireita.width*=1.2;
-    bancoPerguntas[11].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[11].situacao.height*=1.2;
-    bancoPerguntas[11].opcaoDireita.height*=1.2;
-    bancoPerguntas[11].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[11].situacao.width*=0.4;
+    bancoPerguntas[11].opcaoDireita.width*=0.4;
+    bancoPerguntas[11].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[11].situacao.height*=0.4;
+    bancoPerguntas[11].opcaoDireita.height*=0.4;
+    bancoPerguntas[11].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[12].situacao = LoadTexture("HUD/cartasEstagiario/Carta Trabalho _S_.png");
     bancoPerguntas[12].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Trabalho _D_.png");
     bancoPerguntas[12].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Trabalho _A_.png");
 
-    bancoPerguntas[12].situacao.width*=1.2;
-    bancoPerguntas[12].opcaoDireita.width*=1.2;
-    bancoPerguntas[12].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[12].situacao.height*=1.2;
-    bancoPerguntas[12].opcaoDireita.height*=1.2;
-    bancoPerguntas[12].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[12].situacao.width*=0.4;
+    bancoPerguntas[12].opcaoDireita.width*=0.4;
+    bancoPerguntas[12].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[12].situacao.height*=0.4;
+    bancoPerguntas[12].opcaoDireita.height*=0.4;
+    bancoPerguntas[12].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[13].situacao = LoadTexture("HUD/cartasEstagiario/Carta Email _S_.png");
     bancoPerguntas[13].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Email _D_.png");
     bancoPerguntas[13].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Email _A_.png");
 
-    bancoPerguntas[13].situacao.width*=1.2;
-    bancoPerguntas[13].opcaoDireita.width*=1.2;
-    bancoPerguntas[13].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[13].situacao.height*=1.2;
-    bancoPerguntas[13].opcaoDireita.height*=1.2;
-    bancoPerguntas[13].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[13].situacao.width*=0.4;
+    bancoPerguntas[13].opcaoDireita.width*=0.4;
+    bancoPerguntas[13].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[13].situacao.height*=0.4;
+    bancoPerguntas[13].opcaoDireita.height*=0.4;
+    bancoPerguntas[13].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[14].situacao = LoadTexture("HUD/cartasEstagiario/Carta Codigo _S_.png");
     bancoPerguntas[14].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Codigo _D_.png");
     bancoPerguntas[14].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Codigo _A_.png");
 
-    bancoPerguntas[14].situacao.width*=1.2;
-    bancoPerguntas[14].opcaoDireita.width*=1.2;
-    bancoPerguntas[14].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[14].situacao.height*=1.2;
-    bancoPerguntas[14].opcaoDireita.height*=1.2;
-    bancoPerguntas[14].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[14].situacao.width*=0.4;
+    bancoPerguntas[14].opcaoDireita.width*=0.4;
+    bancoPerguntas[14].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[14].situacao.height*=0.4;
+    bancoPerguntas[14].opcaoDireita.height*=0.4;
+    bancoPerguntas[14].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[15].situacao = LoadTexture("HUD/cartasEstagiario/Carta Documento _S_.png");
     bancoPerguntas[15].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Documento _D_.png");
     bancoPerguntas[15].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Documento _A_.png");
 
-    bancoPerguntas[15].situacao.width*=1.2;
-    bancoPerguntas[15].opcaoDireita.width*=1.2;
-    bancoPerguntas[15].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[15].situacao.height*=1.2;
-    bancoPerguntas[15].opcaoDireita.height*=1.2;
-    bancoPerguntas[15].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[15].situacao.width*=0.4;
+    bancoPerguntas[15].opcaoDireita.width*=0.4;
+    bancoPerguntas[15].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[15].situacao.height*=0.4;
+    bancoPerguntas[15].opcaoDireita.height*=0.4;
+    bancoPerguntas[15].opcaoEsquerda.height*=0.4;
     
     bancoPerguntas[16].situacao = LoadTexture("HUD/cartasEstagiario/Carta Atendimento _S_.png");
     bancoPerguntas[16].opcaoDireita = LoadTexture("HUD/cartasEstagiario/Carta Atendimento _D_.png");
     bancoPerguntas[16].opcaoEsquerda = LoadTexture("HUD/cartasEstagiario/Carta Atendimento _A_.png");
 
-    bancoPerguntas[16].situacao.width*=1.2;
-    bancoPerguntas[16].opcaoDireita.width*=1.2;
-    bancoPerguntas[16].opcaoEsquerda.width*=1.2;
-    bancoPerguntas[16].situacao.height*=1.2;
-    bancoPerguntas[16].opcaoDireita.height*=1.2;
-    bancoPerguntas[16].opcaoEsquerda.height*=1.2;
+    bancoPerguntas[16].situacao.width*=0.4;
+    bancoPerguntas[16].opcaoDireita.width*=0.4;
+    bancoPerguntas[16].opcaoEsquerda.width*=0.4;
+    bancoPerguntas[16].situacao.height*=0.4;
+    bancoPerguntas[16].opcaoDireita.height*=0.4;
+    bancoPerguntas[16].opcaoEsquerda.height*=0.4;
     
     
 }

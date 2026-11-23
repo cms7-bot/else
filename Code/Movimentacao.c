@@ -10,6 +10,7 @@ void desbloquearFinal(int numero);
 void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro);
 void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
+void desenharCartasNaJanela(float escala, float offsetX, float offsetY);
 bool cartasEstaoAbertas(void);
 void definirOrigemCartas(int origem);
 void descarregarCartas(void);
@@ -3152,6 +3153,11 @@ for (int i = 6; i <= 13; i++)
             0,
             WHITE
         );
+
+
+        // CARTAS: desenhadas na resolucao real da janela (nitidas),
+        // e nao na tela virtual 1280x720 que e esticada
+        desenharCartasNaJanela(escala, offsetX, offsetY);
 
 
         // ======================================================

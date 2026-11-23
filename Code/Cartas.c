@@ -578,14 +578,46 @@ static void avancarAnimacao(float *anim, float duracao, float dt)
         *anim = limitar01(*anim + dt / duracao);
 }
 
-// desenha a textura centrada em (cx, cy) com escala, rotacao e transparencia
+// cartas pendentes: desenhadas depois que a tela virtual vai para a janela,
+// na resolucao real da tela (as imagens das cartas sao 3x, ficam nitidas)
+typedef struct CartaPendente
+{
+    Texture2D tex;
+    float cx, cy, escalaX, escalaY, rotacao, alpha;
+} CartaPendente;
+
+#define MAX_CARTAS_PENDENTES 4
+static CartaPendente cartasPendentes[MAX_CARTAS_PENDENTES];
+static int totalCartasPendentes = 0;
+
+// registra a textura centrada em (cx, cy) (coordenadas da tela virtual)
 static void desenharCartaAnimada(Texture2D tex, float cx, float cy, float escalaX, float escalaY, float rotacao, float alpha)
 {
-    Rectangle origem = {0, 0, (float)tex.width, (float)tex.height};
-    Rectangle destino = {cx, cy, tex.width * escalaX, tex.height * escalaY};
-    Vector2 pivo = {destino.width / 2.0f, destino.height / 2.0f};
+    if (totalCartasPendentes >= MAX_CARTAS_PENDENTES)
+        return;
 
-    DrawTexturePro(tex, origem, destino, pivo, rotacao, Fade(WHITE, limitar01(alpha)));
+    cartasPendentes[totalCartasPendentes++] = (CartaPendente){tex, cx, cy, escalaX, escalaY, rotacao, alpha};
+}
+
+void desenharCartasNaJanela(float escala, float offsetX, float offsetY)
+{
+    for (int i = 0; i < totalCartasPendentes; i++)
+    {
+        CartaPendente *c = &cartasPendentes[i];
+
+        Rectangle origem = {0, 0, (float)c->tex.width, (float)c->tex.height};
+        Rectangle destino = {
+            offsetX + c->cx * escala,
+            offsetY + c->cy * escala,
+            c->tex.width * c->escalaX * escala,
+            c->tex.height * c->escalaY * escala
+        };
+        Vector2 pivo = {destino.width / 2.0f, destino.height / 2.0f};
+
+        DrawTexturePro(c->tex, origem, destino, pivo, c->rotacao, Fade(WHITE, limitar01(c->alpha)));
+    }
+
+    totalCartasPendentes = 0;
 }
 
 void atualizarCartas()
@@ -811,6 +843,8 @@ void desenharCartas(
     int alturaResolucao
 )
 {
+    totalCartasPendentes = 0;
+
     // carta confirmada: voa para o lado girando e some
     if (animSaida < 1.0f && dirSaida != 0 && texSaida.id != 0)
     {
@@ -831,6 +865,9 @@ void desenharCartas(
 
     if (mostrarPromocao)
     {
+        totalCartasPendentes = 0;   // a promocao fica por cima da carta que saia
+        animSaida = 1.0f;
+
         DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f));
         DrawTexture(
             texPromocao,
