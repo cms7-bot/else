@@ -451,6 +451,26 @@ void iniciarCartas(
 
 
 // ==========================================================
+// DIFICULDADE POR NIVEL
+// Multiplica os efeitos das cartas do cargo (os valores das cartas seguem a
+// escala dos documentos: + = 5, ++ = 15, +++ = 25). Alvo de dificuldade:
+// Estagiario facil, Junior medio, Pleno dificil, Senior muito dificil,
+// Tech Lider extremo.
+// ==========================================================
+static const float DIFICULDADE_POR_CARGO[5] = {1.15f, 1.65f, 1.55f, 1.45f, 1.35f};
+
+static float multiplicadorDoNivel(void)
+{
+    int nivel = eventoAtual->cargo;
+
+    if (nivel < 0 || nivel > 4)
+        nivel = 0;
+
+    return DIFICULDADE_POR_CARGO[nivel];
+}
+
+
+// ==========================================================
 // ESCOLHA ESQUERDA
 // ==========================================================
 void escolherEsquerda()
@@ -458,7 +478,7 @@ void escolherEsquerda()
     if (eventoAtual == 0)
         return;
 
-    *confiancaApagado += eventoAtual->confiancaEsquerda;
+    *confiancaApagado += eventoAtual->confiancaEsquerda * multiplicadorDoNivel();
 
     if (*confiancaApagado <= 0.0f)
         *confiancaApagado = 0.0f;
@@ -467,7 +487,7 @@ void escolherEsquerda()
         *confiancaApagado = 0.73f;
 
 
-    *viesApagado += eventoAtual->viesEsquerda;
+    *viesApagado += eventoAtual->viesEsquerda * multiplicadorDoNivel();
 
     if (*viesApagado <= 0.0f)
         *viesApagado = 0.0f;
@@ -476,7 +496,7 @@ void escolherEsquerda()
         *viesApagado = 0.73f;
 
 
-    *privacidadeApagada += eventoAtual->privacidadeEsquerda;
+    *privacidadeApagada += eventoAtual->privacidadeEsquerda * multiplicadorDoNivel();
 
     if (*privacidadeApagada <= 0.0f)
         *privacidadeApagada = 0.0f;
@@ -485,7 +505,7 @@ void escolherEsquerda()
         *privacidadeApagada = 0.73f;
 
 
-    *lucroApagado += eventoAtual->lucroEsquerda;
+    *lucroApagado += eventoAtual->lucroEsquerda * multiplicadorDoNivel();
 
     if (*lucroApagado <= 0.0f)
         *lucroApagado = 0.0f;
@@ -506,10 +526,10 @@ void escolherDireita()
     if (eventoAtual == 0)
         return;
 
-    *confiancaApagado += eventoAtual->confiancaDireita;
-    *viesApagado += eventoAtual->viesDireita;
-    *privacidadeApagada += eventoAtual->privacidadeDireita;
-    *lucroApagado += eventoAtual->lucroDireita;
+    *confiancaApagado += eventoAtual->confiancaDireita * multiplicadorDoNivel();
+    *viesApagado += eventoAtual->viesDireita * multiplicadorDoNivel();
+    *privacidadeApagada += eventoAtual->privacidadeDireita * multiplicadorDoNivel();
+    *lucroApagado += eventoAtual->lucroDireita * multiplicadorDoNivel();
 
 
     if (*confiancaApagado <= 0.0f)
