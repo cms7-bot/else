@@ -13,6 +13,7 @@ void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 void desenharCartasNaJanela(float escala, float offsetX, float offsetY);
 void cancelarAnimacoesCartas(void);
+void definirTransformacaoTelaCartas(float escala, float offsetX, float offsetY);
 
 // FONTE DA INTERFACE (Cartas.c)
 float medirTextoUI(const char *texto, float tamanho);
@@ -2480,6 +2481,7 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
 
             if (!gameOver && memorando == 0)
             {
+                definirTransformacaoTelaCartas(escala, offsetX, offsetY);
                 atualizarCartas();
             }
 

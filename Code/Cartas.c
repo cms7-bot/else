@@ -351,6 +351,19 @@ static Sound somPapel;
 static Texture2D texPromocao;
 static Texture2D texBotaoContinue;
 static Rectangle areaBotaoContinue = {0, 0, 0, 0};
+
+// escala e deslocamento da tela virtual 1280x720 dentro da janela, para
+// converter o mouse (pixels da janela) em coordenadas da tela virtual
+static float escalaTelaCartas = 1.0f;
+static float offsetXTelaCartas = 0.0f;
+static float offsetYTelaCartas = 0.0f;
+
+void definirTransformacaoTelaCartas(float escala, float offsetX, float offsetY)
+{
+    escalaTelaCartas = (escala > 0.0f) ? escala : 1.0f;
+    offsetXTelaCartas = offsetX;
+    offsetYTelaCartas = offsetY;
+}
 static float escalaBotaoContinue = 1.0f;
 #define ESCALA_HOVER_BOTAO 1.1f
 #define PROMOCAO_BOTAO_OFFSET_Y 250
@@ -698,7 +711,10 @@ void atualizarCartas()
 
     if (mostrarPromocao)
     {
+        // a area do botao esta em coordenadas da tela virtual: converte o mouse
         Vector2 mouse = GetMousePosition();
+        mouse.x = (mouse.x - offsetXTelaCartas) / escalaTelaCartas;
+        mouse.y = (mouse.y - offsetYTelaCartas) / escalaTelaCartas;
         bool sobreBotao = CheckCollisionPointRec(mouse, areaBotaoContinue);
 
         // animação suave: o botão cresce ao passar o mouse e volta ao tamanho normal ao sair
