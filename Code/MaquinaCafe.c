@@ -24,6 +24,7 @@ extern float *privacidadeApagada;
 extern float *lucroApagado;
 
 const char *nomeCargo(void);
+void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado);
 
 #define PASTA_MAQUINA "cenario/maquina_cafe/"
 #define LIMITE_APAGADO 0.73f
@@ -287,11 +288,11 @@ void interagirBalcaoCafe(int larguraResolucao)
 
     if (!disponivel)
     {
-        DrawText("Maquina indisponivel ate a proxima fase", larguraResolucao - 460, 75, 20, GRAY);
+        agendarTextoUI("Máquina indisponível até a próxima fase", larguraResolucao - 460, 73, 22, GRAY, false);
         return;
     }
 
-    DrawText("Pressione E para consertar a maquina", larguraResolucao - 430, 75, 20, GREEN);
+    agendarTextoUI("Pressione E para consertar a máquina", larguraResolucao - 430, 73, 22, GREEN, false);
 
     if (IsKeyPressed(KEY_E))
     {

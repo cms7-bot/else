@@ -97,6 +97,18 @@ int obterCargo()
     return cargo;
 }
 
+// nome do cargo para mostrar na tela (com acento). O nomeCargo() acima
+// continua sem acento porque a maquina de cafe compara esse texto.
+const char *nomeCargoExibicao()
+{
+    if (cargo == 0) return "Estagiário";
+    if (cargo == 1) return "Júnior";
+    if (cargo == 2) return "Pleno";
+    if (cargo == 3) return "Sênior";
+
+    return "Tech Líder";
+}
+
 
 // ==========================================================
 // ESTADO DA CARTA
@@ -128,28 +140,28 @@ const char *obterMensagemFinal()
     switch (obterFinalDerrota())
     {
         case 1:
-            return "Foram tantas respostas erradas que os clientes voltaram a fazer tudo na mao. E juraram nunca mais confiar numa IA.";
+            return "Foram tantas respostas erradas que os clientes voltaram a fazer tudo na mão. E juraram nunca mais confiar numa IA.";
 
         case 2:
-            return "Todo mundo confiava tanto na IA que ninguem conferiu o relatorio. Era tudo inventado.";
+            return "Todo mundo confiava tanto na IA que ninguém conferiu o relatório. Era tudo inventado.";
 
         case 3:
-            return "A IA tratou todo mundo exatamente igual. Igualdade perfeita no papel; na vida real, ninguem foi atendido direito.";
+            return "A IA tratou todo mundo exatamente igual. Igualdade perfeita no papel; na vida real, ninguém foi atendido direito.";
 
         case 4:
-            return "Ninguem programou a IA pra discriminar. Ela aprendeu sozinha, com os nossos dados. Os processos chegaram.";
+            return "Ninguém programou a IA pra discriminar. Ela aprendeu sozinha, com os nossos dados. Os processos chegaram.";
 
         case 5:
-            return "A IA conhecia muito bem os clientes. A internet inteira tambem, depois do vazamento.";
+            return "A IA conhecia muito bem os clientes. A internet inteira também, depois do vazamento.";
 
         case 6:
-            return "Os dados estavam perfeitamente protegidos. Tao protegidos que nem a IA conseguia usar.";
+            return "Os dados estavam perfeitamente protegidos. Tão protegidos que nem a IA conseguia usar.";
 
         case 7:
-            return "Sem dinheiro pra pagar o servidor, a IA foi desligada no meio de uma fra";
+            return "Sem dinheiro pra pagar o servidor, a IA foi desligada no meio de uma frase.";
 
         case 8:
-            return "Os acionistas comemoraram ate a investigacao comecar.";
+            return "Os acionistas comemoraram até a investigação começar.";
     }
 
     return "";
@@ -344,6 +356,8 @@ static float escalaBotaoContinue = 1.0f;
 #define PROMOCAO_BOTAO_OFFSET_Y 250
 #define ESCALA_BASE_BOTAO 0.5f
 #define PROMOCAO_BOTAO_OFFSET_Y 270
+static Font obterFonteUI(void);   // fonte da interface (definida mais abaixo)
+
 // estado das animacoes (valores iniciais definidos mais abaixo)
 static float animEntrada, animTroca, animSaida;
 static Texture2D texSaida;
@@ -356,6 +370,7 @@ void iniciarCartas(
     float *lucro
 )
 {
+    obterFonteUI();   // carrega a fonte agora, sem travar no meio do jogo
     // zera as animacoes: nada de carta (ou sobra de saida) aparecendo ao reiniciar
     animEntrada = 1.0f;
     animTroca = 1.0f;
@@ -753,6 +768,111 @@ void atualizarCartas()
 
 
 // ==========================================================
+// FONTE DA INTERFACE (Inter, com acentos e suavizada)
+// ==========================================================
+static Font fonteUI;
+static bool fonteUICarregada = false;
+
+static Font obterFonteUI(void)
+{
+    if (!fonteUICarregada)
+    {
+        int glifos[256];
+        int total = 0;
+
+        for (int c = 32; c <= 255; c++)
+            glifos[total++] = c;
+
+        // aspas curvas, travessoes e reticencias
+        int extras[] = {0x2018, 0x2019, 0x201C, 0x201D, 0x2013, 0x2014, 0x2026};
+        for (int i = 0; i < 7; i++)
+            glifos[total++] = extras[i];
+
+        fonteUI = LoadFontEx("Fontes/Inter-SemiBold.otf", 80, glifos, total);
+
+        if (fonteUI.texture.id == 0)
+        {
+            fonteUI = GetFontDefault();
+        }
+        else
+        {
+            GenTextureMipmaps(&fonteUI.texture);
+            SetTextureFilter(fonteUI.texture, TEXTURE_FILTER_TRILINEAR);
+        }
+
+        fonteUICarregada = true;
+    }
+
+    return fonteUI;
+}
+
+float medirTextoUI(const char *texto, float tamanho)
+{
+    return MeasureTextEx(obterFonteUI(), texto, tamanho, 0.0f).x;
+}
+
+void desenharTextoUI(const char *texto, float x, float y, float tamanho, Color cor)
+{
+    DrawTextEx(obterFonteUI(), texto, (Vector2){x, y}, tamanho, 0.0f, cor);
+}
+
+
+// ==========================================================
+// TEXTOS PENDENTES: desenhados na resolucao real da janela
+// (a tela virtual 1280x720 e esticada e deixaria o texto borrado)
+// ==========================================================
+typedef struct TextoPendente
+{
+    char texto[96];
+    float x, y, tamanho;
+    Color cor;
+    bool centralizado;
+} TextoPendente;
+
+#define MAX_TEXTOS_PENDENTES 12
+static TextoPendente textosPendentes[MAX_TEXTOS_PENDENTES];
+static int totalTextosPendentes = 0;
+
+void limparTextosUI(void)
+{
+    totalTextosPendentes = 0;
+}
+
+// x, y e tamanho em coordenadas da tela virtual (1280x720)
+void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado)
+{
+    if (totalTextosPendentes >= MAX_TEXTOS_PENDENTES)
+        return;
+
+    TextoPendente *t = &textosPendentes[totalTextosPendentes++];
+    strncpy(t->texto, texto, sizeof(t->texto) - 1);
+    t->texto[sizeof(t->texto) - 1] = '\0';
+    t->x = x;
+    t->y = y;
+    t->tamanho = tamanho;
+    t->cor = cor;
+    t->centralizado = centralizado;
+}
+
+void desenharTextosNaJanela(float escala, float offsetX, float offsetY)
+{
+    for (int i = 0; i < totalTextosPendentes; i++)
+    {
+        TextoPendente *t = &textosPendentes[i];
+        float tam = t->tamanho * escala;
+        float x = offsetX + t->x * escala;
+
+        if (t->centralizado)
+            x -= medirTextoUI(t->texto, tam) / 2.0f;
+
+        desenharTextoUI(t->texto, x, offsetY + t->y * escala, tam, t->cor);
+    }
+
+    totalTextosPendentes = 0;
+}
+
+
+// ==========================================================
 // TEXTO QUEBRADO
 // ==========================================================
 void desenharTextoQuebrado(
@@ -768,7 +888,7 @@ void desenharTextoQuebrado(
     char linha[512] = "";
 
     int indicePalavra = 0;
-    int yAtual = y;
+    float yAtual = y;
 
     for (int i = 0;; i++)
     {
@@ -806,13 +926,13 @@ void desenharTextoQuebrado(
                 }
 
                 if (
-                    MeasureText(
+                    medirTextoUI(
                         teste,
                         tamanho
                     ) > larguraMaxima
                 )
                 {
-                    DrawText(
+                    desenharTextoUI(
                         linha,
                         x,
                         yAtual,
@@ -820,7 +940,7 @@ void desenharTextoQuebrado(
                         cor
                     );
 
-                    yAtual += tamanho + 8;
+                    yAtual += tamanho * 1.4f;
 
                     strcpy(
                         linha,
@@ -846,7 +966,7 @@ void desenharTextoQuebrado(
 
     if (strlen(linha) > 0)
     {
-        DrawText(
+        desenharTextoUI(
             linha,
             x,
             yAtual,

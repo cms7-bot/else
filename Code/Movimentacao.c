@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "rlgl.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include "Regras.h"
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
@@ -11,6 +12,14 @@ void iniciarCartas(float *cadeado, float *vies, float *privacidade, float *lucro
 void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 void desenharCartasNaJanela(float escala, float offsetX, float offsetY);
+
+// FONTE DA INTERFACE (Cartas.c)
+float medirTextoUI(const char *texto, float tamanho);
+void desenharTextoUI(const char *texto, float x, float y, float tamanho, Color cor);
+void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado);
+void desenharTextosNaJanela(float escala, float offsetX, float offsetY);
+void limparTextosUI(void);
+const char *nomeCargoExibicao(void);
 bool cartasEstaoAbertas(void);
 void definirOrigemCartas(int origem);
 void descarregarCartas(void);
@@ -789,6 +798,8 @@ InicializarBancoPerguntas();
 
     while (!WindowShouldClose())
     {
+        limparTextosUI();
+
         float escalaX =
             (float)GetScreenWidth() /
             larguraResolucao;
@@ -2435,14 +2446,17 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             );
 
 
-            DrawText(
-                "Pressione E para realizar a tarefa",
-                larguraResolucao -
-                400,
-                75,
-                20,
-                GREEN
-            );
+            if (!cartasEstaoAbertas() && memorando == 0)
+            {
+                agendarTextoUI(
+                    "Pressione E para realizar a tarefa",
+                    larguraResolucao - 400,
+                    73,
+                    22,
+                    GREEN,
+                    false
+                );
+            }
 
 
             bool cartaEstavaAberta =
@@ -3068,10 +3082,10 @@ for (int i = 6; i <= 13; i++)
             int telaL = 48 * telaContadorDeDias.width / 64;
             int telaY = 8 * telaContadorDeDias.height / 50;
             int telaA = 32 * telaContadorDeDias.height / 50;
-            DrawText(textoDias,
-                     telaX + (telaL - MeasureText(textoDias, tamanhoDias)) / 2,
-                     telaY + (telaA - tamanhoDias) / 2,
-                     tamanhoDias, (Color){198, 183, 255, 255});
+            agendarTextoUI(textoDias,
+                           telaX + telaL / 2.0f,
+                           telaY + (telaA - tamanhoDias) / 2.0f - 1,
+                           tamanhoDias, (Color){198, 183, 255, 255}, true);
         }
 
         // botao de menu (abre a pausa) e botao de som (liga/desliga a musica)
@@ -3116,12 +3130,13 @@ for (int i = 6; i <= 13; i++)
             const char *dicaMemorando =
                 "Pressione ENTER para continuar";
 
-            DrawText(
+            agendarTextoUI(
                 dicaMemorando,
-                (larguraResolucao - MeasureText(dicaMemorando, 20)) / 2,
-                alturaResolucao - 30,
-                20,
-                WHITE
+                larguraResolucao / 2.0f,
+                alturaResolucao - 34,
+                22,
+                WHITE,
+                true
             );
         }
 
@@ -3176,6 +3191,7 @@ for (int i = 6; i <= 13; i++)
         // CARTAS: desenhadas na resolucao real da janela (nitidas),
         // e nao na tela virtual 1280x720 que e esticada
         desenharCartasNaJanela(escala, offsetX, offsetY);
+        desenharTextosNaJanela(escala, offsetX, offsetY);
 
 
         // ======================================================
@@ -3246,43 +3262,29 @@ for (int i = 6; i <= 13; i++)
             );
 
 
-            const char *cargoFinal =
-                TextToUpper(
-                    nomeCargo()
-                );
+            // cargo em maiusculas (com acento: o TextToUpper so cobre ASCII)
+            char cargoFinal[48];
+            snprintf(cargoFinal, sizeof(cargoFinal), "%s", nomeCargoExibicao());
 
-
-            int tamanhoCargo =
-                20 *
-                escala;
-
-
-            DrawText(
-                cargoFinal,
-
-                offsetX +
-                347 *
-                escala -
-                MeasureText(
-                    cargoFinal,
-                    tamanhoCargo
-                ) /
-                2,
-
-                offsetY +
-                432 *
-                escala -
-                tamanhoCargo /
-                2,
-
-                tamanhoCargo,
-
-                (Color){
-                    70,
-                    74,
-                    90,
-                    255
+            for (unsigned char *p = (unsigned char *)cargoFinal; *p; p++)
+            {
+                if (*p >= 'a' && *p <= 'z')
+                    *p -= 32;
+                else if (*p == 0xC3 && p[1] >= 0xA0 && p[1] <= 0xBE && p[1] != 0xB7)
+                {
+                    p[1] -= 0x20;
+                    p++;
                 }
+            }
+
+            float tamanhoCargo = 20 * escala;
+
+            desenharTextoUI(
+                cargoFinal,
+                offsetX + 347 * escala - medirTextoUI(cargoFinal, tamanhoCargo) / 2,
+                offsetY + 432 * escala - tamanhoCargo / 2,
+                tamanhoCargo,
+                (Color){70, 74, 90, 255}
             );
 
 
@@ -3314,37 +3316,14 @@ for (int i = 6; i <= 13; i++)
                 );
 
 
-            int tamanhoDias =
-                28 *
-                escala;
+            float tamanhoDias = 28 * escala;
 
-
-            DrawText(
+            desenharTextoUI(
                 textoDias,
-
-                offsetX +
-                735 *
-                escala -
-                MeasureText(
-                    textoDias,
-                    tamanhoDias
-                ) /
-                2,
-
-                offsetY +
-                400 *
-                escala -
-                tamanhoDias /
-                2,
-
+                offsetX + 735 * escala - medirTextoUI(textoDias, tamanhoDias) / 2,
+                offsetY + 400 * escala - tamanhoDias / 2,
                 tamanhoDias,
-
-                (Color){
-                    255,
-                    214,
-                    102,
-                    255
-                }
+                (Color){255, 214, 102, 255}
             );
 
 
