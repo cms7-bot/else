@@ -541,12 +541,13 @@ static int cliqueNoA =0;
 // ==========================================================
 // ANIMACOES DA CARTA (0.0 = comecando, 1.0 = terminada)
 // ==========================================================
-#define DURACAO_ENTRADA 0.40f
-#define DURACAO_TROCA   0.22f
-#define DURACAO_SAIDA   0.32f
+#define DURACAO_ENTRADA 0.45f
+#define DURACAO_TROCA   0.28f
+#define DURACAO_SAIDA   0.38f
 
 static float animEntrada = 1.0f;   // carta entra deslizando de baixo
-static float animTroca = 1.0f;     // "virar" ao trocar entre situacao/A/D
+static float animTroca = 1.0f;     // carta gira/desliza ao trocar entre situacao/A/D
+static int poseAnterior = 0;       // pose de onde a troca parte: -1 = A, 0 = situacao, +1 = D
 static float animSaida = 1.0f;     // carta confirmada voa para o lado
 static Texture2D texSaida = {0};
 static int dirSaida = 0;           // -1 esquerda, +1 direita
@@ -558,18 +559,37 @@ static float limitar01(float t)
     return t;
 }
 
-static float easeOutBack(float t)
-{
-    const float c1 = 1.70158f;
-    const float c3 = c1 + 1.0f;
-    float x = t - 1.0f;
-    return 1.0f + c3 * x * x * x + c1 * x * x;
-}
-
 static float easeOutCubic(float t)
 {
     float x = 1.0f - t;
     return 1.0f - x * x * x;
+}
+
+static float easeInCubic(float t)
+{
+    return t * t * t;
+}
+
+// pose atual da carta: -1 = opcao A (esquerda), 0 = situacao, +1 = opcao D (direita)
+static int poseAtualCarta(void)
+{
+    if (cliqueNoA == 1) return -1;
+    if (cliqueNoD == 1) return 1;
+    return 0;
+}
+
+static Texture2D texturaDaPose(int pose)
+{
+    if (pose < 0) return eventoAtual->opcaoEsquerda;
+    if (pose > 0) return eventoAtual->opcaoDireita;
+    return eventoAtual->situacao;
+}
+
+// guarda de onde a carta esta saindo e reinicia a animacao de troca
+static void iniciarTrocaPose(void)
+{
+    poseAnterior = poseAtualCarta();
+    animTroca = 0.0f;
 }
 
 static void avancarAnimacao(float *anim, float duracao, float dt)
@@ -613,6 +633,12 @@ void desenharCartasNaJanela(float escala, float offsetX, float offsetY)
             c->tex.height * c->escalaY * escala
         };
         Vector2 pivo = {destino.width / 2.0f, destino.height / 2.0f};
+
+        // sombra suave sob a carta (da profundidade)
+        Rectangle sombra = destino;
+        sombra.x += 4.0f * escala;
+        sombra.y += 12.0f * escala;
+        DrawTexturePro(c->tex, origem, sombra, pivo, c->rotacao, Fade(BLACK, limitar01(c->alpha) * 0.30f));
 
         DrawTexturePro(c->tex, origem, destino, pivo, c->rotacao, Fade(WHITE, limitar01(c->alpha)));
     }
@@ -661,6 +687,7 @@ void atualizarCartas()
                 cartaAberta = true;
                 animEntrada = 0.0f;
                 animTroca = 1.0f;
+                poseAnterior = 0;
             }
 
             cliqueNoS = 1;
@@ -673,20 +700,20 @@ void atualizarCartas()
     }
     else{
     if(IsKeyPressed(KEY_A)){
-        if (cliqueNoA == 0) { PlaySound(somPapel); animTroca = 0.0f; }
+        if (cliqueNoA == 0) { PlaySound(somPapel); iniciarTrocaPose(); }
 
             cliqueNoA += 1;
             cliqueNoS = 0;
             cliqueNoD = 0;
     }
     if(IsKeyPressed(KEY_D)){
-        if (cliqueNoD == 0) { PlaySound(somPapel); animTroca = 0.0f; }
+        if (cliqueNoD == 0) { PlaySound(somPapel); iniciarTrocaPose(); }
             cliqueNoA = 0;
             cliqueNoS = 0;
             cliqueNoD += 1;
     }
     if(IsKeyPressed(KEY_S)){
-            if (cliqueNoS == 0) animTroca = 0.0f;
+            if (cliqueNoS == 0) iniciarTrocaPose();
             cliqueNoA = 0;
             cliqueNoS = 1;
             cliqueNoD = 0;
@@ -845,21 +872,23 @@ void desenharCartas(
 {
     totalCartasPendentes = 0;
 
-    // carta confirmada: voa para o lado girando e some
+    // carta confirmada: e arremessada para o lado (acelerando), continua
+    // inclinando na mesma direcao e some no fim, como num "swipe"
     if (animSaida < 1.0f && dirSaida != 0 && texSaida.id != 0)
     {
-        float e = animSaida * animSaida;
+        float e = easeInCubic(animSaida);
+        float alphaSaida = (animSaida < 0.6f) ? 1.0f : 1.0f - (animSaida - 0.6f) / 0.4f;
 
         DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f * (1.0f - animSaida)));
 
         desenharCartaAnimada(
             texSaida,
-            larguraResolucao / 2.0f + dirSaida * 100 + dirSaida * e * 520.0f,
-            alturaResolucao / 2.0f - 20 - e * 70.0f,
-            1.0f - 0.2f * e,
-            1.0f - 0.2f * e,
-            dirSaida * e * 28.0f,
-            1.0f - animSaida
+            larguraResolucao / 2.0f + dirSaida * 100 + dirSaida * e * 900.0f,
+            alturaResolucao / 2.0f - 20 + e * 50.0f,
+            1.0f,
+            1.0f,
+            dirSaida * e * 14.0f,
+            alphaSaida
         );
     }
 
@@ -912,60 +941,49 @@ void desenharCartas(
         return;
 
 
-    float alphaEntrada = limitar01(animEntrada * 2.5f);
-    float easeEntrada = easeOutBack(animEntrada);
+    float alphaEntrada = limitar01(animEntrada * 3.0f);
+    float eEntrada = easeOutCubic(animEntrada);
     Color corTecla = Fade(WHITE, alphaEntrada);
 
     DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f * alphaEntrada));
 
-    // teclas (sobem junto com a carta)
-    float subida = (1.0f - easeEntrada) * 160.0f;
+    // entrada: carta e teclas sobem suavemente e a carta endireita (sem quique)
+    float subida = (1.0f - eEntrada) * 150.0f;
+    float inclinaEntrada = (1.0f - eEntrada) * -6.0f;
+    float escalaEntrada = 0.94f + 0.06f * eEntrada;
 
     DrawTexture(teclaSapagada,(larguraResolucao - teclaSapagada.width) / 2,(+290) + (alturaResolucao - teclaSapagada.height)/2 + subida, corTecla);
     DrawTexture(teclaAapagada,(-100) + (larguraResolucao - teclaAapagada.width) / 2,(+290) + (alturaResolucao - teclaAapagada.height)/2 + subida, corTecla);
     DrawTexture(teclaDapagada,(+100) + (larguraResolucao - teclaDapagada.width) / 2,(+290) + (alturaResolucao - teclaDapagada.height)/2 + subida, corTecla);
 
-    // carta: entra deslizando de baixo (com leve "quique") e flutua depois
-    float flutuar = (animEntrada >= 1.0f) ? sinf((float)GetTime() * 2.0f) * 3.0f : 0.0f;
-    float escalaEntrada = 0.85f + 0.15f * easeEntrada;
+    // flutuacao leve quando a carta esta parada
+    float flutuar = (animEntrada >= 1.0f && animTroca >= 1.0f) ? sinf((float)GetTime() * 2.0f) * 2.5f : 0.0f;
+    float centroY = alturaResolucao / 2.0f - 20 + subida + flutuar;
 
-    // troca de carta: "vira" (achata e abre) com um pequeno salto
-    float t = easeOutCubic(animTroca);
-    float escalaX = escalaEntrada * (0.05f + 0.95f * t);
-    float saltoTroca = (1.0f - t) * -14.0f;
+    int poseNova = poseAtualCarta();
+    float e = easeOutCubic(animTroca);
+    float cx = larguraResolucao / 2.0f + (poseAnterior + (poseNova - poseAnterior) * e) * 100.0f;
+    float anguloNovo = poseNova * 15.0f;     // inclinacao ja presente nas imagens A/D
+    float anguloVelho = poseAnterior * 15.0f;
 
-    Texture2D cartaAtual;
-    float deslocX = 0;
-    Texture2D teclaAcesa;
-    float tecX = 0;
-
-    if (cliqueNoA == 1)
+    if (animTroca < 1.0f && poseAnterior != poseNova)
     {
-        cartaAtual = eventoAtual->opcaoEsquerda; deslocX = -100;
-        teclaAcesa = teclaAacesa; tecX = -100;
-    }
-    else if (cliqueNoD == 1)
-    {
-        cartaAtual = eventoAtual->opcaoDireita; deslocX = 100;
-        teclaAcesa = teclaDacesa; tecX = 100;
+        // a carta antiga gira e desliza para a nova pose enquanto some;
+        // a nova chega girando da pose anterior e se firma
+        desenharCartaAnimada(texturaDaPose(poseAnterior), cx, centroY, escalaEntrada, escalaEntrada,
+                             inclinaEntrada + (anguloNovo - anguloVelho) * e, alphaEntrada * (1.0f - e));
+        desenharCartaAnimada(texturaDaPose(poseNova), cx, centroY, escalaEntrada, escalaEntrada,
+                             inclinaEntrada + (anguloVelho - anguloNovo) * (1.0f - e), alphaEntrada * limitar01(e * 1.6f));
     }
     else
     {
-        cartaAtual = eventoAtual->situacao;
-        teclaAcesa = teclaSacesa;
+        desenharCartaAnimada(texturaDaPose(poseNova), cx, centroY, escalaEntrada, escalaEntrada,
+                             inclinaEntrada, alphaEntrada);
     }
 
-    desenharCartaAnimada(
-        cartaAtual,
-        larguraResolucao / 2.0f + deslocX,
-        alturaResolucao / 2.0f - 20 + subida + flutuar + saltoTroca,
-        escalaX,
-        escalaEntrada,
-        0.0f,
-        alphaEntrada
-    );
+    Texture2D teclaAcesa = (poseNova < 0) ? teclaAacesa : (poseNova > 0) ? teclaDacesa : teclaSacesa;
 
-    DrawTexture(teclaAcesa,(int)tecX + (larguraResolucao - teclaAcesa.width) / 2,(+290) + (alturaResolucao - teclaAcesa.height)/2 + subida, corTecla);
+    DrawTexture(teclaAcesa,(poseNova * 100) + (larguraResolucao - teclaAcesa.width) / 2,(+290) + (alturaResolucao - teclaAcesa.height)/2 + subida, corTecla);
 }
 // ==========================================================
 // FINALIZAÇÃO
