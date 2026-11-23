@@ -1125,21 +1125,38 @@ InicializarBancoPerguntas();
             };
 
 
-            // Botões menores
+            // Botoes maiores (a arte do botao tem proporcao 447 x 112)
             float larguraBotao =
-                165.0f *
+                205.0f *
                 escala;
 
 
             float alturaBotao =
-                41.0f *
+                larguraBotao *
+                areaUtilPause.height /
+                areaUtilPause.width;
+
+
+            float espacoBotoes =
+                12.0f *
                 escala;
 
 
-            // Todos usam exatamente o mesmo centro
+            // Centro do quadrado cinza na imagem TelaPausa.png (585x585):
+            // x = 230, y = 290. Os botoes ficam centralizados nele.
             float centroBotoesX =
-                offsetX +
-                larguraFinal /
+                destinoTelaPausa.x +
+                230.0f *
+                escalaPainelPausa;
+
+            float centroBotoesY =
+                destinoTelaPausa.y +
+                290.0f *
+                escalaPainelPausa;
+
+            float topoBotoes =
+                centroBotoesY -
+                (3 * alturaBotao + 2 * espacoBotoes) /
                 2;
 
 
@@ -1152,9 +1169,7 @@ InicializarBancoPerguntas();
                 larguraBotao /
                 2,
 
-                offsetY +
-                300 *
-                escala,
+                topoBotoes,
 
                 larguraBotao,
                 alturaBotao
@@ -1174,9 +1189,9 @@ InicializarBancoPerguntas();
                 larguraBotao /
                 2,
 
-                offsetY +
-                352 *
-                escala,
+                topoBotoes +
+                alturaBotao +
+                espacoBotoes,
 
                 larguraBotao,
                 alturaBotao
@@ -1196,9 +1211,8 @@ InicializarBancoPerguntas();
                 larguraBotao /
                 2,
 
-                offsetY +
-                404 *
-                escala,
+                topoBotoes +
+                2 * (alturaBotao + espacoBotoes),
 
                 larguraBotao,
                 alturaBotao
