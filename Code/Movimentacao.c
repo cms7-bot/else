@@ -1773,6 +1773,23 @@ InicializarBancoPerguntas();
             texturaAtualGuardada;
 
 
+        // Ao escolher a carta com A/D a tecla ainda esta pressionada quando a
+        // carta some: o boneco so volta a andar depois de soltar as teclas.
+        static bool esperarSoltarTeclas = false;
+
+        if (cartaAbertaPararDeAndar)
+        {
+            esperarSoltarTeclas = true;
+        }
+        else if (
+            !IsKeyDown(KEY_W) && !IsKeyDown(KEY_A) &&
+            !IsKeyDown(KEY_S) && !IsKeyDown(KEY_D)
+        )
+        {
+            esperarSoltarTeclas = false;
+        }
+
+
         bool botaoAeDapertados =
             IsKeyDown(KEY_D) &&
             IsKeyDown(KEY_A);
@@ -1785,6 +1802,7 @@ InicializarBancoPerguntas();
 
         if (
             !cartaAbertaPararDeAndar && !maquinaCafeAberta() &&
+            !esperarSoltarTeclas &&
             !gameOver
         )
         {
