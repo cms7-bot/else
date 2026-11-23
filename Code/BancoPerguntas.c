@@ -494,7 +494,7 @@ Evento carta9 = {
         .cargo = 1,
         .origem = 0,
 
-        .titulo = "Biblioteca inexistente",
+        .titulo = "Biblioteca que não existe",
 
         .texto =
             "O assistente de código com IA sugere uma biblioteca que resolve tudo. Ela não existe, mas tem uma com nome parecido, de um autor desconhecido.",
@@ -627,7 +627,7 @@ Evento carta9 = {
         .cargo = 1,
         .origem = 0,
 
-        .titulo = "Contratos em servidor alheio",
+        .titulo = "Contratos fora da empresa",
 
         .texto =
             "Você descobre que a IA que o time usa pra resumir contratos envia os textos pra servidores de outra empresa. Os contratos têm dados de clientes.",
@@ -649,7 +649,7 @@ Evento carta9 = {
         .cargo = 2,
         .origem = 0,
 
-        .titulo = "Crédito e CEP",
+        .titulo = "Crédito por CEP",
 
         .texto =
             "Você lidera a feature de análise de crédito. O modelo contratado reprova muito mais gente de CEP de periferia. Corrigir atrasa o lançamento em um mês.",
@@ -671,7 +671,7 @@ Evento carta9 = {
         .cargo = 2,
         .origem = 1,
 
-        .titulo = "Chatbot promete reembolso",
+        .titulo = "Reembolso inventado",
 
         .texto =
             "O chatbot que seu time integrou começou a prometer reembolsos que não existem na política da empresa. Os clientes estão cobrando.",
@@ -716,7 +716,7 @@ Evento carta9 = {
         .cargo = 2,
         .origem = 0,
 
-        .titulo = "Suporte trocado por IA",
+        .titulo = "Suporte só com IA",
 
         .texto =
             "A diretoria quer trocar o time de suporte por um agente de IA e pede sua opinião. Nos testes, ele erra nos casos difíceis.",
@@ -738,7 +738,7 @@ Evento carta9 = {
         .cargo = 2,
         .origem = 0,
 
-        .titulo = "A pergunta do cliente",
+        .titulo = "IA fora do contrato",
 
         .texto =
             "Um cliente grande pergunta se o produto usa IA pra tomar decisões sobre os usuários dele. Usa, mas isso não está no contrato.",
@@ -782,7 +782,7 @@ Evento carta9 = {
         .cargo = 2,
         .origem = 1,
 
-        .titulo = "Áudio do microfone",
+        .titulo = "Microfone ligado",
 
         .texto =
             "Produto quer gravar o áudio do microfone dos usuários “só com o app aberto” pra melhorar recomendações. Isso fica escondido nos termos de uso.",
@@ -826,7 +826,7 @@ Evento carta9 = {
         .cargo = 3,
         .origem = 0,
 
-        .titulo = "Escolha da IA de triagem",
+        .titulo = "IA de currículos",
 
         .texto =
             "Você escolhe a IA de triagem de currículos que a empresa vai oferecer a todos os clientes. A mais barata tem viés conhecido contra mulheres. A mais justa custa o triplo.",
@@ -893,7 +893,7 @@ Evento carta9 = {
         .cargo = 3,
         .origem = 0,
 
-        .titulo = "Júnior dependente de IA",
+        .titulo = "Júnior que só usa IA",
 
         .texto =
             "Uma pessoa júnior do seu time não consegue mais programar sem IA e entrega código que não entende. Você quase não tem tempo pra mentoria.",
@@ -937,7 +937,7 @@ Evento carta9 = {
         .cargo = 3,
         .origem = 1,
 
-        .titulo = "Conversas para o parceiro",
+        .titulo = "Conversas de suporte",
 
         .texto =
             "Um parceiro quer treinar o modelo dele com as conversas de suporte dos últimos 5 anos. Nenhum cliente autorizou isso.",
@@ -959,7 +959,7 @@ Evento carta9 = {
         .cargo = 3,
         .origem = 0,
 
-        .titulo = "Previsão para investidores",
+        .titulo = "Previsão pros investidores",
 
         .texto =
             "A diretoria vai mostrar aos investidores uma previsão de crescimento feita pela IA. Você vê que ela usou dados que não existem.",
@@ -1003,7 +1003,7 @@ Evento carta9 = {
         .cargo = 4,
         .origem = 1,
 
-        .titulo = "Contrato com dados falsos",
+        .titulo = "Contrato milionário",
 
         .texto =
             "Um relatório da IA embasou um contrato milionário que já foi assinado. Você descobre que metade dos dados era inventada.",
@@ -1025,7 +1025,7 @@ Evento carta9 = {
         .cargo = 4,
         .origem = 0,
 
-        .titulo = "A oferta da big tech",
+        .titulo = "Venda de dados",
 
         .texto =
             "Uma big tech quer comprar todos os dados dos usuários da empresa. Esse dinheiro salvaria o ano.",
@@ -1047,7 +1047,7 @@ Evento carta9 = {
         .cargo = 4,
         .origem = 0,
 
-        .titulo = "Todo o código por IA",
+        .titulo = "Todo código por IA",
 
         .texto =
             "O CEO quer que todo o código seja escrito por IA e cortar metade do time. Você sabe que em um ano ninguém vai entender o sistema.",
@@ -1069,7 +1069,7 @@ Evento carta9 = {
         .cargo = 4,
         .origem = 0,
 
-        .titulo = "Sem política de IA",
+        .titulo = "Política de IA",
 
         .texto =
             "A empresa nunca teve regras sobre uso de IA. Criar uma política séria vai atrasar todos os projetos por um mês.",
@@ -1091,7 +1091,7 @@ Evento carta9 = {
         .cargo = 4,
         .origem = 1,
 
-        .titulo = "O estudo engavetado",
+        .titulo = "Estudo engavetado",
 
         .texto =
             "Um estudo interno mostra viés num produto que já está em 200 clientes. Corrigir significa admitir o erro publicamente.",
@@ -1135,7 +1135,7 @@ Evento carta9 = {
         .cargo = 4,
         .origem = 0,
 
-        .titulo = "O hospital fora do ar",
+        .titulo = "Hospital fora do ar",
 
         .texto =
             "Uma falha de IA derrubou o sistema de um hospital cliente por horas. A imprensa liga. O time confiou demais e não revisou.",
@@ -1228,37 +1228,37 @@ static const char *arquivosCartas[48][2] =
     { "cartasEstagiario", "Codigo" },
     { "cartasEstagiario", "Documento" },
     { "cartasEstagiario", "Atendimento" },
-    { "cartasJunior", "Filtro Regional" },
-    { "cartasJunior", "Biblioteca Falsa" },
-    { "cartasJunior", "Dados de Teste" },
-    { "cartasJunior", "Pull Request" },
+    { "cartasJunior", "Filtro de comentarios" },
+    { "cartasJunior", "Biblioteca fantasma" },
+    { "cartasJunior", "Banco de producao" },
+    { "cartasJunior", "Pull request gigante" },
     { "cartasJunior", "Aviso de IA" },
-    { "cartasJunior", "Vagas Internas" },
-    { "cartasJunior", "Resumo da Reuniao" },
-    { "cartasJunior", "Contratos na Nuvem" },
-    { "cartasPleno", "Analise de Credito" },
-    { "cartasPleno", "Chatbot Reembolso" },
-    { "cartasPleno", "Dados Anonimizados" },
-    { "cartasPleno", "Suporte por IA" },
-    { "cartasPleno", "Cliente Grande" },
-    { "cartasPleno", "Avaliacao Desempenho" },
-    { "cartasPleno", "Microfone" },
-    { "cartasPleno", "Testes Falsos" },
-    { "cartasSenior", "Triagem Cliente" },
-    { "cartasSenior", "Dose do Remedio" },
-    { "cartasSenior", "Orgao Publico" },
-    { "cartasSenior", "Mentoria" },
-    { "cartasSenior", "Vazamento" },
-    { "cartasSenior", "Treinar Parceiro" },
-    { "cartasSenior", "Previsao Investidores" },
+    { "cartasJunior", "Vagas de lideranca" },
+    { "cartasJunior", "Resumo da reuniao" },
+    { "cartasJunior", "Contratos na nuvem" },
+    { "cartasPleno", "Credito por CEP" },
+    { "cartasPleno", "Reembolso inventado" },
+    { "cartasPleno", "Dados anonimizados" },
+    { "cartasPleno", "Suporte com IA" },
+    { "cartasPleno", "IA fora do contrato" },
+    { "cartasPleno", "Avaliacao de desempenho" },
+    { "cartasPleno", "Microfone ligado" },
+    { "cartasPleno", "Testes de fachada" },
+    { "cartasSenior", "IA de curriculos" },
+    { "cartasSenior", "Dose inventada" },
+    { "cartasSenior", "Pedido sem ordem" },
+    { "cartasSenior", "Junior sem base" },
+    { "cartasSenior", "Vazamento silencioso" },
+    { "cartasSenior", "Historico de suporte" },
+    { "cartasSenior", "Previsao inflada" },
     { "cartasTechLider", "Demissoes por IA" },
-    { "cartasTechLider", "Contrato Milionario" },
-    { "cartasTechLider", "Venda de Dados" },
-    { "cartasTechLider", "Codigo por IA" },
+    { "cartasTechLider", "Relatorio inventado" },
+    { "cartasTechLider", "Venda de dados" },
+    { "cartasTechLider", "Time cortado" },
     { "cartasTechLider", "Politica de IA" },
-    { "cartasTechLider", "Estudo de Vies" },
+    { "cartasTechLider", "Estudo engavetado" },
     { "cartasTechLider", "Vigilancia" },
-    { "cartasTechLider", "Falha no Hospital" },
+    { "cartasTechLider", "Hospital fora do ar" },
 };
 
 void CarregarTexturasCartas()
