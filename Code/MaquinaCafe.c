@@ -24,7 +24,8 @@ extern float *privacidadeApagada;
 extern float *lucroApagado;
 
 const char *nomeCargo(void);
-void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado);
+void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado, int fonte);
+Rectangle retanguloAnimadoBotao(const char *nome, Rectangle base, bool hover);   // animacao padrao dos botoes
 
 #define PASTA_MAQUINA "cenario/maquina_cafe/"
 #define LIMITE_APAGADO 0.73f
@@ -288,11 +289,11 @@ void interagirBalcaoCafe(int larguraResolucao)
 
     if (!disponivel)
     {
-        agendarTextoUI("Máquina indisponível até a próxima fase", larguraResolucao - 460, 73, 22, GRAY, false);
+        agendarTextoUI("Máquina indisponível até a próxima fase", larguraResolucao - 460, 66, 30, GRAY, false, 0);
         return;
     }
 
-    agendarTextoUI("Pressione E para consertar a máquina", larguraResolucao - 430, 73, 22, GREEN, false);
+    agendarTextoUI("Pressione E para consertar a máquina", larguraResolucao - 430, 66, 30, GREEN, false, 0);
 
     if (IsKeyPressed(KEY_E))
     {
@@ -339,6 +340,8 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
 
     bool podeMexer = (estado == JOGANDO || estado == ERROU);
     bool emCimaDeAlgo = false;
+    bool sobreChave[3] = { false, false, false };
+    bool sobreTestar = false;
 
     if (podeMexer)
     {
@@ -348,6 +351,7 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
             if (CheckCollisionPointRec(mouse, area))
             {
                 emCimaDeAlgo = true;
+                sobreChave[k] = true;
                 if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
                 {
                     chave[k] = !chave[k];
@@ -359,6 +363,7 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
         if (CheckCollisionPointRec(mouse, AREA_TESTAR))
         {
             emCimaDeAlgo = true;
+            sobreTestar = true;
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
                 if (enigma->luzAcende(chave[0], chave[1], chave[2]))
@@ -391,6 +396,14 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
     desenharPeca(visor);
     for (int k = 0; k < 3; k++) desenharPeca(k < tentativas ? xicaraCheia[k] : xicaraGasta[k]);
     desenharPeca(corpo);
+
+    // botao TESTAR: faz parte da imagem do corpo, entao redesenha o trecho
+    // ampliado para ter a mesma animacao padrao dos outros botoes
+    {
+        Rectangle origemTestar = { AREA_TESTAR.x - corpo.x, AREA_TESTAR.y - corpo.y, AREA_TESTAR.width, AREA_TESTAR.height };
+        Rectangle destinoTestar = retanguloAnimadoBotao("maquina.testar", AREA_TESTAR, sobreTestar);
+        DrawTexturePro(corpo.textura, origemTestar, destinoTestar, (Vector2){ 0, 0 }, 0, WHITE);
+    }
     desenharPeca(placas[enigmaAtual][(chave[0] << 2) | (chave[1] << 1) | chave[2]]);
 
     if (estado == ACERTOU)          desenharPeca(lampVerde);
@@ -401,7 +414,12 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
     {
         Peca c = chave[k] ? chaveLigada : chaveDesligada;
         c.x += X_CHAVE[k] - X_CHAVE[0];
-        desenharPeca(c);
+
+        // chave com a animacao padrao dos botoes
+        Rectangle baseChave = { (float)c.x, (float)c.y, (float)c.textura.width, (float)c.textura.height };
+        Rectangle destinoChave = retanguloAnimadoBotao(TextFormat("maquina.chave%d", k), baseChave, sobreChave[k]);
+        DrawTexturePro(c.textura, (Rectangle){ 0, 0, (float)c.textura.width, (float)c.textura.height },
+                       destinoChave, (Vector2){ 0, 0 }, 0, WHITE);
     }
     if (estado == ACERTOU) desenharPeca(cafe);
     if (estado == PIFOU)   desenharPeca(fumaca);

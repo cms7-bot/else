@@ -364,12 +364,13 @@ void definirTransformacaoTelaCartas(float escala, float offsetX, float offsetY)
     offsetXTelaCartas = offsetX;
     offsetYTelaCartas = offsetY;
 }
-static float escalaBotaoContinue = 1.0f;
-#define ESCALA_HOVER_BOTAO 1.1f
 #define PROMOCAO_BOTAO_OFFSET_Y 250
 #define ESCALA_BASE_BOTAO 0.5f
 #define PROMOCAO_BOTAO_OFFSET_Y 270
-static Font obterFonteUI(void);   // fonte da interface (definida mais abaixo)
+// fontes da interface: FONTE_TEXTO = VT323 (frases), FONTE_DESTAQUE = Press Start 2P (rotulos)
+#define FONTE_TEXTO    0
+#define FONTE_DESTAQUE 1
+static Font obterFonteUI(int fonte);   // fontes da interface (definidas mais abaixo)
 
 // estado das animacoes (valores iniciais definidos mais abaixo)
 static float animEntrada, animTroca, animSaida;
@@ -383,7 +384,7 @@ void iniciarCartas(
     float *lucro
 )
 {
-    obterFonteUI();   // carrega a fonte agora, sem travar no meio do jogo
+    obterFonteUI(FONTE_TEXTO);   // carrega as fontes agora, sem travar no meio do jogo
     // zera as animacoes: nada de carta (ou sobra de saida) aparecendo ao reiniciar
     animEntrada = 1.0f;
     animTroca = 1.0f;
@@ -455,7 +456,6 @@ void iniciarCartas(
     cargo = 0;
     partidaTerminou = false;
     mostrarPromocao = false;
-    escalaBotaoContinue = 1.0f;
     reiniciarAuditoria();
 
     for (int i = 0; i < 8; i++)
@@ -717,14 +717,9 @@ void atualizarCartas()
         mouse.y = (mouse.y - offsetYTelaCartas) / escalaTelaCartas;
         bool sobreBotao = CheckCollisionPointRec(mouse, areaBotaoContinue);
 
-        // animação suave: o botão cresce ao passar o mouse e volta ao tamanho normal ao sair
-        float alvo = sobreBotao ? ESCALA_HOVER_BOTAO : 1.0f;
-        escalaBotaoContinue += (alvo - escalaBotaoContinue) * 0.2f;
-
         if (sobreBotao && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             mostrarPromocao = false;
-            escalaBotaoContinue = 1.0f;
             promoverCargo();
         }
 
@@ -812,14 +807,87 @@ void atualizarCartas()
 
 
 // ==========================================================
-// FONTE DA INTERFACE (Inter, com acentos e suavizada)
+// ANIMACAO PADRAO DE BOTOES (usada por TODOS os botoes do jogo)
+// Ao passar o mouse o botao cresce suavemente (10%); ao clicar ele
+// afunda um pouco; ao sair volta ao tamanho normal. Cada botao tem um
+// nome proprio, que guarda o estado da animacao entre os quadros.
 // ==========================================================
-static Font fonteUI;
-static bool fonteUICarregada = false;
+#define BOTAO_ESCALA_HOVER   1.10f
+#define BOTAO_ESCALA_CLIQUE  0.96f
+#define BOTAO_VELOCIDADE     22.0f
+#define MAX_BOTOES_ANIMADOS  48
 
-static Font obterFonteUI(void)
+typedef struct BotaoAnimado
 {
-    if (!fonteUICarregada)
+    char nome[40];
+    float escala;
+} BotaoAnimado;
+
+static BotaoAnimado botoesAnimados[MAX_BOTOES_ANIMADOS];
+static int totalBotoesAnimados = 0;
+
+// devolve o multiplicador de tamanho do botao neste quadro (1.0 = normal)
+float escalaAnimadaBotao(const char *nome, bool hover)
+{
+    BotaoAnimado *b = 0;
+
+    for (int i = 0; i < totalBotoesAnimados; i++)
+    {
+        if (strcmp(botoesAnimados[i].nome, nome) == 0)
+        {
+            b = &botoesAnimados[i];
+            break;
+        }
+    }
+
+    if (b == 0)
+    {
+        if (totalBotoesAnimados >= MAX_BOTOES_ANIMADOS)
+            return hover ? BOTAO_ESCALA_HOVER : 1.0f;
+
+        b = &botoesAnimados[totalBotoesAnimados++];
+        strncpy(b->nome, nome, sizeof(b->nome) - 1);
+        b->nome[sizeof(b->nome) - 1] = '\0';
+        b->escala = 1.0f;
+    }
+
+    float alvo = 1.0f;
+
+    if (hover)
+        alvo = IsMouseButtonDown(MOUSE_BUTTON_LEFT) ? BOTAO_ESCALA_CLIQUE : BOTAO_ESCALA_HOVER;
+
+    float dt = GetFrameTime();
+    b->escala += (alvo - b->escala) * (1.0f - expf(-BOTAO_VELOCIDADE * dt));
+
+    return b->escala;
+}
+
+// retangulo do botao ja animado (cresce a partir do centro)
+Rectangle retanguloAnimadoBotao(const char *nome, Rectangle base, bool hover)
+{
+    float k = escalaAnimadaBotao(nome, hover);
+
+    Rectangle r;
+    r.width = base.width * k;
+    r.height = base.height * k;
+    r.x = base.x + (base.width - r.width) / 2.0f;
+    r.y = base.y + (base.height - r.height) / 2.0f;
+
+    return r;
+}
+
+
+// ==========================================================
+// FONTES DA INTERFACE (pixel art, com acentos)
+//   FONTE_TEXTO   = VT323          -> frases e textos longos (bem legivel)
+//   FONTE_DESTAQUE = Press Start 2P -> numeros e rotulos curtos (estilo arcade)
+// ==========================================================
+static Font fontesUI[2];
+static bool fontesUICarregadas = false;
+
+static Font obterFonteUI(int fonte)
+{
+    if (!fontesUICarregadas)
     {
         int glifos[256];
         int total = 0;
@@ -832,32 +900,41 @@ static Font obterFonteUI(void)
         for (int i = 0; i < 7; i++)
             glifos[total++] = extras[i];
 
-        fonteUI = LoadFontEx("Fontes/Inter-SemiBold.otf", 80, glifos, total);
+        const char *arquivos[2] = {
+            "cenario/maquina_cafe/comum/VT323-Regular.ttf",
+            "cenario/maquina_cafe/comum/PressStart2P-Regular.ttf"
+        };
 
-        if (fonteUI.texture.id == 0)
+        for (int i = 0; i < 2; i++)
         {
-            fonteUI = GetFontDefault();
-        }
-        else
-        {
-            GenTextureMipmaps(&fonteUI.texture);
-            SetTextureFilter(fonteUI.texture, TEXTURE_FILTER_TRILINEAR);
+            // 96 px: bem maior que o tamanho na tela, para reduzir sem borrar
+            fontesUI[i] = LoadFontEx(arquivos[i], 96, glifos, total);
+
+            if (fontesUI[i].texture.id == 0)
+            {
+                fontesUI[i] = GetFontDefault();
+            }
+            else
+            {
+                GenTextureMipmaps(&fontesUI[i].texture);
+                SetTextureFilter(fontesUI[i].texture, TEXTURE_FILTER_TRILINEAR);
+            }
         }
 
-        fonteUICarregada = true;
+        fontesUICarregadas = true;
     }
 
-    return fonteUI;
+    return fontesUI[fonte == FONTE_DESTAQUE ? 1 : 0];
 }
 
-float medirTextoUI(const char *texto, float tamanho)
+float medirTextoUI(const char *texto, float tamanho, int fonte)
 {
-    return MeasureTextEx(obterFonteUI(), texto, tamanho, 0.0f).x;
+    return MeasureTextEx(obterFonteUI(fonte), texto, tamanho, 0.0f).x;
 }
 
-void desenharTextoUI(const char *texto, float x, float y, float tamanho, Color cor)
+void desenharTextoUI(const char *texto, float x, float y, float tamanho, Color cor, int fonte)
 {
-    DrawTextEx(obterFonteUI(), texto, (Vector2){x, y}, tamanho, 0.0f, cor);
+    DrawTextEx(obterFonteUI(fonte), texto, (Vector2){x, y}, tamanho, 0.0f, cor);
 }
 
 
@@ -871,6 +948,7 @@ typedef struct TextoPendente
     float x, y, tamanho;
     Color cor;
     bool centralizado;
+    int fonte;
 } TextoPendente;
 
 #define MAX_TEXTOS_PENDENTES 12
@@ -883,7 +961,7 @@ void limparTextosUI(void)
 }
 
 // x, y e tamanho em coordenadas da tela virtual (1280x720)
-void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado)
+void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado, int fonte)
 {
     if (totalTextosPendentes >= MAX_TEXTOS_PENDENTES)
         return;
@@ -896,6 +974,7 @@ void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color co
     t->tamanho = tamanho;
     t->cor = cor;
     t->centralizado = centralizado;
+    t->fonte = fonte;
 }
 
 void desenharTextosNaJanela(float escala, float offsetX, float offsetY)
@@ -907,9 +986,9 @@ void desenharTextosNaJanela(float escala, float offsetX, float offsetY)
         float x = offsetX + t->x * escala;
 
         if (t->centralizado)
-            x -= medirTextoUI(t->texto, tam) / 2.0f;
+            x -= medirTextoUI(t->texto, tam, t->fonte) / 2.0f;
 
-        desenharTextoUI(t->texto, x, offsetY + t->y * escala, tam, t->cor);
+        desenharTextoUI(t->texto, x, offsetY + t->y * escala, tam, t->cor, t->fonte);
     }
 
     totalTextosPendentes = 0;
@@ -972,7 +1051,8 @@ void desenharTextoQuebrado(
                 if (
                     medirTextoUI(
                         teste,
-                        tamanho
+                        tamanho,
+                        FONTE_TEXTO
                     ) > larguraMaxima
                 )
                 {
@@ -981,10 +1061,11 @@ void desenharTextoQuebrado(
                         x,
                         yAtual,
                         tamanho,
-                        cor
+                        cor,
+                        FONTE_TEXTO
                     );
 
-                    yAtual += tamanho * 1.4f;
+                    yAtual += tamanho * 1.15f;
 
                     strcpy(
                         linha,
@@ -1015,7 +1096,8 @@ void desenharTextoQuebrado(
             x,
             yAtual,
             tamanho,
-            cor
+            cor,
+            FONTE_TEXTO
         );
     }
 }
@@ -1075,18 +1157,25 @@ void desenharCartas(
         float centroX = larguraResolucao / 2.0f;
         float centroY = alturaResolucao / 2.0f + PROMOCAO_BOTAO_OFFSET_Y;
 
-        areaBotaoContinue.x = centroX - larguraBotao / 2.0f;
-        areaBotaoContinue.y = centroY - alturaBotao / 2.0f;
-        areaBotaoContinue.width = larguraBotao;
-        areaBotaoContinue.height = alturaBotao;
+        // a imagem do botao e 512x512, mas a arte ocupa so a faixa x 29..477,
+        // y 207..318: o clique vale apenas sobre a arte (nao no quadrado todo)
+        areaBotaoContinue.x = centroX - larguraBotao / 2.0f + larguraBotao * (29.0f / 512.0f);
+        areaBotaoContinue.y = centroY - alturaBotao / 2.0f + alturaBotao * (207.0f / 512.0f);
+        areaBotaoContinue.width = larguraBotao * (448.0f / 512.0f);
+        areaBotaoContinue.height = alturaBotao * (112.0f / 512.0f);
 
-        // desenho com escala (cresce a partir do centro ao passar o mouse)
+        // desenho com a animacao padrao dos botoes (cresce a partir do centro)
+        Vector2 mouseVirtual = GetMousePosition();
+        mouseVirtual.x = (mouseVirtual.x - offsetXTelaCartas) / escalaTelaCartas;
+        mouseVirtual.y = (mouseVirtual.y - offsetYTelaCartas) / escalaTelaCartas;
+        float escalaDoBotao = escalaAnimadaBotao("promocao.continuar", CheckCollisionPointRec(mouseVirtual, areaBotaoContinue));
+
         Rectangle origem = {0, 0, (float)texBotaoContinue.width, (float)texBotaoContinue.height};
         Rectangle destino = {
             centroX,
             centroY,
-            larguraBotao * escalaBotaoContinue,
-            alturaBotao * escalaBotaoContinue
+            larguraBotao * escalaDoBotao,
+            alturaBotao * escalaDoBotao
         };
         Vector2 pivo = {
             destino.width / 2.0f,

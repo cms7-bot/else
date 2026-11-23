@@ -13,12 +13,18 @@ void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 void desenharCartasNaJanela(float escala, float offsetX, float offsetY);
 void cancelarAnimacoesCartas(void);
+
+// animacao padrao de TODOS os botoes (Cartas.c)
+float escalaAnimadaBotao(const char *nome, bool hover);
+Rectangle retanguloAnimadoBotao(const char *nome, Rectangle base, bool hover);
 void definirTransformacaoTelaCartas(float escala, float offsetX, float offsetY);
 
 // FONTE DA INTERFACE (Cartas.c)
-float medirTextoUI(const char *texto, float tamanho);
-void desenharTextoUI(const char *texto, float x, float y, float tamanho, Color cor);
-void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado);
+#define FONTE_TEXTO    0   // VT323: frases e textos longos
+#define FONTE_DESTAQUE 1   // Press Start 2P: numeros e rotulos curtos
+float medirTextoUI(const char *texto, float tamanho, int fonte);
+void desenharTextoUI(const char *texto, float x, float y, float tamanho, Color cor, int fonte);
+void agendarTextoUI(const char *texto, float x, float y, float tamanho, Color cor, bool centralizado, int fonte);
 void desenharTextosNaJanela(float escala, float offsetX, float offsetY);
 void limparTextosUI(void);
 const char *nomeCargoExibicao(void);
@@ -677,6 +683,11 @@ InicializarBancoPerguntas();
             "cenario/TelaPausa.png"
         );
 
+    Texture2D botaoVoltarPausa =
+        LoadTexture(
+            "Botoes/botaoVoltar.png"
+        );
+
     Texture2D telaInstrucoesPausa =
         LoadTexture(
             "cenario/Telas/telaInstrucoes.png"
@@ -1027,6 +1038,23 @@ InicializarBancoPerguntas();
                     GetMousePosition();
 
 
+                // botao Voltar com a animacao padrao (desenhado por cima da imagem)
+                Rectangle retVoltarDesenho = retanguloAnimadoBotao(
+                    "voltar",
+                    retVoltarInstrucoes,
+                    CheckCollisionPointRec(mouseInstrucoes, retVoltarInstrucoes)
+                );
+
+                DrawTexturePro(
+                    botaoVoltarPausa,
+                    (Rectangle){30, 207, 447, 112},
+                    retVoltarDesenho,
+                    (Vector2){0, 0},
+                    0,
+                    WHITE
+                );
+
+
                 if (
                     IsMouseButtonPressed(
                         MOUSE_LEFT_BUTTON
@@ -1232,109 +1260,19 @@ InicializarBancoPerguntas();
             // ==================================================
             // HOVER CONTINUAR
             // ==================================================
-            if (
-                CheckCollisionPointRec(
-                    mousePause,
-                    retContinueBase
-                )
-            )
-            {
-                retContinue.width *=
-                    1.10f;
-
-                retContinue.height *=
-                    1.10f;
-
-
-                retContinue.x =
-                    retContinueBase.x +
-                    (
-                        retContinueBase.width -
-                        retContinue.width
-                    ) /
-                    2;
-
-
-                retContinue.y =
-                    retContinueBase.y +
-                    (
-                        retContinueBase.height -
-                        retContinue.height
-                    ) /
-                    2;
-            }
+            retContinue = retanguloAnimadoBotao("pausa.continuar", retContinueBase, CheckCollisionPointRec(mousePause, retContinueBase));
 
 
             // ==================================================
             // HOVER INSTRUÇÕES
             // ==================================================
-            if (
-                CheckCollisionPointRec(
-                    mousePause,
-                    retInstrucoesBase
-                )
-            )
-            {
-                retInstrucoes.width *=
-                    1.10f;
-
-                retInstrucoes.height *=
-                    1.10f;
-
-
-                retInstrucoes.x =
-                    retInstrucoesBase.x +
-                    (
-                        retInstrucoesBase.width -
-                        retInstrucoes.width
-                    ) /
-                    2;
-
-
-                retInstrucoes.y =
-                    retInstrucoesBase.y +
-                    (
-                        retInstrucoesBase.height -
-                        retInstrucoes.height
-                    ) /
-                    2;
-            }
+            retInstrucoes = retanguloAnimadoBotao("pausa.instrucoes", retInstrucoesBase, CheckCollisionPointRec(mousePause, retInstrucoesBase));
 
 
             // ==================================================
             // HOVER MENU INICIAL
             // ==================================================
-            if (
-                CheckCollisionPointRec(
-                    mousePause,
-                    retMenuInicialBase
-                )
-            )
-            {
-                retMenuInicial.width *=
-                    1.10f;
-
-                retMenuInicial.height *=
-                    1.10f;
-
-
-                retMenuInicial.x =
-                    retMenuInicialBase.x +
-                    (
-                        retMenuInicialBase.width -
-                        retMenuInicial.width
-                    ) /
-                    2;
-
-
-                retMenuInicial.y =
-                    retMenuInicialBase.y +
-                    (
-                        retMenuInicialBase.height -
-                        retMenuInicial.height
-                    ) /
-                    2;
-            }
+            retMenuInicial = retanguloAnimadoBotao("pausa.menu", retMenuInicialBase, CheckCollisionPointRec(mousePause, retMenuInicialBase));
 
 
             // ==================================================
@@ -2467,10 +2405,11 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 agendarTextoUI(
                     "Pressione E para realizar a tarefa",
                     larguraResolucao - 400,
-                    73,
-                    22,
+                    66,
+                    30,
                     GREEN,
-                    false
+                    false,
+                    FONTE_TEXTO
                 );
             }
 
@@ -3099,21 +3038,32 @@ for (int i = 6; i <= 13; i++)
             int telaL = 48 * telaContadorDeDias.width / 64;
             int telaY = 8 * telaContadorDeDias.height / 50;
             int telaA = 32 * telaContadorDeDias.height / 50;
+            // Press Start 2P: cada letra tem 1 em de largura, entao 13 cabe na telinha
             agendarTextoUI(textoDias,
                            telaX + telaL / 2.0f,
-                           telaY + (telaA - tamanhoDias) / 2.0f - 1,
-                           tamanhoDias, (Color){198, 183, 255, 255}, true);
+                           telaY + (telaA - 13) / 2.0f,
+                           13, (Color){198, 183, 255, 255}, true, FONTE_DESTAQUE);
         }
 
         // botao de menu (abre a pausa) e botao de som (liga/desliga a musica)
-        DrawTexturePro(texBotaoMenu,
-                       (Rectangle){0, 0, texBotaoMenu.width, texBotaoMenu.height},
-                       retBotaoMenu, (Vector2){0, 0}, 0, WHITE);
         {
+            Vector2 mouseHud = GetMousePosition();
+            mouseHud.x = (mouseHud.x - offsetX) / escala;
+            mouseHud.y = (mouseHud.y - offsetY) / escala;
+
+            bool hudAtivo = !pausado && !gameOver && !maquinaCafeAberta();
+
+            Rectangle menuDesenho = retanguloAnimadoBotao("hud.menu", retBotaoMenu, hudAtivo && CheckCollisionPointRec(mouseHud, retBotaoMenu));
+            Rectangle somDesenho = retanguloAnimadoBotao("hud.som", retBotaoSom, hudAtivo && CheckCollisionPointRec(mouseHud, retBotaoSom));
+
+            DrawTexturePro(texBotaoMenu,
+                           (Rectangle){0, 0, texBotaoMenu.width, texBotaoMenu.height},
+                           menuDesenho, (Vector2){0, 0}, 0, WHITE);
+
             Texture2D texSom = somMutadoGlobal ? texBotaoMute : texBotaoSom;
             DrawTexturePro(texSom,
                            (Rectangle){0, 0, texSom.width, texSom.height},
-                           retBotaoSom, (Vector2){0, 0}, 0, WHITE);
+                           somDesenho, (Vector2){0, 0}, 0, WHITE);
         }
 
         // ======================================================
@@ -3150,10 +3100,11 @@ for (int i = 6; i <= 13; i++)
             agendarTextoUI(
                 dicaMemorando,
                 larguraResolucao / 2.0f,
-                alturaResolucao - 34,
-                22,
+                alturaResolucao - 38,
+                30,
                 WHITE,
-                true
+                true,
+                FONTE_TEXTO
             );
         }
 
@@ -3297,14 +3248,16 @@ for (int i = 6; i <= 13; i++)
                 }
             }
 
-            float tamanhoCargo = 20 * escala;
+            // VT323: os acentos das maiusculas (ESTAGIÁRIO, LÍDER) ficam legiveis
+            float tamanhoCargo = 30 * escala;
 
             desenharTextoUI(
                 cargoFinal,
-                offsetX + 347 * escala - medirTextoUI(cargoFinal, tamanhoCargo) / 2,
+                offsetX + 347 * escala - medirTextoUI(cargoFinal, tamanhoCargo, FONTE_TEXTO) / 2,
                 offsetY + 432 * escala - tamanhoCargo / 2,
                 tamanhoCargo,
-                (Color){70, 74, 90, 255}
+                (Color){70, 74, 90, 255},
+                FONTE_TEXTO
             );
 
 
@@ -3322,7 +3275,7 @@ for (int i = 6; i <= 13; i++)
                 530 *
                 escala,
 
-                24 *
+                34 *
                 escala,
 
                 WHITE
@@ -3336,14 +3289,15 @@ for (int i = 6; i <= 13; i++)
                 );
 
 
-            float tamanhoDias = 28 * escala;
+            float tamanhoDias = 40 * escala;
 
             desenharTextoUI(
                 textoDias,
-                offsetX + 735 * escala - medirTextoUI(textoDias, tamanhoDias) / 2,
+                offsetX + 735 * escala - medirTextoUI(textoDias, tamanhoDias, FONTE_TEXTO) / 2,
                 offsetY + 400 * escala - tamanhoDias / 2,
                 tamanhoDias,
-                (Color){255, 214, 102, 255}
+                (Color){255, 214, 102, 255},
+                FONTE_TEXTO
             );
 
 
@@ -3410,10 +3364,19 @@ for (int i = 6; i <= 13; i++)
             };
 
 
+            Vector2 mouse =
+                GetMousePosition();
+
+
+            Rectangle retPlayAgainDesenho = retanguloAnimadoBotao("fim.reiniciar", retPlayAgain, CheckCollisionPointRec(mouse, retPlayAgain));
+            Rectangle retShareDesenho = retanguloAnimadoBotao("fim.compartilhar", retShare, CheckCollisionPointRec(mouse, retShare));
+            Rectangle retExitDesenho = retanguloAnimadoBotao("fim.sair", retExit, CheckCollisionPointRec(mouse, retExit));
+
+
             DrawTexturePro(
                 botaoPlayAgain,
                 areaUtil,
-                retPlayAgain,
+                retPlayAgainDesenho,
                 (Vector2){0, 0},
                 0,
                 WHITE
@@ -3423,7 +3386,7 @@ for (int i = 6; i <= 13; i++)
             DrawTexturePro(
                 botaoShare,
                 areaUtil,
-                retShare,
+                retShareDesenho,
                 (Vector2){0, 0},
                 0,
                 WHITE
@@ -3433,7 +3396,7 @@ for (int i = 6; i <= 13; i++)
             DrawTexturePro(
                 botaoExit,
                 areaUtil,
-                retExit,
+                retExitDesenho,
                 (Vector2){0, 0},
                 0,
                 WHITE
@@ -3443,10 +3406,6 @@ for (int i = 6; i <= 13; i++)
             PauseMusicStream(
                 trilhaSonora2
             );
-
-
-            Vector2 mouse =
-                GetMousePosition();
 
 
             if (
@@ -3624,6 +3583,7 @@ for (int i = 6; i <= 13; i++)
     UnloadTexture(telaInstrucoesPausa);
 
     UnloadTexture(painelFimExpediente);
+    UnloadTexture(botaoVoltarPausa);
     UnloadTexture(telaAuditoria);
     UnloadTexture(telaAuditoriaFim);
 

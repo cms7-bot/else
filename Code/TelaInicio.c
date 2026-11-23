@@ -37,6 +37,10 @@ void desbloquearFinal(int numero)
     SaveFileData("finais.sav", dados, 8);
 }
 
+// animacao padrao dos botoes (Cartas.c)
+float escalaAnimadaBotao(const char *nome, bool hover);
+Rectangle retanguloAnimadoBotao(const char *nome, Rectangle base, bool hover);
+
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY, Music trilhaSonora1)
 {
     // ==========================================================
@@ -137,24 +141,11 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
             51
         };
 
-        Rectangle botaoVoltarDesenho = botaoVoltarArea;
+        bool sobreVoltar = CheckCollisionPointRec(mouse, botaoVoltarArea);
+        Rectangle botaoVoltarDesenho = retanguloAnimadoBotao("voltar", botaoVoltarArea, sobreVoltar);
 
-        if (CheckCollisionPointRec(mouse, botaoVoltarArea))
-        {
-            botaoVoltarDesenho.width *= 1.10f;
-            botaoVoltarDesenho.height *= 1.10f;
-
-            botaoVoltarDesenho.x =
-                botaoVoltarArea.x +
-                (botaoVoltarArea.width - botaoVoltarDesenho.width) / 2;
-
-            botaoVoltarDesenho.y =
-                botaoVoltarArea.y +
-                (botaoVoltarArea.height - botaoVoltarDesenho.height) / 2;
-
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                telaMenu = 0;
-        }
+        if (sobreVoltar && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            telaMenu = 0;
 
         if (IsKeyPressed(KEY_ESCAPE))
             telaMenu = 0;
@@ -253,24 +244,11 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
             51
         };
 
-        Rectangle botaoVoltarDesenho = botaoVoltarArea;
+        bool sobreVoltar = CheckCollisionPointRec(mouse, botaoVoltarArea);
+        Rectangle botaoVoltarDesenho = retanguloAnimadoBotao("voltar", botaoVoltarArea, sobreVoltar);
 
-        if (CheckCollisionPointRec(mouse, botaoVoltarArea))
-        {
-            botaoVoltarDesenho.width *= 1.10f;
-            botaoVoltarDesenho.height *= 1.10f;
-
-            botaoVoltarDesenho.x =
-                botaoVoltarArea.x +
-                (botaoVoltarArea.width - botaoVoltarDesenho.width) / 2;
-
-            botaoVoltarDesenho.y =
-                botaoVoltarArea.y +
-                (botaoVoltarArea.height - botaoVoltarDesenho.height) / 2;
-
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-                telaMenu = 0;
-        }
+        if (sobreVoltar && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            telaMenu = 0;
 
         if (IsKeyPressed(KEY_ESCAPE))
             telaMenu = 0;
@@ -419,65 +397,57 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     // ==========================================================
     // INTERAÇÃO: BOTÃO DE SOM / MUTE
     // ==========================================================
-    if (CheckCollisionPointRec(mouse, botaoAudio))
+    bool sobreAudio = CheckCollisionPointRec(mouse, botaoAudio);
+    Rectangle audioDesenho = retanguloAnimadoBotao("inicio.som", botaoAudio, sobreAudio);
+
+    if (sobreAudio && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-        {
-            somMutadoGlobal = !somMutadoGlobal;
-            SetMasterVolume(somMutadoGlobal ? 0.0f : 1.0f);
-        }
+        somMutadoGlobal = !somMutadoGlobal;
+        SetMasterVolume(somMutadoGlobal ? 0.0f : 1.0f);
     }
 
 
     // ==========================================================
     // INTERAÇÃO: BOTÃO JOGAR
     // ==========================================================
-    if (CheckCollisionPointRec(mouse, botao))
-    {
-        escala = 0.66f;
+    bool sobre_botao = CheckCollisionPointRec(mouse, botao);
+    escala = 0.60f * escalaAnimadaBotao("inicio.jogar", sobre_botao);
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if (sobre_botao && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             return 1;
-    }
 
 
     // ==========================================================
     // INTERAÇÃO: BOTÃO INSTRUÇÕES
     // ==========================================================
-    if (CheckCollisionPointRec(mouse, botaoInstrucoesArea))
-    {
-        escalaInstrucoes = 0.66f;
+    bool sobre_botaoInstrucoesArea = CheckCollisionPointRec(mouse, botaoInstrucoesArea);
+    escalaInstrucoes = 0.60f * escalaAnimadaBotao("inicio.instrucoes", sobre_botaoInstrucoesArea);
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if (sobre_botaoInstrucoesArea && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             telaMenu = 1;
-    }
 
 
     // ==========================================================
     // INTERAÇÃO: BOTÃO FINAIS
     // ==========================================================
-    if (CheckCollisionPointRec(mouse, botaoFinaisArea))
-    {
-        escalaFinais = 0.66f;
+    bool sobre_botaoFinaisArea = CheckCollisionPointRec(mouse, botaoFinaisArea);
+    escalaFinais = 0.60f * escalaAnimadaBotao("inicio.finais", sobre_botaoFinaisArea);
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if (sobre_botaoFinaisArea && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             carregarFinais();   // le o save antes de mostrar as pastas
             telaMenu = 2;
         }
-    }
 
 
     // ==========================================================
     // INTERAÇÃO: BOTÃO SAIR
     // ==========================================================
-    if (CheckCollisionPointRec(mouse, botaoExitArea))
-    {
-        escalaExit = 0.66f;
+    bool sobre_botaoExitArea = CheckCollisionPointRec(mouse, botaoExitArea);
+    escalaExit = 0.60f * escalaAnimadaBotao("inicio.sair", sobre_botaoExitArea);
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if (sobre_botaoExitArea && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             return -1;
-    }
 
 
     // ==========================================================
@@ -565,7 +535,7 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
             texturaAudio.width,
             texturaAudio.height
         },
-        botaoAudio,
+        audioDesenho,
         (Vector2){0, 0},
         0,
         WHITE
@@ -649,11 +619,23 @@ int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, floa
     // ==========================================================
     // DESENHO NA TELA VIRTUAL
     // ==========================================================
+    Vector2 mouse = GetMousePosition();
+
+    mouse.x = (mouse.x - offsetX) / escalaTela;
+    mouse.y = (mouse.y - offsetY) / escalaTela;
+
+    bool sobreClicar = CheckCollisionPointRec(mouse, clicar);
+
     BeginTextureMode(telaVirtual);
 
     ClearBackground(RAYWHITE);
 
     DrawTexture(TelaAviso, 0, 0, WHITE);
+
+    // o "PRESSIONE PARA CONTINUAR" e parte da imagem: redesenha o trecho
+    // ampliado para ter a mesma animacao padrao dos outros botoes
+    Rectangle clicarDesenho = retanguloAnimadoBotao("aviso.continuar", clicar, sobreClicar);
+    DrawTexturePro(TelaAviso, clicar, clicarDesenho, (Vector2){0, 0}, 0, WHITE);
 
     EndTextureMode();
 
@@ -661,13 +643,7 @@ int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, floa
     // ==========================================================
     // MOUSE / INTERAÇÃO
     // ==========================================================
-    Vector2 mouse = GetMousePosition();
-
-    mouse.x = (mouse.x - offsetX) / escalaTela;
-    mouse.y = (mouse.y - offsetY) / escalaTela;
-
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
-        CheckCollisionPointRec(mouse, clicar))
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && sobreClicar)
     {
         return 2;
     }
