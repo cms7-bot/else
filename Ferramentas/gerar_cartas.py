@@ -6,7 +6,7 @@ Uso (na raiz do projeto, com as imagens ORIGINAIS 300x420 em --origem):
 
 Mantem a moldura, a ilustracao e as setas de cada carta (ampliadas sem
 suavizar, para preservar o pixel art) e redesenha titulo, descricao e opcoes
-com a fonte Inter, em 3x. As variantes A/D sao inclinadas -/+15 graus.
+com a fonte VT323 (pixel art), em 3x. As variantes A/D sao inclinadas -/+15 graus.
 """
 import argparse, os
 from PIL import Image, ImageDraw, ImageFont
@@ -19,7 +19,8 @@ PLACA = (87, 91, 105)
 MOLDURA = (51, 57, 65)
 TEXTO = (24, 26, 36)
 BRANCO = (245, 245, 245)
-FONTES = "/usr/share/fonts/opentype/inter/Inter-%s.otf"
+FONTE_PIXEL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           "cenario", "maquina_cafe", "comum", "VT323-Regular.ttf")
 ANGULO = 15
 
 # (arquivo, titulo, descricao, opcao A (esquerda), opcao D (direita))
@@ -79,7 +80,8 @@ CARTAS = [
 
 
 def fonte(peso, px):
-    return ImageFont.truetype(FONTES % peso, int(round(px * K)))
+    # VT323 (pixel, com acentos) em todas as cartas; o "peso" so muda o tamanho/contorno
+    return ImageFont.truetype(FONTE_PIXEL, int(round(px * K)))
 
 
 def quebrar(texto, f, largura):
@@ -109,12 +111,14 @@ def ajustar(texto, peso, tam_max, tam_min, largura, altura, entrelinha):
     return f, quebrar(texto, f, largura * K), tam_min
 
 
-def texto_centrado(d, linhas, f, tam, entrelinha, cx, cy, cor, alinhar="centro", x0=None):
+def texto_centrado(d, linhas, f, tam, entrelinha, cx, cy, cor, alinhar="centro", x0=None, negrito=False):
     alt = len(linhas) * tam * entrelinha * K
     y = cy * K - alt / 2
     for linha in linhas:
         x = cx * K - f.getlength(linha) / 2 if alinhar == "centro" else x0 * K
-        d.text((x, y + (tam * entrelinha * K - tam * K) / 2 - 0.1 * tam * K), linha, font=f, fill=cor)
+        # ancora "lm": centraliza cada linha na vertical (independe da fonte)
+        d.text((x, y + tam * entrelinha * K / 2), linha, font=f, fill=cor, anchor="lm",
+               stroke_width=K // 3 if negrito else 0, stroke_fill=cor)
         y += tam * entrelinha * K
 
 
@@ -133,10 +137,10 @@ def carta_situacao(c, orig):
     _, titulo, desc, _, _ = c
     up, mask = base_sem_texto(orig)
     d = ImageDraw.Draw(up)
-    f, linhas, tam = ajustar(titulo, "SemiBold", 15, 11, 240, 60, 1.2)
-    texto_centrado(d, linhas, f, tam, 1.2, W / 2, 60, BRANCO)
-    f, linhas, tam = ajustar(desc, "Regular", 14, 10.5, 266, 122, 1.4)
-    texto_centrado(d, linhas, f, tam, 1.4, W / 2, 313, TEXTO, alinhar="esq", x0=17)
+    f, linhas, tam = ajustar(titulo, "SemiBold", 25, 15, 240, 60, 1.0)
+    texto_centrado(d, linhas, f, tam, 1.0, W / 2, 60, BRANCO, negrito=True)
+    f, linhas, tam = ajustar(desc, "Regular", 20, 14, 266, 124, 1.08)
+    texto_centrado(d, linhas, f, tam, 1.08, W / 2, 313, TEXTO, alinhar="esq", x0=17)
     return up, mask
 
 
@@ -153,11 +157,11 @@ def carta_opcao(c, orig, opcao, lado):
     m = Image.new("L", (W * K, H * K), 0)
     ImageDraw.Draw(m).rounded_rectangle((15 * K, ys, 285 * K - 1, ye), radius=8 * K, fill=255)
     faixa = (np.array(m) > 127) & mascara_bg
-    arr[faixa, :3] *= 0.30
+    arr[faixa, :3] *= 0.22
     up = Image.fromarray(arr.astype(np.uint8), "RGBA")
     d = ImageDraw.Draw(up)
-    f, linhas, tam = ajustar(opcao, "Bold", 15, 11, 240, 68, 1.22)
-    texto_centrado(d, linhas, f, tam, 1.22, W / 2, 146, BRANCO)
+    f, linhas, tam = ajustar(opcao, "Bold", 23, 15, 240, 68, 1.0)
+    texto_centrado(d, linhas, f, tam, 1.0, W / 2, 146, BRANCO, negrito=True)
     # inclina: A = anti-horario, D = horario
     ang = ANGULO if lado == "A" else -ANGULO
     rgb = up.convert("RGB").rotate(ang, Image.BICUBIC, expand=True, fillcolor=MOLDURA)
