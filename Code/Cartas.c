@@ -190,9 +190,49 @@ int obterCartasResolvidasFase()
 // ==========================================================
 // REGISTRO DE CARTA RESOLVIDA
 // ==========================================================
+// ==========================================================
+// LIMITE DE CARTAS POR MESA / IMPRESSORA
+// Cada mesa (ou a impressora) entrega no maximo CARTAS_POR_ESTACAO cartas
+// seguidas. Para liberar de novo, o jogador resolve uma carta em outro lugar:
+// isso obriga a andar pelo escritorio.
+// ==========================================================
+#define CARTAS_POR_ESTACAO 2
+#define MAX_ESTACOES 32
+
+static int estacaoAtual = -1;   // objeto do mapa onde o jogador esta
+static int cartasNaEstacao[MAX_ESTACOES];
+
+void definirEstacaoCartas(int estacao)
+{
+    estacaoAtual = estacao;
+}
+
+bool estacaoAtualLiberada(void)
+{
+    return estacaoAtual < 0 || estacaoAtual >= MAX_ESTACOES ||
+           cartasNaEstacao[estacaoAtual] < CARTAS_POR_ESTACAO;
+}
+
+static void zerarEstacoes(void)
+{
+    for (int i = 0; i < MAX_ESTACOES; i++)
+        cartasNaEstacao[i] = 0;
+}
+
+static void registrarCartaNaEstacao(void)
+{
+    if (estacaoAtual < 0 || estacaoAtual >= MAX_ESTACOES)
+        return;
+
+    for (int i = 0; i < MAX_ESTACOES; i++)
+        cartasNaEstacao[i] = (i == estacaoAtual) ? cartasNaEstacao[i] + 1 : 0;
+}
+
+
 static void registrarCartaResolvida()
 {
     cartasResolvidasFase++;
+    registrarCartaNaEstacao();
 
     // auditoria em andamento: a carta tira Confianca (a -> C-)
     aplicarPenalidadeAuditoria();
@@ -226,6 +266,7 @@ static void reiniciarPartidaSeNecessario()
     {
         diasSobrevividos = 0;
         cartasResolvidasFase = 0;
+        zerarEstacoes();
         cargo = 0;
         partidaTerminou = false;
         mostrarPromocao = false;
@@ -270,6 +311,7 @@ static void promoverCargo()
         cargo++;
 
     cartasResolvidasFase = 0;
+    zerarEstacoes();   // escritorio novo: todas as mesas liberadas
 }
 
 
@@ -348,7 +390,7 @@ void sortearNovaCarta()
 static Texture2D teclaAapagada, teclaSapagada, teclaDapagada;
 static Texture2D teclaAacesa,   teclaSacesa,   teclaDacesa;
 static Sound somPapel;
-static Texture2D texPromocao;
+static Texture2D texPromocao[4];   // uma tela por promocao: o indice e o cargo de onde o jogador sai
 static Texture2D texBotaoContinue;
 static Rectangle areaBotaoContinue = {0, 0, 0, 0};
 
@@ -385,6 +427,7 @@ void iniciarCartas(
 )
 {
     obterFonteUI(FONTE_TEXTO);   // carrega as fontes agora, sem travar no meio do jogo
+    zerarEstacoes();
     // zera as animacoes: nada de carta (ou sobra de saida) aparecendo ao reiniciar
     animEntrada = 1.0f;
     animTroca = 1.0f;
@@ -405,7 +448,9 @@ void iniciarCartas(
     SetSoundVolume(somPapel, 0.03f);
     somConquista = LoadSound("EfeitosSonoros/EfeitoSonoroConquista.wav");
     somAplausos = LoadSound("EfeitosSonoros/EfeitoSonoroAplausos.wav");
-    texPromocao = LoadTexture("HUD/Promocao.png");
+    texPromocao[0] = LoadTexture("HUD/Promocao.png");
+    for (int i = 1; i < 4; i++)
+        texPromocao[i] = LoadTexture(TextFormat("HUD/Promocao_%d.png", i + 1));
     texBotaoContinue = LoadTexture("Botoes/BotaoContinue.png");
     texturasCarregadas = true;
     }
@@ -732,7 +777,7 @@ void atualizarCartas()
 
         
         
-        if (IsKeyPressed(KEY_E))
+        if (IsKeyPressed(KEY_E) && estacaoAtualLiberada())
         {
             sortearNovaCarta();
 
@@ -1145,9 +1190,9 @@ void desenharCartas(
 
         DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f));
         DrawTexture(
-            texPromocao,
-            (larguraResolucao - texPromocao.width) / 2,
-            (alturaResolucao - texPromocao.height) / 2,
+            texPromocao[cargo],
+            (larguraResolucao - texPromocao[cargo].width) / 2,
+            (alturaResolucao - texPromocao[cargo].height) / 2,
             WHITE
         );
 
