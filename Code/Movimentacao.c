@@ -2,6 +2,7 @@
 #include "rlgl.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 #include "Regras.h"
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escala, float offsetX, float offsetY, Music trilhaSonora1);
@@ -241,6 +242,537 @@ static bool desenharMesaNivel(int cargo, int i, float x, float y, int passo)
 }
 
 
+#define MAX_QUADROS_PECA 32
+#define MAX_PECAS_CANTINHO 20
+
+enum
+{
+    PECA_COMUM,
+    PECA_CHAO,
+    PECA_CAFE,
+    PECA_FREEZER,
+    PECA_MICROONDAS,
+    PECA_PINGPONG,
+    PECA_SINUCA
+};
+
+typedef struct PecaCantinho
+{
+    Texture2D quadros[MAX_QUADROS_PECA];
+    int total;
+    float duracao;
+    const int *sequencia;
+    int tamanhoSequencia;
+    float x, y;
+    Rectangle colisoes[2];
+    int quantidadeColisoes;
+    Rectangle areaInteracao;
+    float base;
+    int tipo;
+} PecaCantinho;
+
+typedef struct Cantinho
+{
+    PecaCantinho pecas[MAX_PECAS_CANTINHO];
+    int quantidade;
+} Cantinho;
+
+static Cantinho cantinhos[5];
+
+static Texture2D freezerAberto;
+static Texture2D baloesFreezer[4];
+static float tempoFreezerAberto = 0.0f;
+static int balaoFreezer = 0;
+static float tempoMicroondas = -1.0f;
+
+static Texture2D pingPongCorpoParado, pingPongCorpoSemBraco;
+static Texture2D pingPongBracoCima[4];
+static Texture2D pingPongCostas[4];
+static Texture2D raqueteCima, raqueteBaixo, bolinhaPingPong;
+
+static Texture2D npcSinuca, maoSinuca;
+
+static const int sequenciaMesaAlmoco[4] = {0, 1, 0, 2};
+static const int sequenciaNpcJogando[8] = {0, 0, 1, 1, 1, 0, 0, 0};
+
+
+static Texture2D carregarInteira(const char *arquivo)
+{
+    return LoadTexture(arquivo);
+}
+
+
+static PecaCantinho *novaPeca(int cargo, int tipo, float x, float y)
+{
+    Cantinho *cantinho = &cantinhos[cargo];
+    PecaCantinho *peca = &cantinho->pecas[cantinho->quantidade++];
+
+    *peca = (PecaCantinho){0};
+    peca->tipo = tipo;
+    peca->x = x;
+    peca->y = y;
+    peca->duracao = 0.2f;
+
+    return peca;
+}
+
+
+static PecaCantinho *pecaParada(int cargo, int tipo, const char *arquivo, float x, float y)
+{
+    PecaCantinho *peca = novaPeca(cargo, tipo, x, y);
+
+    peca->quadros[0] = carregarMetade(arquivo);
+    peca->total = 1;
+
+    return peca;
+}
+
+
+static PecaCantinho *pecaAnimada(
+    int cargo,
+    int tipo,
+    const char *formato,
+    int primeiro,
+    int total,
+    float duracao,
+    float x,
+    float y
+)
+{
+    PecaCantinho *peca = novaPeca(cargo, tipo, x, y);
+
+    for (int k = 0; k < total; k++)
+        peca->quadros[k] = carregarMetade(TextFormat(formato, primeiro + k));
+
+    peca->total = total;
+    peca->duracao = duracao;
+
+    return peca;
+}
+
+
+static void colisao(PecaCantinho *peca, float x, float y, float largura, float altura)
+{
+    peca->colisoes[peca->quantidadeColisoes++] =
+        (Rectangle){peca->x + x, peca->y + y, largura, altura};
+}
+
+
+static void finalizarPeca(PecaCantinho *peca)
+{
+    float altura = peca->total > 0 ? peca->quadros[0].height : 0;
+
+    if (peca->base == 0)
+    {
+        if (peca->quantidadeColisoes > 0)
+            peca->base = peca->colisoes[0].y + peca->colisoes[0].height;
+        else
+            peca->base = peca->y + altura;
+    }
+
+    if (peca->areaInteracao.width == 0 && peca->quantidadeColisoes > 0)
+    {
+        Rectangle c = peca->colisoes[0];
+        peca->areaInteracao = (Rectangle){c.x - 30, c.y - 30, c.width + 60, c.height + 60};
+    }
+}
+
+
+static void carregarCantinhos(void)
+{
+    PecaCantinho *p;
+
+    #define JR "cenario/elementos_junior/"
+    p = pecaParada(1, PECA_CHAO, JR "carpete_descanso.png", 40, 332);
+    p = pecaParada(1, PECA_COMUM, JR "planta_espada.png", 14, 98);
+    colisao(p, 0, 66, 45, 44);
+    p = pecaParada(1, PECA_CAFE, JR "balcao_cafe.png", 62, 64);
+    colisao(p, 0, 85, 250, 57);
+    p = pecaParada(1, PECA_COMUM, JR "banqueta.png", 110, 176);
+    colisao(p, 0, 36, 35, 24);
+    p = pecaParada(1, PECA_COMUM, JR "banqueta.png", 165, 176);
+    colisao(p, 0, 36, 35, 24);
+    p = pecaParada(1, PECA_COMUM, JR "banqueta.png", 220, 176);
+    colisao(p, 0, 36, 35, 24);
+    p = pecaParada(1, PECA_FREEZER, JR "freezer_energetico.png", 312, 65);
+    colisao(p, 0, 87, 65, 58);
+    p = pecaParada(1, PECA_COMUM, JR "sofa_descanso.png", 26, 330);
+    colisao(p, 0, 20, 80, 190);
+    p = pecaParada(1, PECA_COMUM, JR "mesa_redonda_descanso.png", 122, 410);
+    colisao(p, 0, 20, 55, 35);
+    p = pecaParada(1, PECA_COMUM, JR "poltrona_descanso.png", 186, 362);
+    colisao(p, 0, 25, 65, 40);
+    p = pecaParada(1, PECA_COMUM, JR "poltrona_descanso.png", 186, 450);
+    colisao(p, 0, 25, 65, 40);
+    p = novaPeca(1, PECA_PINGPONG, 300, 344);
+    p->quadros[0] = carregarMetade(JR "PingPong/mesa_pingpong.png");
+    p->total = 1;
+    colisao(p, 10, 20, 110, 180);
+    colisao(p, 33, 231, 30, 18);
+
+    freezerAberto = carregarMetade(JR "freezer_energetico_aberto.png");
+    for (int k = 0; k < 4; k++)
+        baloesFreezer[k] = carregarMetade(TextFormat(JR "BaloesFreezer/balao_freezer_%d.png", k + 1));
+
+    pingPongCorpoParado = carregarInteira(JR "PingPong/npc_pingpong_frente_corpo_parado.png");
+    pingPongCorpoSemBraco = carregarInteira(JR "PingPong/npc_pingpong_frente_corpo_sem_braco.png");
+    pingPongBracoCima[1] = carregarInteira(JR "PingPong/npc_pingpong_frente_braco_recua.png");
+    pingPongBracoCima[2] = carregarInteira(JR "PingPong/npc_pingpong_frente_braco_bate.png");
+    pingPongBracoCima[3] = carregarInteira(JR "PingPong/npc_pingpong_frente_braco_acompanha.png");
+    pingPongCostas[0] = carregarInteira(JR "PingPong/npc_pingpong_costas_parado.png");
+    pingPongCostas[1] = carregarInteira(JR "PingPong/npc_pingpong_costas_recua.png");
+    pingPongCostas[2] = carregarInteira(JR "PingPong/npc_pingpong_costas_bate.png");
+    pingPongCostas[3] = carregarInteira(JR "PingPong/npc_pingpong_costas_acompanha.png");
+    raqueteCima = carregarInteira(JR "PingPong/raquete_cabo_cima.png");
+    raqueteBaixo = carregarInteira(JR "PingPong/raquete_cabo_baixo.png");
+    bolinhaPingPong = carregarInteira(JR "PingPong/bolinha.png");
+
+    #define PL "cenario/elementos_pleno/"
+    p = pecaParada(2, PECA_CHAO, PL "carpete_pleno.png", 20, 288);
+    p = pecaParada(2, PECA_COMUM, PL "costela_de_adao.png", 16, 101);
+    colisao(p, 0, 63, 60, 42);
+    p = pecaParada(2, PECA_CAFE, PL "balcao_cafe.png", 74, 76);
+    colisao(p, 0, 78, 250, 52);
+    p = pecaAnimada(2, PECA_MICROONDAS, PL "Microondas/Microondas%d.png", 0, 4, 0.25f, 259, 105);
+    p->areaInteracao = (Rectangle){250, 150, 85, 90};
+    p->base = 206;
+    p = pecaAnimada(2, PECA_COMUM, PL "TvRack/tv_rack_pleno_%02d.png", 0, 28, 0.15f, 120, 252);
+    colisao(p, 0, 60, 130, 40);
+    p = pecaParada(2, PECA_COMUM, PL "sofa_L_pleno.png", 24, 360);
+    colisao(p, 0, 142, 220, 85);
+    colisao(p, 0, 10, 80, 132);
+    p = novaPeca(2, PECA_COMUM, 66, 403);
+    p->quadros[0] = carregarInteira(PL "npc_jogando_controle_baixo.png");
+    p->quadros[1] = carregarInteira(PL "npc_jogando_controle_cima.png");
+    p->total = 2;
+    p->duracao = 0.18f;
+    p->sequencia = sequenciaNpcJogando;
+    p->tamanhoSequencia = 8;
+    p->base = 587;
+    p = pecaParada(2, PECA_COMUM, PL "mesa_centro_pleno.png", 116, 422);
+    colisao(p, 0, 5, 75, 40);
+
+    #define SR "cenario/elementos_senior/"
+    p = pecaParada(3, PECA_CHAO, SR "carpete_senior.png", 30, 356);
+    p = pecaParada(3, PECA_CAFE, SR "maquina_cafe.png", 20, 56);
+    colisao(p, 0, 90, 80, 60);
+    p = pecaParada(3, PECA_COMUM, SR "cantinho_cha.png", 110, 96);
+    colisao(p, 0, 66, 100, 44);
+    p = pecaParada(3, PECA_COMUM, SR "bonsai.png", 240, 81);
+    colisao(p, 0, 75, 75, 50);
+    p = pecaAnimada(3, PECA_COMUM, SR "PoltronaColega/PoltronaColega%d.png", 1, 4, 0.4f, 322, 98);
+    colisao(p, 0, 65, 85, 43);
+    p = pecaParada(3, PECA_COMUM, SR "luminaria.png", 342, 51);
+    colisao(p, 93, 93, 27, 62);
+    p->base = 206;
+    p = pecaAnimada(3, PECA_COMUM, SR "Vitrola/aparador_vitrola_senior_%02d.png", 0, 4, 0.2f, 24, 236);
+    colisao(p, 0, 40, 50, 80);
+    p = pecaParada(3, PECA_COMUM, SR "sofa_couro_senior.png", 26, 362);
+    colisao(p, 0, 20, 80, 190);
+    p = pecaParada(3, PECA_COMUM, SR "mesa_vidro_senior.png", 120, 400);
+    colisao(p, 0, 10, 45, 75);
+    p = pecaParada(3, PECA_COMUM, SR "poltrona_senior.png", 196, 372);
+    colisao(p, 0, 25, 70, 45);
+    p = pecaParada(3, PECA_COMUM, SR "poltrona_senior.png", 196, 470);
+    colisao(p, 0, 25, 70, 45);
+    p = pecaAnimada(3, PECA_SINUCA, SR "Sinuca/sinuca_senior_%02d.png", 0, 32, 0.12f, 300, 330);
+    colisao(p, 5, 10, 105, 175);
+    colisao(p, 47, 246, 20, 20);
+    p->base = 596;
+
+    npcSinuca = carregarInteira(SR "npc_sinuca.png");
+    maoSinuca = carregarInteira(SR "npc_sinuca_mao.png");
+
+    #define TL "cenario/elementos_techlead/"
+    p = pecaParada(4, PECA_CHAO, TL "carpete_techlead.png", 24, 330);
+    p = pecaParada(4, PECA_COMUM, TL "bambu.png", 20, 71);
+    colisao(p, 0, 81, 50, 54);
+    p = pecaParada(4, PECA_CAFE, TL "maquina_cafe.png", 74, 56);
+    colisao(p, 0, 90, 80, 60);
+    p = pecaParada(4, PECA_COMUM, TL "frigobar_coco.png", 164, 96);
+    colisao(p, 0, 66, 65, 44);
+    p = pecaAnimada(4, PECA_COMUM, TL "MesaAlmoco/MesaAlmoco%d.png", 1, 3, 0.5f, 240, 116);
+    p->sequencia = sequenciaMesaAlmoco;
+    p->tamanhoSequencia = 4;
+    colisao(p, 0, 54, 198, 36);
+    p = pecaParada(4, PECA_COMUM, TL "arquivo_aco.png", 1005, 99);
+    colisao(p, 0, 54, 45, 36);
+    p = pecaParada(4, PECA_COMUM, TL "quadro_sprint.png", 1058, 99);
+    colisao(p, 0, 75, 95, 50);
+    p = pecaParada(4, PECA_COMUM, TL "sofa_creme_techlead.png", 26, 336);
+    colisao(p, 0, 20, 80, 190);
+    p = pecaParada(4, PECA_COMUM, TL "puffs.png", 124, 470);
+    colisao(p, 0, 10, 115, 30);
+    p = pecaAnimada(4, PECA_COMUM, TL "FliperamaElse/fliperama_else_%02d.png", 0, 12, 0.2f, 452, 66);
+    colisao(p, 0, 90, 90, 50);
+    p = pecaAnimada(4, PECA_COMUM, TL "FliperamaSnake/fliperama_snake_%02d.png", 0, 12, 0.2f, 546, 66);
+    colisao(p, 0, 90, 90, 50);
+    p = novaPeca(4, PECA_COMUM, 473, 122);
+    p->quadros[0] = carregarInteira(TL "npc_jogadora_fliperama.png");
+    p->total = 1;
+    colisao(p, 14, 76, 20, 18);
+
+    for (int cargo = 1; cargo <= 4; cargo++)
+        for (int i = 0; i < cantinhos[cargo].quantidade; i++)
+            finalizarPeca(&cantinhos[cargo].pecas[i]);
+}
+
+
+static bool objetoEstagiarioAtivo(int i, int cargo)
+{
+    if (cargo < 1 || cargo > 4)
+        return true;
+
+    if (i == 0 || i == 1 || i == 2 || i == 16 || i == 17)
+        return false;
+
+    if (cargo == 4 && (i == 3 || i == 4))
+        return false;
+
+    return true;
+}
+
+
+static bool colideComCantinho(int cargo, Rectangle boneco)
+{
+    if (cargo < 1 || cargo > 4)
+        return false;
+
+    for (int i = 0; i < cantinhos[cargo].quantidade; i++)
+    {
+        PecaCantinho *peca = &cantinhos[cargo].pecas[i];
+
+        for (int c = 0; c < peca->quantidadeColisoes; c++)
+            if (CheckCollisionRecs(boneco, peca->colisoes[c]))
+                return true;
+    }
+
+    return false;
+}
+
+
+static int pecaInterativaPerto(int cargo, Rectangle boneco)
+{
+    if (cargo < 1 || cargo > 4)
+        return PECA_COMUM;
+
+    bool pertoDoCafe = false;
+
+    for (int i = 0; i < cantinhos[cargo].quantidade; i++)
+    {
+        PecaCantinho *peca = &cantinhos[cargo].pecas[i];
+
+        if (!CheckCollisionRecs(boneco, peca->areaInteracao))
+            continue;
+
+        if (peca->tipo == PECA_FREEZER || peca->tipo == PECA_MICROONDAS)
+            return peca->tipo;
+
+        if (peca->tipo == PECA_CAFE)
+            pertoDoCafe = true;
+    }
+
+    return pertoDoCafe ? PECA_CAFE : PECA_COMUM;
+}
+
+
+static void usarFreezer(void)
+{
+    tempoFreezerAberto = 4.0f;
+    balaoFreezer = GetRandomValue(0, 3);
+}
+
+
+static void usarMicroondas(void)
+{
+    if (tempoMicroondas < 0.0f)
+        tempoMicroondas = 0.0f;
+}
+
+
+static void atualizarCantinhos(void)
+{
+    float dt = GetFrameTime();
+
+    if (tempoFreezerAberto > 0.0f)
+        tempoFreezerAberto -= dt;
+
+    if (tempoMicroondas >= 0.0f)
+    {
+        tempoMicroondas += dt;
+
+        if (tempoMicroondas >= 0.25f * 6)
+            tempoMicroondas = -1.0f;
+    }
+}
+
+
+static Vector2 maoPingPong(bool deCima, int pose)
+{
+    static const Vector2 maosCima[4] = {{16, 64}, {6, 42}, {21, 69}, {30, 63}};
+    static const Vector2 maosBaixo[4] = {{49, 64}, {60, 48}, {54, 30}, {60, 39}};
+
+    return deCima ? maosCima[pose] : maosBaixo[pose];
+}
+
+
+static void desenharPingPong(PecaCantinho *mesa)
+{
+    static const float passos[4] = {-14, 6, -6, 12};
+
+    int quadro = (int)(GetTime() / 0.06);
+    int travessia = quadro / 16;
+    int k = quadro % 16;
+    float s = k / 16.0f;
+
+    int indice = (travessia / 2) % 4;
+    float xa = passos[indice];
+    float xaProximo = passos[(indice + 1) % 4];
+    bool cimaRebate = travessia % 2 == 0;
+
+    if (!cimaRebate)
+    {
+        float t = s / 0.6f;
+        if (t > 1.0f) t = 1.0f;
+        xa = xa + (xaProximo - xa) * t;
+    }
+
+    int poseRebate = k == 0 ? 2 : (k <= 3 ? 3 : 0);
+    int poseRecebe = k >= 12 ? 1 : 0;
+    int poseCima = cimaRebate ? poseRebate : poseRecebe;
+    int poseBaixo = cimaRebate ? poseRecebe : poseRebate;
+
+    float cimaX = 344 + xa;
+    float cimaY = 269;
+    float baixoX = 315;
+    float baixoY = 499;
+
+    DrawTexture(poseCima == 0 ? pingPongCorpoParado : pingPongCorpoSemBraco, (int)cimaX, (int)cimaY, WHITE);
+    DrawTexture(mesa->quadros[0], (int)mesa->x, (int)mesa->y, WHITE);
+
+    if (poseCima != 0)
+        DrawTexture(pingPongBracoCima[poseCima], (int)cimaX, (int)cimaY, WHITE);
+
+    Vector2 maoCima = maoPingPong(true, poseCima);
+    DrawTexture(raqueteCima, (int)(cimaX + maoCima.x - 6), (int)(cimaY + maoCima.y - 2), WHITE);
+
+    Vector2 pontoCima = cimaRebate
+        ? (Vector2){365 + passos[indice], 346}
+        : (Vector2){365 + xaProximo, 346};
+    Vector2 pontoBaixo = {369, 521};
+    Vector2 de = cimaRebate ? pontoCima : pontoBaixo;
+    Vector2 para = cimaRebate ? pontoBaixo : pontoCima;
+
+    float bolaX = de.x + (para.x - de.x) * s;
+    float bolaY = de.y + (para.y - de.y) * s;
+    float alto = s < 0.7f
+        ? 12.0f * sinf(PI * s / 0.7f)
+        : 7.0f * sinf(PI * (s - 0.7f) / 0.6f);
+
+    DrawEllipse((int)bolaX, (int)bolaY, 3, 1.5f, (Color){0, 0, 0, 80});
+    DrawTexture(bolinhaPingPong, (int)(bolaX - 3), (int)(bolaY - 3 - alto), WHITE);
+
+    DrawTexture(pingPongCostas[poseBaixo], (int)baixoX, (int)baixoY, WHITE);
+
+    Vector2 maoBaixo = maoPingPong(false, poseBaixo);
+    DrawTexture(raqueteBaixo, (int)(baixoX + maoBaixo.x - 6), (int)(baixoY + maoBaixo.y - 16), WHITE);
+}
+
+
+static int puxaTacoSinuca(int f)
+{
+    static const int mira[7] = {0, 6, 2, 8, 2, 12, 0};
+    static const int volta[4] = {10, 4, 8, 2};
+
+    if (f < 7) return mira[f];
+    if (f >= 20 && f < 28) return 14;
+    if (f >= 28) return volta[f - 28];
+
+    return 0;
+}
+
+
+static void desenharSinuca(PecaCantinho *mesa)
+{
+    int f = (int)(GetTime() / mesa->duracao) % mesa->total;
+    int puxa = puxaTacoSinuca(f);
+
+    int tacoX = 372;
+    int topo = 477 + puxa;
+    int fim = 566 + puxa;
+
+    DrawTexture(mesa->quadros[f], (int)mesa->x, (int)mesa->y, WHITE);
+    DrawTexture(npcSinuca, 333, 500, WHITE);
+
+    DrawRectangle(tacoX - 2, topo - 1, 5, fim - topo + 3, BLACK);
+    DrawRectangle(tacoX - 1, topo, 3, fim - topo + 1, (Color){214, 184, 132, 255});
+    DrawRectangle(tacoX - 1, fim - 26, 3, 27, (Color){96, 56, 34, 255});
+    DrawRectangle(tacoX - 1, topo, 3, 3, (Color){70, 120, 200, 255});
+
+    DrawTexture(maoSinuca, 366, 557, WHITE);
+}
+
+
+static void desenharPeca(PecaCantinho *peca)
+{
+    if (peca->tipo == PECA_PINGPONG)
+    {
+        desenharPingPong(peca);
+        return;
+    }
+
+    if (peca->tipo == PECA_SINUCA)
+    {
+        desenharSinuca(peca);
+        return;
+    }
+
+    Texture2D textura = peca->quadros[0];
+
+    if (peca->tipo == PECA_FREEZER && tempoFreezerAberto > 0.0f)
+    {
+        textura = freezerAberto;
+    }
+    else if (peca->tipo == PECA_MICROONDAS)
+    {
+        textura = tempoMicroondas < 0.0f
+            ? peca->quadros[0]
+            : peca->quadros[1 + ((int)(tempoMicroondas / peca->duracao) % 3)];
+    }
+    else if (peca->total > 1)
+    {
+        int passo = (int)(GetTime() / peca->duracao);
+
+        if (peca->sequencia != NULL)
+            textura = peca->quadros[peca->sequencia[passo % peca->tamanhoSequencia]];
+        else
+            textura = peca->quadros[passo % peca->total];
+    }
+
+    DrawTexture(textura, (int)peca->x, (int)peca->y, WHITE);
+
+    if (peca->tipo == PECA_FREEZER && tempoFreezerAberto > 0.0f)
+        DrawTexture(baloesFreezer[balaoFreezer], 406, 100, WHITE);
+}
+
+
+static void desenharCantinho(int cargo, float posicaoPes, bool depoisDoPersonagem)
+{
+    if (cargo < 1 || cargo > 4)
+        return;
+
+    for (int i = 0; i < cantinhos[cargo].quantidade; i++)
+    {
+        PecaCantinho *peca = &cantinhos[cargo].pecas[i];
+
+        bool atras = peca->tipo == PECA_CHAO || peca->base <= posicaoPes;
+
+        if (atras != depoisDoPersonagem)
+            desenharPeca(peca);
+    }
+}
+
+
 int main()
 {
     // ==========================================================
@@ -368,6 +900,7 @@ InicializarBancoPerguntas();
     };
 
     carregarMesasNiveis();
+    carregarCantinhos();
 
     // MAQUINA DE CAFE: carrega as pecas e comeca disponivel
     iniciarMaquinaCafe();
@@ -2429,6 +2962,11 @@ bool mesaInferiorDepoisPersonagem =
         )
         {
 
+            if (!objetoEstagiarioAtivo(i, cargoFundo))
+            {
+                continue;
+            }
+
 // VERIFICA SE A MESA DEVE SER DESENHADA DEPOIS DO PERSONAGEM
 
 if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
@@ -2462,6 +3000,14 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 break;
             }
         }
+        if (colideComCantinho(cargoFundo, colisaoMesaBoneco_Boneco))
+        {
+            mensagem = true;
+
+            x = xGuardado;
+            y = yGuardado;
+        }
+
         for (int i = 0; i < 8; i++)
         {
             if (CheckCollisionRecs(
@@ -2511,6 +3057,7 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
 
             if (
                 objetos[i].interativo &&
+                objetoEstagiarioAtivo(i, cargoFundo) &&
                 CheckCollisionRecs(
                     colisaoMesaBoneco_Boneco,
                     areaInteracao
@@ -2523,7 +3070,44 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
         }
 
 
-        if (objetoPerto == 1)   // MAQUINA DE CAFE: balcao do cafe
+        int pecaPerto =
+            pecaInterativaPerto(cargoFundo, colisaoMesaBoneco_Boneco);
+
+        bool podeUsarPeca =
+            !gameOver && memorando == 0 &&
+            !maquinaCafeAberta() && !cartasEstaoAbertas();
+
+        if (pecaPerto == PECA_CAFE)
+        {
+            if (podeUsarPeca)
+                interagirBalcaoCafe(larguraResolucao);
+        }
+        else if (pecaPerto == PECA_FREEZER || pecaPerto == PECA_MICROONDAS)
+        {
+            if (podeUsarPeca)
+            {
+                agendarTextoUI(
+                    pecaPerto == PECA_FREEZER
+                        ? "Pressione E para abrir o freezer"
+                        : "Pressione E para ligar o micro-ondas",
+                    larguraResolucao - 430,
+                    66,
+                    30,
+                    GREEN,
+                    false,
+                    FONTE_TEXTO
+                );
+
+                if (IsKeyPressed(KEY_E))
+                {
+                    if (pecaPerto == PECA_FREEZER)
+                        usarFreezer();
+                    else
+                        usarMicroondas();
+                }
+            }
+        }
+        else if (objetoPerto == 1)   // MAQUINA DE CAFE: balcao do cafe
         {
             if (!gameOver && memorando == 0 && !maquinaCafeAberta())
                 interagirBalcaoCafe(larguraResolucao);
@@ -2633,10 +3217,20 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             passoNovosNpcs = (passoNovosNpcs + 1) % 16;
         }
 
-        DrawTexture(tapete, 112, 330, WHITE);   // tapete no chao, antes dos moveis
+        atualizarCantinhos();
+
+        if (cargoFundo == 0)
+            DrawTexture(tapete, 112, 330, WHITE);   // tapete no chao, antes dos moveis
+
+        desenharCantinho(cargoFundo, posicaoPes, false);
 
         for (int i = 0; i < quantidadeObjetos; i++)
         {
+
+            if (!objetoEstagiarioAtivo(i, cargoFundo))
+            {
+                continue;
+            }
 
             if (i == 17)   // aquario com peixe: desenhado depois do personagem (fica por cima dele)
             {
@@ -2711,7 +3305,10 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             WHITE
         );
 
+        desenharCantinho(cargoFundo, posicaoPes, true);
+
         // aquario com peixe: camada por cima do personagem
+        if (objetoEstagiarioAtivo(17, cargoFundo))
         {
             int quadroAquario = (int)(GetTime() / 0.2) % 8;
             DrawTexture(aquarioPeixe[quadroAquario], objetos[17].x, objetos[17].y, WHITE);
