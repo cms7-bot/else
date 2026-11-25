@@ -1382,6 +1382,13 @@ InicializarBancoPerguntas();
             "cenario/Telas/telaAuditoriaFim.png"
         );
 
+    // botao CIENTE do memorando (verde = auditoria acabou, vermelho = comecou)
+    Texture2D botaoCienteVerde =
+        LoadTexture("Botoes/BOTAO ciente (elemento separado).png");
+    Texture2D botaoCienteVermelho =
+        LoadTexture("Botoes/BOTAO ciente (elemento separado) (1).png");
+    Rectangle retCiente = { 528, 600, 224, 56 };   // tela virtual, dentro da folha do memorando
+
 
     // ==========================================================
     // ESTADO
@@ -3176,7 +3183,13 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             cartaAbertaPararDeAndar =
                 true;
 
+            Vector2 mouseMemo = GetMousePosition();
+            mouseMemo.x = (mouseMemo.x - offsetX) / escala;
+            mouseMemo.y = (mouseMemo.y - offsetY) / escala;
+
             if (
+                (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+                 CheckCollisionPointRec(mouseMemo, retCiente)) ||
                 IsKeyPressed(KEY_ENTER) ||
                 IsKeyPressed(KEY_SPACE)
             )
@@ -3845,17 +3858,21 @@ for (int i = 6; i <= 13; i++)
                 WHITE
             );
 
-            const char *dicaMemorando =
-                "Pressione ENTER para continuar";
+            // botao CIENTE (cresce ao passar o mouse, como os outros botoes)
+            Vector2 mouseCiente = GetMousePosition();
+            mouseCiente.x = (mouseCiente.x - offsetX) / escala;
+            mouseCiente.y = (mouseCiente.y - offsetY) / escala;
 
-            agendarTextoUI(
-                dicaMemorando,
-                larguraResolucao / 2.0f,
-                alturaResolucao - 38,
-                30,
-                WHITE,
-                true,
-                FONTE_TEXTO
+            Texture2D texCiente = (memorando == 1) ? botaoCienteVermelho : botaoCienteVerde;
+            Rectangle cienteDesenho = retanguloAnimadoBotao("auditoria.ciente", retCiente, CheckCollisionPointRec(mouseCiente, retCiente));
+
+            DrawTexturePro(
+                texCiente,
+                (Rectangle){0, 0, (float)texCiente.width, (float)texCiente.height},
+                cienteDesenho,
+                (Vector2){0, 0},
+                0,
+                WHITE
             );
         }
 
@@ -4337,6 +4354,8 @@ for (int i = 6; i <= 13; i++)
     UnloadTexture(botaoVoltarPausa);
     UnloadTexture(telaAuditoria);
     UnloadTexture(telaAuditoriaFim);
+    UnloadTexture(botaoCienteVerde);
+    UnloadTexture(botaoCienteVermelho);
 
     UnloadTexture(logoInicio);
     UnloadTexture(fundoCarta);
