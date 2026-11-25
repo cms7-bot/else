@@ -449,6 +449,7 @@ static void carregarCantinhos(void)
     p->sequencia = sequenciaNpcJogando;
     p->tamanhoSequencia = 8;
     p->base = 587;
+    colisao(p, 32, 63, 30, 32);   // pernas esticadas (passavam por cima do personagem)
     p = pecaParada(2, PECA_COMUM, PL "mesa_centro_pleno.png", 116, 422);
     colisao(p, 0, 5, 75, 40);
 
