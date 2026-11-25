@@ -2,7 +2,7 @@
 // MÁQUINA DE CAFÉ (US13)
 // ----------------------------------------------------------
 // O jogador chega perto do balcão do café e aperta E.
-// Abre um close da máquina com a tampa aberta: 3 chaves (A, B, C)
+// Abre um close da máquina com a tampa aberta: de 3 a 5 chaves (A, B, C, D, E)
 // ligam/desligam com clique e o botão branco (TESTAR) testa.
 // Acertou: luz verde, café forte (cada medidor anda 10 rumo ao 50).
 // Errou: gasta 1 das 3 tentativas. A máquina só volta na próxima fase.
@@ -35,16 +35,51 @@ Rectangle retanguloAnimadoBotao(const char *nome, Rectangle base, bool hover);  
 // ENIGMAS POR NÍVEL
 // ##########################################################
 
-// ---------------- ENIGMA 1 · ESTAGIÁRIO ----------------
-// luz = (A E B) E (NÃO C)   ->  resposta: A ligada, B ligada, C desligada
-static bool luzEstagiario(bool a, bool b, bool c)
+#define MAX_CHAVES 5
+#define MAX_LUZES 2
+
+static bool xou(bool x, bool y)
 {
-    return (a && b) && !c;
+    return x != y;
 }
 
-// ---------------- ENIGMA 2 · ASSISTENTE ----------------
-// (ainda não feito: criar luzAssistente, a pasta "assistente" com as placas
-//  e uma linha nova na tabela)
+// ---------------- ENIGMA 1 · ESTAGIÁRIO ----------------
+// luz = (A E B) E (NÃO C)   ->  resposta: 1 1 0
+static void luzEstagiario(const bool c[], bool luz[])
+{
+    luz[0] = (c[0] && c[1]) && !c[2];
+}
+
+// ---------------- ENIGMA 2 · JÚNIOR ----------------
+// luz = (A XOU B) E (B E C) E (NÃO D)   ->  resposta: 0 1 1 0
+static void luzJunior(const bool c[], bool luz[])
+{
+    luz[0] = xou(c[0], c[1]) && (c[1] && c[2]) && !c[3];
+}
+
+// ---------------- ENIGMA 3 · PLENO ----------------
+// luz = (A NE B) E (B XOU C) E (C NOU D)   ->  resposta: 0 1 0 0
+static void luzPleno(const bool c[], bool luz[])
+{
+    luz[0] = !(c[0] && c[1]) && xou(c[1], c[2]) && !(c[2] || c[3]);
+}
+
+// ---------------- ENIGMA 4 · SÊNIOR ----------------
+// luz = NOU( A NE B , C XOU D , C OU E )   ->  resposta: 1 1 0 0 0
+static void luzSenior(const bool c[], bool luz[])
+{
+    bool ne = !(c[0] && c[1]);
+    luz[0] = !(ne || xou(c[2], c[3]) || (c[2] || c[4]));
+}
+
+// ---------------- ENIGMA 5 · TECH LÍDER ----------------
+// luz 1 = (A XOU B) E (C NOU E)
+// luz 2 = (B NE D) E (C OU D) E (D XOU E)   ->  resposta: 1 0 0 1 0
+static void luzTechLider(const bool c[], bool luz[])
+{
+    luz[0] = xou(c[0], c[1]) && !(c[2] || c[4]);
+    luz[1] = !(c[1] && c[3]) && (c[2] || c[3]) && xou(c[3], c[4]);
+}
 
 
 // texto escrito por cima da placa (nome das portas, rótulos A/B/C...)
@@ -62,7 +97,13 @@ typedef struct
 {
     const char *cargo;                    // igual ao nomeCargo() do Cartas.c
     const char *pasta;                    // pasta das placas em cenario/maquina_cafe/
-    bool (*luzAcende)(bool a, bool b, bool c);
+    void (*calcularLuzes)(const bool c[], bool luz[]);
+    int qtdChaves;
+    int xChave[MAX_CHAVES];
+    bool placaPorEstado;
+    int qtdLuzes;
+    int xLuz[MAX_LUZES];
+    bool letrasNoPainel;
     Rotulo rotulos[MAX_ROTULOS];
 } Enigma;
 
@@ -73,6 +114,7 @@ static const Enigma ENIGMAS[] =
 {
     {
         "Estagiario", "estagiario", luzEstagiario,
+        3, { 512, 640, 768 }, true, 1, { 160 }, false,
         {
             { "E",   578, 320, 0, true  },   // porta E de baixo
             { "E",   674, 232, 0, true  },   // porta E de cima
@@ -82,7 +124,10 @@ static const Enigma ENIGMAS[] =
             { "C",   776, 416, 2, false },
         }
     },
-    // { "Assistente", "assistente", luzAssistente, { ... } },
+    { "Junior",     "junior",    luzJunior,    4, { 496, 592, 688, 784 },      true,  1, { 160 },      true, { { NULL } } },
+    { "Pleno",      "pleno",     luzPleno,     4, { 496, 592, 688, 784 },      true,  1, { 160 },      true, { { NULL } } },
+    { "Senior",     "senior",    luzSenior,    5, { 480, 560, 640, 720, 800 }, false, 1, { 160 },      true, { { NULL } } },
+    { "Tech Lider", "techlider", luzTechLider, 5, { 480, 560, 640, 720, 800 }, false, 2, { 145, 175 }, true, { { NULL } } },
 };
 
 #define QTD_ENIGMAS ((int)(sizeof(ENIGMAS) / sizeof(ENIGMAS[0])))
@@ -114,11 +159,12 @@ static void desenharPeca(Peca p)
 
 // peças comuns
 static Peca balcao, postit, visor, corpo, cafe, fumaca;
-static Peca lampApagada, lampVerde, lampVermelha;
+static Peca lampApagada[QTD_ENIGMAS][MAX_LUZES], lampVerde[QTD_ENIGMAS][MAX_LUZES], lampVermelha[QTD_ENIGMAS][MAX_LUZES];
+static Peca cabecaDuasLuzes[QTD_ENIGMAS];
 static Peca chaveLigada, chaveDesligada;
 static Peca xicaraCheia[3], xicaraGasta[3];
-// placas de cada enigma: [enigma][combinação de A, B, C]
-static Peca placas[QTD_ENIGMAS][8];
+// placas de cada enigma: [enigma][combinação das chaves]
+static Peca placas[QTD_ENIGMAS][1 << MAX_CHAVES];
 
 static Font fonteVisor, fontePostit, fonteRotulo[3], fonteTentativas, fonteTestar;
 
@@ -132,14 +178,15 @@ static int enigmaAtual = -1;             // -1 = este cargo não tem enigma (a m
 static bool aberta = false;
 static bool disponivel = true;           // volta a ficar disponível quando o cargo muda
 static EstadoMaquina estado = JOGANDO;
-static bool chave[3] = { false, false, false };
+static bool chave[MAX_CHAVES] = { false };
 static int tentativas = 3;
 static float tempoLuzVermelha = 0.0f;
+static bool ultimaLuz[MAX_LUZES] = { false };
+static bool soUmaLuz = false;
 static int antes[4], depois[4];          // medidores antes/depois do café forte
 static char cargoDaFase[32] = "";
 
 // áreas clicáveis (tela virtual)
-static const int X_CHAVE[3] = { 512, 640, 768 };
 static const Rectangle AREA_TESTAR = { 452, 92, 52, 52 };
 
 
@@ -154,9 +201,28 @@ void iniciarMaquinaCafe(void)
     corpo        = carregarPeca("comum/corpo", 280, 64);
     cafe         = carregarPeca("comum/cafe", 600, 596);
     fumaca       = carregarPeca("comum/fumaca", 492, 0);
-    lampApagada  = carregarPeca("comum/lampada_apagada", 620, 84);
-    lampVerde    = carregarPeca("comum/lampada_verde", 580, 44);
-    lampVermelha = carregarPeca("comum/lampada_vermelha", 620, 84);
+    for (int e = 0; e < QTD_ENIGMAS; e++)
+    {
+        const Enigma *en = &ENIGMAS[e];
+        for (int k = 0; k < en->qtdLuzes; k++)
+        {
+            int x = en->xLuz[k];
+            if (en->qtdLuzes == 1)
+            {
+                lampApagada[e][k]  = carregarPeca("comum/lampada_apagada", 620, 84);
+                lampVerde[e][k]    = carregarPeca("comum/lampada_verde", 580, 44);
+                lampVermelha[e][k] = carregarPeca("comum/lampada_vermelha", 620, 84);
+            }
+            else
+            {
+                lampApagada[e][k]  = carregarPeca(TextFormat("%s/lampada%d_apagada", en->pasta, x), x * 4 - 20, 84);
+                lampVerde[e][k]    = carregarPeca(TextFormat("%s/lampada%d_verde", en->pasta, x), x * 4 - 60, 44);
+                lampVermelha[e][k] = carregarPeca(TextFormat("%s/lampada%d_vermelha", en->pasta, x), x * 4 - 20, 84);
+            }
+        }
+        if (en->qtdLuzes > 1)
+            cabecaDuasLuzes[e] = carregarPeca(TextFormat("%s/cabeca_duas_luzes", en->pasta), 548, 68);
+    }
     chaveLigada    = carregarPeca("comum/chave_ligada", 500, 468);
     chaveDesligada = carregarPeca("comum/chave_desligada", 500, 468);
     xicaraCheia[0] = carregarPeca("comum/xicara0_cheia", 1008, 580);
@@ -166,11 +232,24 @@ void iniciarMaquinaCafe(void)
     xicaraGasta[1] = carregarPeca("comum/xicara1_gasta", 1088, 604);
     xicaraGasta[2] = carregarPeca("comum/xicara2_gasta", 1168, 604);
 
-    // placas de cada nível: <pasta>/placa_ABC.png
+    // placas de cada nível: <pasta>/placa_ABC.png (uma por combinação) ou <pasta>/placa.png (fios escondidos)
     for (int e = 0; e < QTD_ENIGMAS; e++)
-        for (int i = 0; i < 8; i++)
-            placas[e][i] = carregarPeca(TextFormat("%s/placa_%d%d%d", ENIGMAS[e].pasta,
-                                                   (i >> 2) & 1, (i >> 1) & 1, i & 1), 424, 144);
+    {
+        const Enigma *en = &ENIGMAS[e];
+        if (!en->placaPorEstado)
+        {
+            placas[e][0] = carregarPeca(TextFormat("%s/placa", en->pasta), 424, 144);
+            continue;
+        }
+        for (int i = 0; i < (1 << en->qtdChaves); i++)
+        {
+            char bits[MAX_CHAVES + 1];
+            for (int k = 0; k < en->qtdChaves; k++)
+                bits[k] = ((i >> (en->qtdChaves - 1 - k)) & 1) ? '1' : '0';
+            bits[en->qtdChaves] = '\0';
+            placas[e][i] = carregarPeca(TextFormat("%s/placa_%s", en->pasta, bits), 424, 144);
+        }
+    }
 
     // fontes com acentos (caracteres 32 a 255)
     int letras[224];
@@ -186,12 +265,22 @@ void iniciarMaquinaCafe(void)
 
 void descarregarMaquinaCafe(void)
 {
-    Peca comuns[] = { balcao, postit, visor, corpo, cafe, fumaca, lampApagada, lampVerde, lampVermelha,
-                      chaveLigada, chaveDesligada };
+    Peca comuns[] = { balcao, postit, visor, corpo, cafe, fumaca, chaveLigada, chaveDesligada };
     for (int i = 0; i < (int)(sizeof(comuns) / sizeof(comuns[0])); i++) UnloadTexture(comuns[i].textura);
     for (int k = 0; k < 3; k++) { UnloadTexture(xicaraCheia[k].textura); UnloadTexture(xicaraGasta[k].textura); }
     for (int e = 0; e < QTD_ENIGMAS; e++)
-        for (int i = 0; i < 8; i++) UnloadTexture(placas[e][i].textura);
+    {
+        const Enigma *en = &ENIGMAS[e];
+        int qtdPlacas = en->placaPorEstado ? (1 << en->qtdChaves) : 1;
+        for (int i = 0; i < qtdPlacas; i++) UnloadTexture(placas[e][i].textura);
+        for (int k = 0; k < en->qtdLuzes; k++)
+        {
+            UnloadTexture(lampApagada[e][k].textura);
+            UnloadTexture(lampVerde[e][k].textura);
+            UnloadTexture(lampVermelha[e][k].textura);
+        }
+        if (en->qtdLuzes > 1) UnloadTexture(cabecaDuasLuzes[e].textura);
+    }
     UnloadFont(fonteVisor); UnloadFont(fontePostit); UnloadFont(fonteTentativas);
     for (int f = 0; f < 3; f++) UnloadFont(fonteRotulo[f]);
 }
@@ -202,10 +291,12 @@ void descarregarMaquinaCafe(void)
 // ##########################################################
 static void zerarEnigma(void)
 {
-    chave[0] = chave[1] = chave[2] = false;
+    for (int k = 0; k < MAX_CHAVES; k++) chave[k] = false;
+    for (int k = 0; k < MAX_LUZES; k++) ultimaLuz[k] = false;
     tentativas = 3;
     estado = JOGANDO;
     tempoLuzVermelha = 0.0f;
+    soUmaLuz = false;
 }
 
 // procura na tabela o enigma do cargo atual (-1 se não tiver)
@@ -340,14 +431,14 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
 
     bool podeMexer = (estado == JOGANDO || estado == ERROU);
     bool emCimaDeAlgo = false;
-    bool sobreChave[3] = { false, false, false };
+    bool sobreChave[MAX_CHAVES] = { false };
     bool sobreTestar = false;
 
     if (podeMexer)
     {
-        for (int k = 0; k < 3; k++)
+        for (int k = 0; k < enigma->qtdChaves; k++)
         {
-            Rectangle area = { X_CHAVE[k] - 32, 456, 64, 96 };
+            Rectangle area = { enigma->xChave[k] - 32, 456, 64, 96 };
             if (CheckCollisionPointRec(mouse, area))
             {
                 emCimaDeAlgo = true;
@@ -366,7 +457,16 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
             sobreTestar = true;
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             {
-                if (enigma->luzAcende(chave[0], chave[1], chave[2]))
+                bool luz[MAX_LUZES] = { false };
+                enigma->calcularLuzes(chave, luz);
+                int acesas = 0;
+                for (int k = 0; k < enigma->qtdLuzes; k++)
+                {
+                    ultimaLuz[k] = luz[k];
+                    if (luz[k]) acesas++;
+                }
+
+                if (acesas == enigma->qtdLuzes)
                 {
                     estado = ACERTOU;
                     tomarCafeForte();
@@ -375,6 +475,7 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
                 {
                     tentativas--;
                     tempoLuzVermelha = 1.2f;
+                    soUmaLuz = (acesas > 0);
                     estado = (tentativas <= 0) ? PIFOU : ERROU;
                 }
             }
@@ -404,16 +505,28 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
         Rectangle destinoTestar = retanguloAnimadoBotao("maquina.testar", AREA_TESTAR, sobreTestar);
         DrawTexturePro(corpo.textura, origemTestar, destinoTestar, (Vector2){ 0, 0 }, 0, WHITE);
     }
-    desenharPeca(placas[enigmaAtual][(chave[0] << 2) | (chave[1] << 1) | chave[2]]);
+    if (enigma->qtdLuzes > 1) desenharPeca(cabecaDuasLuzes[enigmaAtual]);
 
-    if (estado == ACERTOU)          desenharPeca(lampVerde);
-    else if (tempoLuzVermelha > 0)  desenharPeca(lampVermelha);
-    else                            desenharPeca(lampApagada);
+    int indicePlaca = 0;
+    if (enigma->placaPorEstado)
+        for (int k = 0; k < enigma->qtdChaves; k++)
+            indicePlaca = (indicePlaca << 1) | (chave[k] ? 1 : 0);
+    desenharPeca(placas[enigmaAtual][indicePlaca]);
 
-    for (int k = 0; k < 3; k++)
+    for (int k = 0; k < enigma->qtdLuzes; k++)
+    {
+        if (estado == ACERTOU)
+            desenharPeca(lampVerde[enigmaAtual][k]);
+        else if (tempoLuzVermelha > 0)
+            desenharPeca(ultimaLuz[k] ? lampVerde[enigmaAtual][k] : lampVermelha[enigmaAtual][k]);
+        else
+            desenharPeca(lampApagada[enigmaAtual][k]);
+    }
+
+    for (int k = 0; k < enigma->qtdChaves; k++)
     {
         Peca c = chave[k] ? chaveLigada : chaveDesligada;
-        c.x += X_CHAVE[k] - X_CHAVE[0];
+        c.x = enigma->xChave[k] - 12;
 
         // chave com a animacao padrao dos botoes
         Rectangle baseChave = { (float)c.x, (float)c.y, (float)c.textura.width, (float)c.textura.height };
@@ -431,6 +544,12 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
         const Rotulo *ro = &enigma->rotulos[r];
         texto(fonteRotulo[ro->fonte], ro->texto, ro->x, ro->y, silk, ro->centralizado);
     }
+    if (enigma->letrasNoPainel)
+    {
+        const char *nomesChaves[MAX_CHAVES] = { "A", "B", "C", "D", "E" };
+        for (int k = 0; k < enigma->qtdChaves; k++)
+            texto(fonteRotulo[2], nomesChaves[k], enigma->xChave[k] + 20, 496, (Color){ 20, 20, 26, 255 }, false);
+    }
     texto(fonteTestar, "TESTAR", 476, 160, claro, true);
     texto(fonteTentativas, "TENTATIVAS", 1008, 556, claro, false);
 
@@ -442,7 +561,14 @@ void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY)
     // visor
     Color verde = { 88, 220, 110, 255 }, vermelho = { 226, 87, 95, 255 };
     float vx = 946, vy = 172;
-    if (estado == ERROU)
+    if (estado == ERROU && soUmaLuz)
+    {
+        texto(fonteVisor, "SÓ UMA LUZ", vx, vy, vermelho, false);
+        texto(fonteVisor, "ACENDEU", vx, vy + 26, vermelho, false);
+        texto(fonteVisor, TextFormat("restam %d", tentativas), vx, vy + 78, vermelho, false);
+        texto(fonteVisor, tentativas == 1 ? "tentativa" : "tentativas", vx, vy + 104, vermelho, false);
+    }
+    else if (estado == ERROU)
     {
         texto(fonteVisor, "NÃO FUNCIONOU", vx, vy, vermelho, false);
         texto(fonteVisor, TextFormat("restam %d", tentativas), vx, vy + 52, vermelho, false);

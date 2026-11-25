@@ -1398,6 +1398,7 @@ InicializarBancoPerguntas();
     // ==========================================================
     float x = 300;
     float y = 170;
+    int cargoAnterior = 0;
 
     int velocidade = 5;
     int direcao = 0;
@@ -2897,6 +2898,25 @@ InicializarBancoPerguntas();
 
         if (cargoFundo < 0 || cargoFundo > 4 || fundosCargo[cargoFundo].id == 0)
             cargoFundo = 0;
+
+        if (cargoFundo != cargoAnterior)
+        {
+            Rectangle pesAoMudarCargo =
+            {
+                x + frente1.width * 0.25f,
+                y + frente1.height * 0.80f,
+                frente1.width * 0.50f,
+                frente1.height * 0.18f
+            };
+
+            if (colideComCantinho(cargoFundo, pesAoMudarCargo))
+            {
+                x = 300;
+                y = 170;
+            }
+
+            cargoAnterior = cargoFundo;
+        }
 
         DrawTexture(
             fundosCargo[cargoFundo],
