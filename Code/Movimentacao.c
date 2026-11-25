@@ -264,7 +264,7 @@ typedef struct PecaCantinho
     const int *sequencia;
     int tamanhoSequencia;
     float x, y;
-    Rectangle colisoes[2];
+    Rectangle colisoes[4];
     int quantidadeColisoes;
     Rectangle areaInteracao;
     float base;
@@ -407,8 +407,9 @@ static void carregarCantinhos(void)
     p = novaPeca(1, PECA_PINGPONG, 300, 344);
     p->quadros[0] = carregarMetade(JR "PingPong/mesa_pingpong.png");
     p->total = 1;
-    colisao(p, 10, 20, 110, 180);
-    colisao(p, 33, 231, 30, 18);
+    colisao(p, 10, 20, 110, 180);   // mesa (essa vem primeiro: define a ordem de desenho)
+    colisao(p, 42, -14, 68, 34);    // NPC de cima (vai e volta na horizontal)
+    colisao(p, 28, 200, 42, 49);    // NPC de baixo (do fim da mesa ate os pes)
 
     freezerAberto = carregarMetade(JR "freezer_energetico_aberto.png");
     for (int k = 0; k < 4; k++)
