@@ -130,6 +130,11 @@ bool cartasEstaoAbertas()
 static int diasSobrevividos = 0;
 static int cartasResolvidasFase = 0;
 static bool partidaTerminou = false;
+static int pontuacao = 0;
+static bool venceu = false;
+
+#define BONUS_PROMOCAO 250
+#define BONUS_VITORIA 1000
 
 
 // ==========================================================
@@ -229,6 +234,39 @@ static void registrarCartaNaEstacao(void)
 }
 
 
+static int pontosDaCarta(void)
+{
+    int soma = 0;
+
+    for (int medidor = 1; medidor <= 4; medidor++)
+    {
+        int distancia = obterValorMedidor(medidor) - 50;
+
+        if (distancia < 0)
+            distancia = -distancia;
+
+        soma += 50 - distancia;
+    }
+
+    return soma / 2;
+}
+
+int obterPontuacao(void)
+{
+    return pontuacao;
+}
+
+bool jogadorVenceu(void)
+{
+    return venceu;
+}
+
+void tocarSomVitoria(void)
+{
+    PlaySound(somConquista);
+    PlaySound(somAplausos);
+}
+
 static void registrarCartaResolvida()
 {
     cartasResolvidasFase++;
@@ -240,12 +278,22 @@ static void registrarCartaResolvida()
     if (jogadorPerdeu())
         partidaTerminou = true;
     else
+    {
         diasSobrevividos++;
+        pontuacao += pontosDaCarta();
+    }
 
     // disparo e saida da auditoria (so vale se o jogo nao acabou)
     avaliarAuditoria();
 
+    if (!partidaTerminou && cargo == CARGO_MAXIMO && cartasResolvidasFase == CARTAS_PARA_PROMOCAO)
+    {
+        venceu = true;
+        pontuacao += BONUS_VITORIA;
+    }
+
     if (!partidaTerminou && cargo < CARGO_MAXIMO && cartasResolvidasFase == CARTAS_PARA_PROMOCAO){
+        pontuacao += BONUS_PROMOCAO;
         mostrarPromocao = true;
         PlaySound(somConquista);
         PlaySound(somAplausos);
@@ -269,6 +317,8 @@ static void reiniciarPartidaSeNecessario()
         zerarEstacoes();
         cargo = 0;
         partidaTerminou = false;
+        pontuacao = 0;
+        venceu = false;
         mostrarPromocao = false;
         reiniciarAuditoria();
 
@@ -500,6 +550,8 @@ void iniciarCartas(
     cartasResolvidasFase = 0;
     cargo = 0;
     partidaTerminou = false;
+    pontuacao = 0;
+    venceu = false;
     mostrarPromocao = false;
     reiniciarAuditoria();
 

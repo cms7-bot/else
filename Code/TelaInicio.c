@@ -45,6 +45,8 @@ Rectangle retanguloAnimadoBotao(const char *nome, Rectangle base, bool hover);
 #define FONTE_DESTAQUE 1
 float medirTextoUI(const char *texto, float tamanho, int fonte);
 void desenharTextoUI(const char *texto, float x, float y, float tamanho, Color cor, int fonte);
+void abrirRankingMenu(void);
+bool desenharRankingMenu(float escala, float offsetX, float offsetY);
 
 int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTela, float offsetX, float offsetY, Music trilhaSonora1)
 {
@@ -56,6 +58,7 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
     static Texture2D botaoMute = {0};
     static Texture2D botaoInstrucoes = {0};
     static Texture2D botaoFinais = {0};
+    static Texture2D botaoRanking = {0};
     static Texture2D botaoExit = {0};
     static Texture2D telaInstrucoes = {0};
     static Texture2D botaoVoltar = {0};
@@ -82,6 +85,9 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
 
     if (botaoFinais.id == 0)
         botaoFinais = LoadTexture("Botoes/botaoFinais.png");
+
+    if (botaoRanking.id == 0)
+        botaoRanking = LoadTexture("Botoes/botaoRanking.png");
 
     if (botaoExit.id == 0)
         botaoExit = LoadTexture("Botoes/botaoExit.png");
@@ -355,38 +361,60 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
         return 0;
     }
 
+    if (telaMenu == 3)
+    {
+        BeginDrawing();
+
+        ClearBackground(BLACK);
+
+        if (desenharRankingMenu(escalaTela, offsetX, offsetY))
+            telaMenu = 0;
+
+        EndDrawing();
+
+        return 0;
+    }
+
     // ==========================================================
     // BOTÕES (escala e áreas de clique)
     // ==========================================================
     float escala = 0.60f;
     float escalaInstrucoes = 0.60f;
     float escalaFinais = 0.60f;
+    float escalaRanking = 0.60f;
     float escalaExit = 0.60f;
 
     Rectangle botao = {
         (larguraResolucao - 270) / 2,
-        275,
+        250,
         270,
         67
     };
 
     Rectangle botaoInstrucoesArea = {
         (larguraResolucao - 270) / 2,
-        365,
+        335,
         270,
         67
     };
 
     Rectangle botaoFinaisArea = {
         (larguraResolucao - 270) / 2,
-        455,
+        420,
+        270,
+        67
+    };
+
+    Rectangle botaoRankingArea = {
+        (larguraResolucao - 270) / 2,
+        505,
         270,
         67
     };
 
     Rectangle botaoExitArea = {
         (larguraResolucao - 270) / 2,
-        545,
+        590,
         270,
         67
     };
@@ -443,6 +471,16 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
             carregarFinais();   // le o save antes de mostrar as pastas
             telaMenu = 2;
         }
+
+
+    bool sobre_botaoRankingArea = CheckCollisionPointRec(mouse, botaoRankingArea);
+    escalaRanking = 0.60f * escalaAnimadaBotao("inicio.ranking", sobre_botaoRankingArea);
+
+    if (sobre_botaoRankingArea && IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    {
+        abrirRankingMenu();
+        telaMenu = 3;
+    }
 
 
     // ==========================================================
@@ -503,6 +541,18 @@ int telaInicio(Texture2D botaoJogar, RenderTexture2D telaVirtual, float escalaTe
         },
         0,
         escalaFinais,
+        WHITE
+    );
+
+
+    DrawTextureEx(
+        botaoRanking,
+        (Vector2){
+            larguraResolucao / 2 - botaoRanking.width * escalaRanking / 2,
+            botaoRankingArea.y + botaoRankingArea.height / 2 - botaoRanking.height * escalaRanking / 2
+        },
+        0,
+        escalaRanking,
         WHITE
     );
 
@@ -599,7 +649,7 @@ static const char *introFrases[] = {
     "Por aqui, a IA está em quase todas as decisões.",
     "Seu trabalho é simples: observar, aprender e ajudar.",
     "Mas cuidado: até as menores escolhas têm consequências.",
-    "Te esperamos amanhã, às 9h. Não se atrase!",
+    "Te esperamos amanhã, às 18h. Não se atrase!",
     "Bia · RH Else"
 };
 
@@ -808,7 +858,7 @@ int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, floa
         for (int x = x0 + 12; x < x0 + larg - 12; x += 10)
             DrawRectangle(x, y0 + 100, 6, 3, (Color){185, 182, 168, 255});
 
-        if (estado != INTRO_EMAIL || frase == INTRO_TOTAL_FRASES - 1 && !digitando)
+        if (estado != INTRO_EMAIL || (frase == INTRO_TOTAL_FRASES - 1 && !digitando))
         {
             int ax = x0 + 18;
             int ay = y0 + 290;
@@ -954,7 +1004,7 @@ int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, floa
             }
         }
 
-        if (estado != INTRO_EMAIL || frase == INTRO_TOTAL_FRASES - 1 && !digitando)
+        if (estado != INTRO_EMAIL || (frase == INTRO_TOTAL_FRASES - 1 && !digitando))
         {
             desenharTextoUI("cracha_estagiario.png", TX(x0 + 58), TY(y0 + 298), 22 * e, tinta, FONTE_TEXTO);
             desenharTextoUI(
@@ -995,7 +1045,7 @@ int telaAviso(RenderTexture2D telaVirtual, float escalaTela, float offsetX, floa
             if (alfa > 1)
                 alfa = 1;
 
-            const char *manha = "NA MANHÃ SEGUINTE...";
+            const char *manha = "NO DIA SEGUINTE...";
             float tamanho = 24 * e;
 
             desenharTextoUI(

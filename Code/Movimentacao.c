@@ -56,6 +56,13 @@ void interagirBalcaoCafe(int larguraResolucao);
 void desenharAvisoBalcaoCafe(void);
 void atualizarDesenharMaquinaCafe(float escala, float offsetX, float offsetY);
 void desenharTextoQuebrado(const char *texto, int x, int y, int larguraMaxima, int tamanho, Color cor);
+bool jogadorVenceu(void);
+int telaVitoria(float escala, float offsetX, float offsetY, bool bloqueada);
+void reiniciarTelaVitoria(void);
+void abrirRankingFim(void);
+bool rankingFimAberto(void);
+void desenharRankingFim(float escala, float offsetX, float offsetY);
+void novaPartidaRanking(void);
 
 
 
@@ -3930,10 +3937,29 @@ for (int i = 6; i <= 13; i++)
         desenharTextosNaJanela(escala, offsetX, offsetY);
 
 
+        int acaoFim = 0;
+
+        if (jogadorVenceu())
+        {
+            gameOver = true;
+
+            PauseMusicStream(trilhaSonora2);
+
+            acaoFim = telaVitoria(escala, offsetX, offsetY, rankingFimAberto());
+
+            if (acaoFim == 2)
+            {
+                abrirRankingFim();
+                acaoFim = 0;
+            }
+
+            desenharRankingFim(escala, offsetX, offsetY);
+        }
+
         // ======================================================
         // GAME OVER
         // ======================================================
-        if (
+        else if (
             regraGameOver()
         )
         {
@@ -4174,6 +4200,7 @@ for (int i = 6; i <= 13; i++)
 
 
             if (
+                !rankingFimAberto() &&
                 IsMouseButtonPressed(
                     MOUSE_LEFT_BUTTON
                 )
@@ -4195,15 +4222,35 @@ for (int i = 6; i <= 13; i++)
                             obterDiasSobrevividos()
                         )
                     );
+
+                    abrirRankingFim();
                 }
 
 
                 if (
-    CheckCollisionPointRec(
-        mouse,
-        retExit
-    )
-)
+                    CheckCollisionPointRec(
+                        mouse,
+                        retExit
+                    )
+                )
+                    acaoFim = 3;
+
+
+                if (
+                    CheckCollisionPointRec(
+                        mouse,
+                        retPlayAgain
+                    )
+                )
+                    acaoFim = 1;
+            }
+
+            desenharRankingFim(escala, offsetX, offsetY);
+        // reiniciarPartidaSeNecessario();
+        }
+
+
+        if (acaoFim == 3)
 {
     PlayMusicStream(
         trilhaSonora1
@@ -4239,15 +4286,12 @@ for (int i = 6; i <= 13; i++)
         &porcentagemLucroApagado
     );
     reiniciarMaquinaCafe();   // MAQUINA DE CAFE
+    novaPartidaRanking();
+    reiniciarTelaVitoria();
 }
 
 
-                if (
-    CheckCollisionPointRec(
-        mouse,
-        retPlayAgain
-    )
-)
+        if (acaoFim == 1)
 {
     k = 0;
 
@@ -4283,10 +4327,9 @@ for (int i = 6; i <= 13; i++)
         &porcentagemLucroApagado
     );
     reiniciarMaquinaCafe();   // MAQUINA DE CAFE
+    novaPartidaRanking();
+    reiniciarTelaVitoria();
 }
-            }
-        // reiniciarPartidaSeNecessario();
-        }
 
 
         EndDrawing();
