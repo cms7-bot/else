@@ -454,22 +454,22 @@ static void carregarCantinhos(void)
 
     #define SR "cenario/elementos_senior/"
     p = pecaParada(3, PECA_CHAO, SR "carpete_senior.png", 30, 356);
-    p = pecaParada(3, PECA_CAFE, SR "maquina_cafe.png", 20, 56);
+    p = pecaParada(3, PECA_CAFE, SR "maquina_cafe.png", 30, 56);   // cantinho do cafe: +10 px (desencosta da parede)
     colisao(p, 0, 90, 80, 60);
-    p = pecaParada(3, PECA_COMUM, SR "cantinho_cha.png", 110, 96);
+    p = pecaParada(3, PECA_COMUM, SR "cantinho_cha.png", 120, 96);
     colisao(p, 0, 66, 100, 44);
-    p = pecaParada(3, PECA_COMUM, SR "bonsai.png", 240, 81);
+    p = pecaParada(3, PECA_COMUM, SR "bonsai.png", 250, 81);
     colisao(p, 0, 75, 75, 50);
-    p = pecaAnimada(3, PECA_COMUM, SR "PoltronaColega/PoltronaColega%d.png", 1, 4, 0.4f, 322, 98);
+    p = pecaAnimada(3, PECA_COMUM, SR "PoltronaColega/PoltronaColega%d.png", 1, 4, 0.4f, 332, 98);
     colisao(p, 0, 65, 85, 43);
-    p = pecaParada(3, PECA_COMUM, SR "luminaria.png", 342, 51);
+    p = pecaParada(3, PECA_COMUM, SR "luminaria.png", 352, 51);
     colisao(p, 93, 93, 27, 62);
     p->base = 206;
-    p = pecaAnimada(3, PECA_COMUM, SR "Vitrola/aparador_vitrola_senior_%02d.png", 0, 4, 0.2f, 24, 236);
+    p = pecaAnimada(3, PECA_COMUM, SR "Vitrola/aparador_vitrola_senior_%02d.png", 0, 4, 0.2f, 30, 236);   // borda esquerda alinhada ao tapete
     colisao(p, 0, 40, 50, 80);
     p = pecaParada(3, PECA_COMUM, SR "sofa_couro_senior.png", 26, 362);
     colisao(p, 0, 20, 80, 190);
-    p = pecaParada(3, PECA_COMUM, SR "mesa_vidro_senior.png", 120, 400);
+    p = pecaParada(3, PECA_COMUM, SR "mesa_vidro_senior.png", 120, 428);   // centro na vertical do tapete
     colisao(p, 0, 10, 45, 75);
     p = pecaParada(3, PECA_COMUM, SR "poltrona_senior.png", 196, 372);
     colisao(p, 0, 25, 70, 45);
