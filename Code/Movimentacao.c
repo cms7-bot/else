@@ -14,6 +14,8 @@ void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 void desenharCartasNaJanela(float escala, float offsetX, float offsetY);
 void cancelarAnimacoesCartas(void);
+void definirEstacaoCartas(int estacao);   // mesa/impressora onde o jogador esta
+bool estacaoAtualLiberada(void);          // false = ja pegou cartas demais aqui
 
 // animacao padrao de TODOS os botoes (Cartas.c)
 float escalaAnimadaBotao(const char *nome, bool hover);
@@ -3124,14 +3126,18 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             );
 
 
+            definirEstacaoCartas(objetoPerto);
+
             if (!cartasEstaoAbertas() && memorando == 0)
             {
                 agendarTextoUI(
-                    "Pressione E para realizar a tarefa",
+                    estacaoAtualLiberada()
+                        ? "Pressione E para realizar a tarefa"
+                        : "Sem tarefas aqui. Vá a outra mesa!",
                     larguraResolucao - 400,
                     66,
                     30,
-                    GREEN,
+                    estacaoAtualLiberada() ? GREEN : ORANGE,
                     false,
                     FONTE_TEXTO
                 );

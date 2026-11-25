@@ -190,9 +190,49 @@ int obterCartasResolvidasFase()
 // ==========================================================
 // REGISTRO DE CARTA RESOLVIDA
 // ==========================================================
+// ==========================================================
+// LIMITE DE CARTAS POR MESA / IMPRESSORA
+// Cada mesa (ou a impressora) entrega no maximo CARTAS_POR_ESTACAO cartas
+// seguidas. Para liberar de novo, o jogador resolve uma carta em outro lugar:
+// isso obriga a andar pelo escritorio.
+// ==========================================================
+#define CARTAS_POR_ESTACAO 2
+#define MAX_ESTACOES 32
+
+static int estacaoAtual = -1;   // objeto do mapa onde o jogador esta
+static int cartasNaEstacao[MAX_ESTACOES];
+
+void definirEstacaoCartas(int estacao)
+{
+    estacaoAtual = estacao;
+}
+
+bool estacaoAtualLiberada(void)
+{
+    return estacaoAtual < 0 || estacaoAtual >= MAX_ESTACOES ||
+           cartasNaEstacao[estacaoAtual] < CARTAS_POR_ESTACAO;
+}
+
+static void zerarEstacoes(void)
+{
+    for (int i = 0; i < MAX_ESTACOES; i++)
+        cartasNaEstacao[i] = 0;
+}
+
+static void registrarCartaNaEstacao(void)
+{
+    if (estacaoAtual < 0 || estacaoAtual >= MAX_ESTACOES)
+        return;
+
+    for (int i = 0; i < MAX_ESTACOES; i++)
+        cartasNaEstacao[i] = (i == estacaoAtual) ? cartasNaEstacao[i] + 1 : 0;
+}
+
+
 static void registrarCartaResolvida()
 {
     cartasResolvidasFase++;
+    registrarCartaNaEstacao();
 
     // auditoria em andamento: a carta tira Confianca (a -> C-)
     aplicarPenalidadeAuditoria();
@@ -226,6 +266,7 @@ static void reiniciarPartidaSeNecessario()
     {
         diasSobrevividos = 0;
         cartasResolvidasFase = 0;
+        zerarEstacoes();
         cargo = 0;
         partidaTerminou = false;
         mostrarPromocao = false;
@@ -270,6 +311,7 @@ static void promoverCargo()
         cargo++;
 
     cartasResolvidasFase = 0;
+    zerarEstacoes();   // escritorio novo: todas as mesas liberadas
 }
 
 
@@ -385,6 +427,7 @@ void iniciarCartas(
 )
 {
     obterFonteUI(FONTE_TEXTO);   // carrega as fontes agora, sem travar no meio do jogo
+    zerarEstacoes();
     // zera as animacoes: nada de carta (ou sobra de saida) aparecendo ao reiniciar
     animEntrada = 1.0f;
     animTroca = 1.0f;
@@ -732,7 +775,7 @@ void atualizarCartas()
 
         
         
-        if (IsKeyPressed(KEY_E))
+        if (IsKeyPressed(KEY_E) && estacaoAtualLiberada())
         {
             sortearNovaCarta();
 
