@@ -394,7 +394,7 @@ Como jogador, quero resolver um circuito de portas lógicas na máquina de café
 
 - Dado que o jogador liga os interruptores de forma que a lâmpada acenda, então a máquina é consertada e o Café forte é aplicado na hora.
 
-- Dado que o Café forte é aplicado, então cada medidor se aproxima 10 pontos de 50, sem ultrapassar esse valor.
+- Dado que o Café forte é aplicado, então cada medidor se aproxima 15 pontos de 50, sem ultrapassar esse valor.
 
 - Dado que o jogador erra, então perde uma das três tentativas da fase, sem outra penalidade.
 

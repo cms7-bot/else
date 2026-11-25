@@ -4,7 +4,7 @@
 // O jogador chega perto do balcão do café e aperta E.
 // Abre um close da máquina com a tampa aberta: de 3 a 5 chaves (A, B, C, D, E)
 // ligam/desligam com clique e o botão branco (TESTAR) testa.
-// Acertou: luz verde, café forte (cada medidor anda 10 rumo ao 50).
+// Acertou: luz verde, café forte (cada medidor anda 15 rumo ao 50).
 // Errou: gasta 1 das 3 tentativas. A máquina só volta na próxima fase.
 //
 // CADA NÍVEL (CARGO) TEM O SEU ENIGMA -> ver a TABELA DE ENIGMAS abaixo.
@@ -347,12 +347,12 @@ void fecharMaquinaCafe(void)
 
 
 // ##########################################################
-// CAFÉ FORTE: cada medidor anda 10 pontos rumo ao 50 (sem passar)
+// CAFÉ FORTE: cada medidor anda 15 pontos rumo ao 50 (sem passar)
 // ##########################################################
 static int aproximarDe50(int v)
 {
-    if (v < 50) { v += 10; if (v > 50) v = 50; }
-    else if (v > 50) { v -= 10; if (v < 50) v = 50; }
+    if (v < 50) { v += 15; if (v > 50) v = 50; }
+    else if (v > 50) { v -= 15; if (v < 50) v = 50; }
     return v;
 }
 
