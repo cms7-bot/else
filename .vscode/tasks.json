@@ -12,6 +12,8 @@
                 "Code/Cartas.c",
                 "Code/Regras.c",
                 "Code/MaquinaCafe.c",
+                "Code/Vitoria.c",
+                "Code/Ranking.c",
                 "-o",
                 "jogo.exe",
                 "-IC:\\msys64\\ucrt64\\include",
