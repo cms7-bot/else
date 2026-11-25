@@ -103,6 +103,144 @@ static ObjetoCenario criarObjeto(
 }
 
 
+typedef struct AnimacaoMesa
+{
+    Texture2D quadros[3];
+    int total;
+} AnimacaoMesa;
+
+typedef struct MesasNivel
+{
+    Texture2D frente;
+    Texture2D costa;
+    AnimacaoMesa frenteNpc1;
+    AnimacaoMesa frenteNpc2;
+    AnimacaoMesa costaNpc1;
+    AnimacaoMesa costaNpc2;
+} MesasNivel;
+
+static MesasNivel mesasNivel[5];
+
+
+static Texture2D carregarMetade(const char *arquivo)
+{
+    Texture2D textura = LoadTexture(arquivo);
+
+    textura.width *= 0.5;
+    textura.height *= 0.5;
+
+    return textura;
+}
+
+
+static AnimacaoMesa carregarAnimacaoMesa(
+    const char *pasta,
+    const char *nome,
+    int primeiro,
+    int total
+)
+{
+    AnimacaoMesa animacao = {0};
+
+    for (int k = 0; k < total; k++)
+    {
+        animacao.quadros[k] =
+            carregarMetade(TextFormat("%s/%s%d.png", pasta, nome, primeiro + k));
+    }
+
+    animacao.total = total;
+
+    return animacao;
+}
+
+
+static void carregarMesasNiveis(void)
+{
+    #define MESAS_JR "cenario/elementos_junior/Mesas/"
+    mesasNivel[1].frente = carregarMetade(MESAS_JR "mesaJuniorFrente.png");
+    mesasNivel[1].costa = carregarMetade(MESAS_JR "mesaJuniorCosta.png");
+    mesasNivel[1].frenteNpc1 = carregarAnimacaoMesa(MESAS_JR "MesaJuniorFrenteComNpc", "MesaJuniorFrenteComNpc", 1, 3);
+    mesasNivel[1].costaNpc1 = carregarAnimacaoMesa(MESAS_JR "MesaJuniorCostaComNpc", "mesaJuniorCostaComNpc", 1, 3);
+    mesasNivel[1].costaNpc2 = carregarAnimacaoMesa(MESAS_JR "MesaJuniorCostaComNpc2", "mesaJuniorCostaComNpc", 2, 2);
+
+    #define MESAS_PL "cenario/elementos_pleno/Mesas/"
+    mesasNivel[2].frente = carregarMetade(MESAS_PL "MesaPlenoFrente.png");
+    mesasNivel[2].costa = carregarMetade(MESAS_PL "MesaPlenoCosta.png");
+    mesasNivel[2].frenteNpc1 = carregarAnimacaoMesa(MESAS_PL "MesaPlenoFrenteComNpc", "MesaPlenoFrenteComNpc", 1, 3);
+    mesasNivel[2].frenteNpc2 = carregarAnimacaoMesa(MESAS_PL "MesaPlenoFrenteComNpc2", "MesaPlenoFrenteComNpc", 2, 3);
+    mesasNivel[2].costaNpc1 = carregarAnimacaoMesa(MESAS_PL "MesaPlenoCostaComNpc", "MesaPlenoCostaComNpc", 1, 2);
+    mesasNivel[2].costaNpc2 = carregarAnimacaoMesa(MESAS_PL "MesaPlenoCostaComNpc2", "MesaPlenoCostaComNpc", 2, 2);
+
+    #define MESAS_SR "cenario/elementos_senior/Mesas/"
+    mesasNivel[3].frente = carregarMetade(MESAS_SR "MesaSeniorFrente.png");
+    mesasNivel[3].costa = carregarMetade(MESAS_SR "MesaSeniorCosta.png");
+    mesasNivel[3].frenteNpc1 = carregarAnimacaoMesa(MESAS_SR "MesaSeniorFrenteComNpc", "MesaSeniorFrenteComNpc", 1, 3);
+    mesasNivel[3].frenteNpc2 = carregarAnimacaoMesa(MESAS_SR "MesaSeniorFrenteComNpc2", "MesaSeniorFrente", 1, 3);
+    mesasNivel[3].costaNpc1 = carregarAnimacaoMesa(MESAS_SR "MesaSeniorCostaComNpc", "MesaSeniorCostaComNpc", 1, 3);
+    mesasNivel[3].costaNpc2 = carregarAnimacaoMesa(MESAS_SR "MesaSeniorCostaComNpc2", "MesaSeniorCostaComNpc", 2, 2);
+
+    #define MESAS_TL "cenario/elementos_techlead/Mesas/"
+    mesasNivel[4].frente = carregarMetade(MESAS_TL "MesaFrenteTech.png");
+    mesasNivel[4].costa = carregarMetade(MESAS_TL "MesaCostaTech.png");
+    mesasNivel[4].frenteNpc1 = carregarAnimacaoMesa(MESAS_TL "MesaFrenteTechComNpc", "MesaFrenteTechComNpc", 1, 3);
+    mesasNivel[4].frenteNpc2 = carregarAnimacaoMesa(MESAS_TL "MesaFrenteTechComNpc2", "MesaFrenteTechComNpc", 2, 3);
+    mesasNivel[4].costaNpc1 = carregarAnimacaoMesa(MESAS_TL "MesaCostaTechComNpc", "MesaCostaTechComNpc", 1, 2);
+    mesasNivel[4].costaNpc2 = carregarAnimacaoMesa(MESAS_TL "MesaCostaTechComNpc2", "MesaCostaTechComNpc", 2, 3);
+}
+
+
+static int quadroNpcFrente(int total, int passo)
+{
+    static const int sequencia[16] = {0,0,0,0,1,0,0,0,2,2,0,0,0,0,1,0};
+
+    int quadro = sequencia[passo % 16];
+
+    return quadro < total ? quadro : 0;
+}
+
+
+static int quadroNpcCosta(int total, int passo)
+{
+    static const int sequencia[4] = {0,1,0,2};
+
+    if (total >= 3)
+        return sequencia[passo % 4];
+
+    return passo % 2;
+}
+
+
+static bool desenharMesaNivel(int cargo, int i, float x, float y, int passo)
+{
+    if (cargo < 1 || cargo > 4 || i < 6 || i > 13)
+        return false;
+
+    MesasNivel *mesas = &mesasNivel[cargo];
+    bool deFrente = i <= 9;
+    Texture2D textura = deFrente ? mesas->frente : mesas->costa;
+
+    if (i == 7 && mesas->frenteNpc1.total > 0)
+        textura = mesas->frenteNpc1.quadros[quadroNpcFrente(mesas->frenteNpc1.total, passo)];
+    else if (i == 9 && mesas->frenteNpc2.total > 0)
+        textura = mesas->frenteNpc2.quadros[quadroNpcFrente(mesas->frenteNpc2.total, passo + 8)];
+    else if (i == 13 && mesas->costaNpc1.total > 0)
+        textura = mesas->costaNpc1.quadros[quadroNpcCosta(mesas->costaNpc1.total, passo)];
+    else if (i == 12 && mesas->costaNpc2.total > 0)
+        textura = mesas->costaNpc2.quadros[quadroNpcCosta(mesas->costaNpc2.total, passo + 1)];
+
+    if (textura.id == 0)
+        return false;
+
+    Vector2 posicao = deFrente
+        ? (Vector2){x + 2.5f, y - 12.5f}
+        : (Vector2){x + 2.5f, y};
+
+    DrawTextureV(textura, posicao, WHITE);
+
+    return true;
+}
+
+
 int main()
 {
     // ==========================================================
@@ -228,6 +366,8 @@ InicializarBancoPerguntas();
         LoadTexture("cenario/Cenarios/Senior/CenarioSeniorDia.png"),
         LoadTexture("cenario/Cenarios/TechLider/CenarioTechDia.png")
     };
+
+    carregarMesasNiveis();
 
     // MAQUINA DE CAFE: carrega as pecas e comeca disponivel
     iniciarMaquinaCafe();
@@ -2508,6 +2648,11 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 continue;
             }
 
+            if (desenharMesaNivel(cargoFundo, i, objetos[i].x, objetos[i].y, passoNovosNpcs))
+            {
+                continue;
+            }
+
 
             if (i == 2)   // bebedouro com bolhas
             {
@@ -2577,6 +2722,15 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
  
 for (int i = 6; i <= 13; i++)
 {
+    bool mesaNaFrente =
+        (i <= 9 && mesaSuperiorDepoisPersonagem) ||
+        (i >= 10 && mesaInferiorDepoisPersonagem);
+
+    if (mesaNaFrente && desenharMesaNivel(cargoFundo, i, objetos[i].x, objetos[i].y, passoNovosNpcs))
+    {
+        continue;
+    }
+
     // MESAS SUPERIORES
     if (i >= 6 && i <= 9 && mesaSuperiorDepoisPersonagem)
     {
