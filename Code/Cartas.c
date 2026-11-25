@@ -567,7 +567,7 @@ void iniciarCartas(
 // Estagiario facil, Junior medio, Pleno dificil, Senior muito dificil,
 // Tech Lider extremo.
 // ==========================================================
-static const float DIFICULDADE_POR_CARGO[5] = {1.15f, 1.65f, 1.55f, 1.45f, 1.35f};
+static const float DIFICULDADE_POR_CARGO[5] = {1.15f, 1.65f, 1.62f, 1.55f, 1.48f};
 
 static float multiplicadorDoNivel(void)
 {
