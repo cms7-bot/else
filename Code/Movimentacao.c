@@ -251,7 +251,6 @@ enum
     PECA_CHAO,
     PECA_CAFE,
     PECA_FREEZER,
-    PECA_MICROONDAS,
     PECA_PINGPONG,
     PECA_SINUCA
 };
@@ -283,7 +282,6 @@ static Texture2D freezerAberto;
 static Texture2D baloesFreezer[4];
 static float tempoFreezerAberto = 0.0f;
 static int balaoFreezer = 0;
-static float tempoMicroondas = -1.0f;
 
 static Texture2D pingPongCorpoParado, pingPongCorpoSemBraco;
 static Texture2D pingPongBracoCima[4];
@@ -433,8 +431,7 @@ static void carregarCantinhos(void)
     colisao(p, 0, 63, 60, 42);
     p = pecaParada(2, PECA_CAFE, PL "balcao_cafe.png", 74, 76);
     colisao(p, 0, 78, 250, 52);
-    p = pecaAnimada(2, PECA_MICROONDAS, PL "Microondas/Microondas%d.png", 0, 4, 0.25f, 259, 105);
-    p->areaInteracao = (Rectangle){250, 150, 85, 90};
+    p = pecaAnimada(2, PECA_COMUM, PL "Microondas/Microondas%d.png", 1, 3, 0.25f, 259, 105);   // sempre ligado, em loop
     p->base = 206;
     p = pecaAnimada(2, PECA_COMUM, PL "TvRack/tv_rack_pleno_%02d.png", 0, 28, 0.15f, 120, 252);
     colisao(p, 0, 60, 130, 40);
@@ -565,7 +562,7 @@ static int pecaInterativaPerto(int cargo, Rectangle boneco)
         if (!CheckCollisionRecs(boneco, peca->areaInteracao))
             continue;
 
-        if (peca->tipo == PECA_FREEZER || peca->tipo == PECA_MICROONDAS)
+        if (peca->tipo == PECA_FREEZER)
             return peca->tipo;
 
         if (peca->tipo == PECA_CAFE)
@@ -583,27 +580,12 @@ static void usarFreezer(void)
 }
 
 
-static void usarMicroondas(void)
-{
-    if (tempoMicroondas < 0.0f)
-        tempoMicroondas = 0.0f;
-}
-
-
 static void atualizarCantinhos(void)
 {
     float dt = GetFrameTime();
 
     if (tempoFreezerAberto > 0.0f)
         tempoFreezerAberto -= dt;
-
-    if (tempoMicroondas >= 0.0f)
-    {
-        tempoMicroondas += dt;
-
-        if (tempoMicroondas >= 0.25f * 6)
-            tempoMicroondas = -1.0f;
-    }
 }
 
 
@@ -732,12 +714,6 @@ static void desenharPeca(PecaCantinho *peca)
     if (peca->tipo == PECA_FREEZER && tempoFreezerAberto > 0.0f)
     {
         textura = freezerAberto;
-    }
-    else if (peca->tipo == PECA_MICROONDAS)
-    {
-        textura = tempoMicroondas < 0.0f
-            ? peca->quadros[0]
-            : peca->quadros[1 + ((int)(tempoMicroondas / peca->duracao) % 3)];
     }
     else if (peca->total > 1)
     {
@@ -3082,14 +3058,12 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             if (podeUsarPeca)
                 interagirBalcaoCafe(larguraResolucao);
         }
-        else if (pecaPerto == PECA_FREEZER || pecaPerto == PECA_MICROONDAS)
+        else if (pecaPerto == PECA_FREEZER)
         {
             if (podeUsarPeca)
             {
                 agendarTextoUI(
-                    pecaPerto == PECA_FREEZER
-                        ? "Pressione E para abrir o freezer"
-                        : "Pressione E para ligar o micro-ondas",
+                    "Pressione E para abrir o freezer",
                     larguraResolucao - 430,
                     66,
                     30,
@@ -3099,12 +3073,7 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 );
 
                 if (IsKeyPressed(KEY_E))
-                {
-                    if (pecaPerto == PECA_FREEZER)
-                        usarFreezer();
-                    else
-                        usarMicroondas();
-                }
+                    usarFreezer();
             }
         }
         else if (objetoPerto == 1)   // MAQUINA DE CAFE: balcao do cafe
