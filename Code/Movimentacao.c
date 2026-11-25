@@ -14,6 +14,8 @@ void atualizarCartas(void);
 void desenharCartas(int larguraResolucao, int alturaResolucao);
 void desenharCartasNaJanela(float escala, float offsetX, float offsetY);
 void cancelarAnimacoesCartas(void);
+void definirEstacaoCartas(int estacao);   // mesa/impressora onde o jogador esta
+bool estacaoAtualLiberada(void);          // false = ja pegou cartas demais aqui
 
 // animacao padrao de TODOS os botoes (Cartas.c)
 float escalaAnimadaBotao(const char *nome, bool hover);
@@ -251,7 +253,6 @@ enum
     PECA_CHAO,
     PECA_CAFE,
     PECA_FREEZER,
-    PECA_MICROONDAS,
     PECA_PINGPONG,
     PECA_SINUCA
 };
@@ -264,7 +265,7 @@ typedef struct PecaCantinho
     const int *sequencia;
     int tamanhoSequencia;
     float x, y;
-    Rectangle colisoes[2];
+    Rectangle colisoes[4];
     int quantidadeColisoes;
     Rectangle areaInteracao;
     float base;
@@ -283,7 +284,6 @@ static Texture2D freezerAberto;
 static Texture2D baloesFreezer[4];
 static float tempoFreezerAberto = 0.0f;
 static int balaoFreezer = 0;
-static float tempoMicroondas = -1.0f;
 
 static Texture2D pingPongCorpoParado, pingPongCorpoSemBraco;
 static Texture2D pingPongBracoCima[4];
@@ -407,8 +407,9 @@ static void carregarCantinhos(void)
     p = novaPeca(1, PECA_PINGPONG, 300, 344);
     p->quadros[0] = carregarMetade(JR "PingPong/mesa_pingpong.png");
     p->total = 1;
-    colisao(p, 10, 20, 110, 180);
-    colisao(p, 33, 231, 30, 18);
+    colisao(p, 10, 20, 110, 180);   // mesa (essa vem primeiro: define a ordem de desenho)
+    colisao(p, 42, -14, 68, 34);    // NPC de cima (vai e volta na horizontal)
+    colisao(p, 28, 200, 42, 49);    // NPC de baixo (do fim da mesa ate os pes)
 
     freezerAberto = carregarMetade(JR "freezer_energetico_aberto.png");
     for (int k = 0; k < 4; k++)
@@ -433,8 +434,7 @@ static void carregarCantinhos(void)
     colisao(p, 0, 63, 60, 42);
     p = pecaParada(2, PECA_CAFE, PL "balcao_cafe.png", 74, 76);
     colisao(p, 0, 78, 250, 52);
-    p = pecaAnimada(2, PECA_MICROONDAS, PL "Microondas/Microondas%d.png", 0, 4, 0.25f, 259, 105);
-    p->areaInteracao = (Rectangle){250, 150, 85, 90};
+    p = pecaAnimada(2, PECA_COMUM, PL "Microondas/Microondas%d.png", 1, 3, 0.25f, 259, 105);   // sempre ligado, em loop
     p->base = 206;
     p = pecaAnimada(2, PECA_COMUM, PL "TvRack/tv_rack_pleno_%02d.png", 0, 28, 0.15f, 120, 252);
     colisao(p, 0, 60, 130, 40);
@@ -449,27 +449,28 @@ static void carregarCantinhos(void)
     p->sequencia = sequenciaNpcJogando;
     p->tamanhoSequencia = 8;
     p->base = 587;
+    colisao(p, 32, 63, 30, 32);   // pernas esticadas (passavam por cima do personagem)
     p = pecaParada(2, PECA_COMUM, PL "mesa_centro_pleno.png", 116, 422);
     colisao(p, 0, 5, 75, 40);
 
     #define SR "cenario/elementos_senior/"
     p = pecaParada(3, PECA_CHAO, SR "carpete_senior.png", 30, 356);
-    p = pecaParada(3, PECA_CAFE, SR "maquina_cafe.png", 20, 56);
+    p = pecaParada(3, PECA_CAFE, SR "maquina_cafe.png", 30, 56);   // cantinho do cafe: +10 px (desencosta da parede)
     colisao(p, 0, 90, 80, 60);
-    p = pecaParada(3, PECA_COMUM, SR "cantinho_cha.png", 110, 96);
+    p = pecaParada(3, PECA_COMUM, SR "cantinho_cha.png", 120, 96);
     colisao(p, 0, 66, 100, 44);
-    p = pecaParada(3, PECA_COMUM, SR "bonsai.png", 240, 81);
+    p = pecaParada(3, PECA_COMUM, SR "bonsai.png", 250, 81);
     colisao(p, 0, 75, 75, 50);
-    p = pecaAnimada(3, PECA_COMUM, SR "PoltronaColega/PoltronaColega%d.png", 1, 4, 0.4f, 322, 98);
+    p = pecaAnimada(3, PECA_COMUM, SR "PoltronaColega/PoltronaColega%d.png", 1, 4, 0.4f, 332, 98);
     colisao(p, 0, 65, 85, 43);
-    p = pecaParada(3, PECA_COMUM, SR "luminaria.png", 342, 51);
+    p = pecaParada(3, PECA_COMUM, SR "luminaria.png", 352, 51);
     colisao(p, 93, 93, 27, 62);
     p->base = 206;
-    p = pecaAnimada(3, PECA_COMUM, SR "Vitrola/aparador_vitrola_senior_%02d.png", 0, 4, 0.2f, 24, 236);
+    p = pecaAnimada(3, PECA_COMUM, SR "Vitrola/aparador_vitrola_senior_%02d.png", 0, 4, 0.2f, 30, 236);   // borda esquerda alinhada ao tapete
     colisao(p, 0, 40, 50, 80);
     p = pecaParada(3, PECA_COMUM, SR "sofa_couro_senior.png", 26, 362);
     colisao(p, 0, 20, 80, 190);
-    p = pecaParada(3, PECA_COMUM, SR "mesa_vidro_senior.png", 120, 400);
+    p = pecaParada(3, PECA_COMUM, SR "mesa_vidro_senior.png", 120, 428);   // centro na vertical do tapete
     colisao(p, 0, 10, 45, 75);
     p = pecaParada(3, PECA_COMUM, SR "poltrona_senior.png", 196, 372);
     colisao(p, 0, 25, 70, 45);
@@ -565,7 +566,7 @@ static int pecaInterativaPerto(int cargo, Rectangle boneco)
         if (!CheckCollisionRecs(boneco, peca->areaInteracao))
             continue;
 
-        if (peca->tipo == PECA_FREEZER || peca->tipo == PECA_MICROONDAS)
+        if (peca->tipo == PECA_FREEZER)
             return peca->tipo;
 
         if (peca->tipo == PECA_CAFE)
@@ -583,27 +584,12 @@ static void usarFreezer(void)
 }
 
 
-static void usarMicroondas(void)
-{
-    if (tempoMicroondas < 0.0f)
-        tempoMicroondas = 0.0f;
-}
-
-
 static void atualizarCantinhos(void)
 {
     float dt = GetFrameTime();
 
     if (tempoFreezerAberto > 0.0f)
         tempoFreezerAberto -= dt;
-
-    if (tempoMicroondas >= 0.0f)
-    {
-        tempoMicroondas += dt;
-
-        if (tempoMicroondas >= 0.25f * 6)
-            tempoMicroondas = -1.0f;
-    }
 }
 
 
@@ -732,12 +718,6 @@ static void desenharPeca(PecaCantinho *peca)
     if (peca->tipo == PECA_FREEZER && tempoFreezerAberto > 0.0f)
     {
         textura = freezerAberto;
-    }
-    else if (peca->tipo == PECA_MICROONDAS)
-    {
-        textura = tempoMicroondas < 0.0f
-            ? peca->quadros[0]
-            : peca->quadros[1 + ((int)(tempoMicroondas / peca->duracao) % 3)];
     }
     else if (peca->total > 1)
     {
@@ -1381,6 +1361,13 @@ InicializarBancoPerguntas();
         LoadTexture(
             "cenario/Telas/telaAuditoriaFim.png"
         );
+
+    // botao CIENTE do memorando (verde = auditoria acabou, vermelho = comecou)
+    Texture2D botaoCienteVerde =
+        LoadTexture("Botoes/BOTAO ciente (elemento separado).png");
+    Texture2D botaoCienteVermelho =
+        LoadTexture("Botoes/BOTAO ciente (elemento separado) (1).png");
+    Rectangle retCiente = { 528, 600, 224, 56 };   // tela virtual, dentro da folha do memorando
 
 
     // ==========================================================
@@ -3082,14 +3069,12 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             if (podeUsarPeca)
                 interagirBalcaoCafe(larguraResolucao);
         }
-        else if (pecaPerto == PECA_FREEZER || pecaPerto == PECA_MICROONDAS)
+        else if (pecaPerto == PECA_FREEZER)
         {
             if (podeUsarPeca)
             {
                 agendarTextoUI(
-                    pecaPerto == PECA_FREEZER
-                        ? "Pressione E para abrir o freezer"
-                        : "Pressione E para ligar o micro-ondas",
+                    "Pressione E para abrir o freezer",
                     larguraResolucao - 430,
                     66,
                     30,
@@ -3099,12 +3084,7 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
                 );
 
                 if (IsKeyPressed(KEY_E))
-                {
-                    if (pecaPerto == PECA_FREEZER)
-                        usarFreezer();
-                    else
-                        usarMicroondas();
-                }
+                    usarFreezer();
             }
         }
         else if (objetoPerto == 1)   // MAQUINA DE CAFE: balcao do cafe
@@ -3124,14 +3104,18 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             );
 
 
+            definirEstacaoCartas(objetoPerto);
+
             if (!cartasEstaoAbertas() && memorando == 0)
             {
                 agendarTextoUI(
-                    "Pressione E para realizar a tarefa",
+                    estacaoAtualLiberada()
+                        ? "Pressione E para realizar a tarefa"
+                        : "Sem tarefas aqui. Vá a outra mesa!",
                     larguraResolucao - 400,
                     66,
                     30,
-                    GREEN,
+                    estacaoAtualLiberada() ? GREEN : ORANGE,
                     false,
                     FONTE_TEXTO
                 );
@@ -3176,7 +3160,13 @@ if (i >= 10 && i <= 13 && mesaInferiorDepoisPersonagem)
             cartaAbertaPararDeAndar =
                 true;
 
+            Vector2 mouseMemo = GetMousePosition();
+            mouseMemo.x = (mouseMemo.x - offsetX) / escala;
+            mouseMemo.y = (mouseMemo.y - offsetY) / escala;
+
             if (
+                (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+                 CheckCollisionPointRec(mouseMemo, retCiente)) ||
                 IsKeyPressed(KEY_ENTER) ||
                 IsKeyPressed(KEY_SPACE)
             )
@@ -3845,17 +3835,21 @@ for (int i = 6; i <= 13; i++)
                 WHITE
             );
 
-            const char *dicaMemorando =
-                "Pressione ENTER para continuar";
+            // botao CIENTE (cresce ao passar o mouse, como os outros botoes)
+            Vector2 mouseCiente = GetMousePosition();
+            mouseCiente.x = (mouseCiente.x - offsetX) / escala;
+            mouseCiente.y = (mouseCiente.y - offsetY) / escala;
 
-            agendarTextoUI(
-                dicaMemorando,
-                larguraResolucao / 2.0f,
-                alturaResolucao - 38,
-                30,
-                WHITE,
-                true,
-                FONTE_TEXTO
+            Texture2D texCiente = (memorando == 1) ? botaoCienteVermelho : botaoCienteVerde;
+            Rectangle cienteDesenho = retanguloAnimadoBotao("auditoria.ciente", retCiente, CheckCollisionPointRec(mouseCiente, retCiente));
+
+            DrawTexturePro(
+                texCiente,
+                (Rectangle){0, 0, (float)texCiente.width, (float)texCiente.height},
+                cienteDesenho,
+                (Vector2){0, 0},
+                0,
+                WHITE
             );
         }
 
@@ -4337,6 +4331,8 @@ for (int i = 6; i <= 13; i++)
     UnloadTexture(botaoVoltarPausa);
     UnloadTexture(telaAuditoria);
     UnloadTexture(telaAuditoriaFim);
+    UnloadTexture(botaoCienteVerde);
+    UnloadTexture(botaoCienteVermelho);
 
     UnloadTexture(logoInicio);
     UnloadTexture(fundoCarta);
