@@ -348,7 +348,7 @@ void sortearNovaCarta()
 static Texture2D teclaAapagada, teclaSapagada, teclaDapagada;
 static Texture2D teclaAacesa,   teclaSacesa,   teclaDacesa;
 static Sound somPapel;
-static Texture2D texPromocao;
+static Texture2D texPromocao[4];   // uma tela por promocao: o indice e o cargo de onde o jogador sai
 static Texture2D texBotaoContinue;
 static Rectangle areaBotaoContinue = {0, 0, 0, 0};
 
@@ -405,7 +405,9 @@ void iniciarCartas(
     SetSoundVolume(somPapel, 0.03f);
     somConquista = LoadSound("EfeitosSonoros/EfeitoSonoroConquista.wav");
     somAplausos = LoadSound("EfeitosSonoros/EfeitoSonoroAplausos.wav");
-    texPromocao = LoadTexture("HUD/Promocao.png");
+    texPromocao[0] = LoadTexture("HUD/Promocao.png");
+    for (int i = 1; i < 4; i++)
+        texPromocao[i] = LoadTexture(TextFormat("HUD/Promocao_%d.png", i + 1));
     texBotaoContinue = LoadTexture("Botoes/BotaoContinue.png");
     texturasCarregadas = true;
     }
@@ -1145,9 +1147,9 @@ void desenharCartas(
 
         DrawRectangle(0, 0, larguraResolucao, alturaResolucao, Fade(BLACK, 0.65f));
         DrawTexture(
-            texPromocao,
-            (larguraResolucao - texPromocao.width) / 2,
-            (alturaResolucao - texPromocao.height) / 2,
+            texPromocao[cargo],
+            (larguraResolucao - texPromocao[cargo].width) / 2,
+            (alturaResolucao - texPromocao[cargo].height) / 2,
             WHITE
         );
 
