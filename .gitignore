@@ -1,2 +1,5 @@
 finais.sav
 ranking.txt
+
+# executavel fica na Release, nao na raiz
+jogo.exe
