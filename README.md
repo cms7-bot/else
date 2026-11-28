@@ -263,3 +263,89 @@ A estratégia geral e os casos de teste do produto completo estão em [Estratég
 
 
 
+
+---
+
+## Entrega 04: Report da Sprint 02 e entrega final
+
+Nesta sprint o ELSE virou um jogo completo: o jogador começa como Estagiário, é promovido até Tech Líder, cada cargo tem seu próprio escritório, cartas, cantinhos e enigma da máquina de café, e a partida termina em vitória ou em um dos 8 finais, com ranking local.
+
+### Demonstração
+> [🎬 Screencast final: a Release e as histórias da Sprint 02 funcionando](LINK_DO_VIDEO)
+
+### Jogue agora
+> [⬇️ Baixar a versão 1.0.0 (Release)](https://github.com/cms7-bot/else/releases/latest): extraia o zip e abra o `jogo.exe`.
+
+<details>
+<summary><b>Histórias implementadas na Sprint 02</b></summary>
+
+<br>
+
+| História | O que já funciona no jogo |
+|---|---|
+| US07: Ser promovido e mudar de escritório | A cada ciclo de cartas o jogador sobe de cargo (Estagiário, Júnior, Pleno, Sênior, Tech Líder), vê a tela de promoção e o escritório troca de cenário, mesas e cantinhos |
+| US11: Passar por uma auditoria e sair dela | A auditoria aplica a regra da empresa, penaliza a Confiança e mostra o memorando; o jogador sai dela pelo botão CIENTE |
+| US13: Resolver o enigma da máquina de café | Na máquina de café o jogador resolve um circuito de portas lógicas com 3 tentativas; cada cargo tem seu enigma e o café forte aproxima os medidores do equilíbrio |
+| US14: Desbloquear finais diferentes | Os 8 finais ficam salvos entre partidas e aparecem na tela de Finais (arquivo morto), aberta pelo menu |
+| Vitória e ranking (extensão da US08 e US10) | Chegar ao fim como Tech Líder leva à tela de vitória, com pontuação de equilíbrio e ranking local |
+
+Também entraram nesta sprint: cartas por nível com as artes do Arthur e dificuldade crescente, intro do e-mail em casa, animações de carta, botões e NPCs, e os cantinhos do café e do descanso de cada nível.
+
+</details>
+
+<details>
+<summary><b>Relato da programação em pares</b></summary>
+
+<br>
+
+Na Sprint 01 trabalhamos em pares fixos (tabela da Entrega 03). Na Sprint 02 isso não se manteve: com o jogo crescendo para cinco cargos, cada integrante assumiu uma frente e o trabalho em dupla deu lugar à revisão por Pull Request.
+
+| Integrante | Frente principal na Sprint 02 |
+|---|---|
+| Pierre | Promoção por cargo, tela de promoção e novas cartas (US07) |
+| Caio | Auditoria: regra, penalidade de Confiança e memorando (US11) |
+| Igor | Cartas por nível, animações, interface, menu de pausa e correção das issues #24 a #30 |
+| Dani | Máquina de café por nível (US13), tela de finais (US14), cantinhos, intro, vitória e ranking |
+| Athos e Arthur | Artes das cartas, cenários dos cargos e mesas |
+
+**O que aprendemos:** sem o par, o código chegou mais rápido, mas os problemas também. Bugs de integração entre frentes (promoção, colisões, cartas) só apareceram nos testes e viraram as issues #24 a #30. A revisão por PR segurou parte disso, mas não substituiu ter duas pessoas pensando no mesmo código. Na próxima vez, manteríamos pares pelo menos nas histórias que mexem em mais de uma parte do jogo.
+
+</details>
+
+<details>
+<summary><b>Board da Sprint 02</b></summary>
+
+<br>
+
+As histórias concluídas ficam na lista *Sprint 02 · Histórias concluídas (Entrega 04 FDS)* do [board no Trello](https://trello.com/invite/b/6ab7228e40ff14f38be9f55b/ATTIa4223772b64eccef9d08a9bf0c63c73eED83464F/else-gestao-de-sprints-squad-8), cada card com o vídeo do seu teste anexado.
+
+</details>
+
+<details>
+<summary><b>Bug tracker</b></summary>
+
+<br>
+
+Os bugs e melhorias encontrados nos testes viraram issues no GitHub (#24 a #30), cada um corrigido em uma branch `fix/` e fechado pelo PR #32.
+
+<img src="./Documenta%C3%A7%C3%A3o/prints/issues.jpg" alt="Aba Issues do GitHub com as issues 24 a 30 fechadas" width="700">
+
+</details>
+
+<details>
+<summary><b>Testes de sistema</b></summary>
+
+<br>
+
+| Caso de teste | História | Resultado | Evidência |
+|---|---|---|---|
+| Fazer as escolhas de um ciclo e ver a tela de promoção com o cargo certo | US07 | ✅ | vídeo no card da US07 |
+| Entrar em auditoria, ver o memorando e sair pelo CIENTE | US11 | ✅ | vídeo no card da US11 |
+| Resolver o enigma do café e ver os medidores se aproximarem de 50 | US13 | ✅ | vídeo no card da US13 |
+| Perder uma partida, abrir Finais pelo menu e ver o final liberado | US14 | ✅ | vídeo no card da US14 |
+| Chegar a Tech Líder e ver a vitória com pontuação e ranking | US08 e US10 | ✅ | vídeo no card |
+
+</details>
+
+### Como contribuir
+Veja o [CONTRIBUTING.md](./CONTRIBUTING.md).
